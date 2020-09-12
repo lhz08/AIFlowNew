@@ -6,7 +6,9 @@ import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.Template;
+import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.service.experiment.ExperimentService;
+import com.bdilab.aiflow.service.workflow.WorkflowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -18,6 +20,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +41,18 @@ public class ExperimentController {
     @Autowired
     ExperimentService experimentService;
 
+    @Autowired
+    WorkflowService workflowService;
+
+    /**
+     * todo 流程需要saveWorkflow后才有xml文件和ggeditorString，现在前端缺少保存按钮
+     * @param fkWorkflowId
+     * @param name
+     * @param experimentDesc
+     * @param httpSession
+     * @return
+     * @throws Exception
+     */
     @ResponseBody
     @ApiOperation("创建实验")
     @RequestMapping(value = "/experiment/createExperiment", method = RequestMethod.POST)
@@ -53,6 +68,18 @@ public class ExperimentController {
             if(experimentDesc!=null&&experimentDesc.length()==0){
                 experimentDesc=null;
             }
+//            //判断流程信息
+//            Workflow workflow = workflowService.selectWorkflowById(fkWorkflowId);
+//            if(workflow.getWorkflowXmlAddr()==null){
+//                return new ResponseResult(false,"003","流程尚未保存，不能生成XML文件");
+//            }
+//            File xmlFilePath = new File(workflow.getWorkflowXmlAddr());
+//            if(!xmlFilePath.exists()){
+//                return new ResponseResult(false,"004","流程XML文件未找到");
+//            }
+//            if((workflow.getGgeditorObjectString()==null||(workflow.getGgeditorObjectString().equals("")))){
+//                return new ResponseResult(false,"005","流程ggeditorString未生成");
+//            }
             //创建实验
             Experiment experiment=experimentService.createExperiment(fkWorkflowId,name,experimentDesc);
             Map<String,Object> data=new HashMap<>(1);
@@ -148,6 +175,20 @@ public class ExperimentController {
     }
 
     @ResponseBody
+    @ApiOperation("批量删除实验")
+    @RequestMapping(value = "/experiment/multiDeleteExperiment", method = RequestMethod.POST)
+    public ResponseResult multiDeleteExperiment(@RequestParam @ApiParam(value = "实验id") Integer[] experimentIds,
+                                                       HttpSession httpSession) throws Exception{
+        for(Integer experimentId:experimentIds) {
+            Map<String, Object> isSuccess = experimentService.deleteExperiment(experimentId);
+            if (isSuccess.get("isSuccess").equals(false)) {
+                return new ResponseResult(false, "002", isSuccess.get("message").toString());
+            }
+        }
+        return new ResponseResult(true, "001", "批量删除实验成功");
+    }
+
+    @ResponseBody
     @ApiOperation("运行实验")
     @RequestMapping(value = "/experiment/runExperimentRunning", method = RequestMethod.POST)
     public  ResponseResult runExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
@@ -199,6 +240,20 @@ public class ExperimentController {
             return new ResponseResult(true,"001","还原实验成功");
         }
         return new ResponseResult(false,"002","还原实验失败");
+    }
+
+    @ResponseBody
+    @ApiOperation("批量还原实验")
+    @RequestMapping(value = "/experiment/multiRestoreExperiment", method = RequestMethod.POST)
+    public ResponseResult multiRestoreExperimentRunning(@RequestParam @ApiParam(value = "实验id") Integer[] experimentIds,
+                                                        HttpSession httpSession) throws Exception{
+        for(Integer experimentId:experimentIds) {
+            boolean isSuccess=experimentService.restoreExperiment(experimentId);
+            if (isSuccess==false) {
+                return new ResponseResult(false, "002", "批量还原实验失败");
+            }
+        }
+        return new ResponseResult(true, "001", "批量还原实验成功");
     }
 
     @ResponseBody

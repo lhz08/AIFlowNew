@@ -273,6 +273,41 @@ public class WorkflowController {
         return responseResult;
     }
 
+
+    /**
+     * todo 未使用批量接口，可以替换原删除
+     * 批量删除
+     * @param workflowIds
+     * @param httpSession
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/workflow/multiDeleteWorkflow", method = RequestMethod.POST)
+    public ResponseResult multiDeleteWorkflow(@RequestParam Integer[] workflowIds,
+                                         HttpSession httpSession){
+        ResponseResult responseResult = new ResponseResult(true,"001", "流程删除成功");
+        for(Integer workflowId:workflowIds){
+            Workflow workflow= workflowService.selectWorkflowById(workflowId);
+            if(workflow.getIsDeleted()==0) {
+                boolean isSuccess=workflowService.deleteWorkflow(workflow);
+                if(!isSuccess){
+                    return new ResponseResult(false,"002","流程删除失败");
+                }
+            }
+            else if(workflow.getIsDeleted()==1){
+                boolean isSuccess=workflowService.deleteWorkflowTotal(workflow);
+                if(!isSuccess) {
+                    return new ResponseResult(false, "002", "流程彻底删除失败");
+                }
+            }
+        }
+        return responseResult;
+    }
+
+
+
+
+
     @ResponseBody
     @RequestMapping(value = "/workflow/restoreWorkflow", method = RequestMethod.POST)
     public ResponseResult restoreWorkflow(@RequestParam Integer workflowId,
@@ -283,6 +318,28 @@ public class WorkflowController {
             return new ResponseResult(true,"001","流程还原成功");
         }
         return new ResponseResult(true,"002","流程还原失败");
+    }
+
+
+    /**
+     * todo 未使用批量接口，可以替换原还原
+     * 批量还原
+     * @param workflowIds
+     * @param httpSession
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/workflow/multiRestoreWorkflow", method = RequestMethod.POST)
+    public ResponseResult multiRestoreWorkflow(@RequestParam Integer[] workflowIds,
+                                              HttpSession httpSession){
+        ResponseResult responseResult = new ResponseResult(true,"001", "流程还原成功");
+        for(Integer workflowId:workflowIds){
+            boolean isSuccess=workflowService.restoreWorkflow(workflowId);
+            if(!isSuccess){
+                return new ResponseResult(true,"002","流程还原失败");
+            }
+        }
+        return responseResult;
     }
 
 

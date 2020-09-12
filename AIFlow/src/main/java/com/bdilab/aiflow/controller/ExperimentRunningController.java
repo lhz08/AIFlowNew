@@ -47,6 +47,22 @@ public class ExperimentRunningController {
     }
 
     @ResponseBody
+    @ApiOperation("批量删除实验运行")
+    @RequestMapping(value = "/experimentRunning/multiDeleteExperimentRunning", method = RequestMethod.POST)
+    public ResponseResult multiDeleteExperimentRunning(@RequestParam @ApiParam(value = "实验运行id") Integer[] runningIds,
+                                         HttpSession httpSession) throws Exception{
+            for(Integer runningId:runningIds) {
+                Map<String, Object> isSuccess = experimentRunningService.deleteExperimentRunning(runningId);
+                if (isSuccess.get("isSuccess").equals(false)) {
+                    return new ResponseResult(false, "002", isSuccess.get("message").toString());
+                }
+            }
+            return new ResponseResult(true, "001", "批量删除实验运行成功");
+    }
+
+
+
+    @ResponseBody
     @ApiOperation("管理页面分页获取实验运行")
     @RequestMapping(value = "/experimentRunning/getExperimentRunning", method = RequestMethod.POST)
     public  ResponseResult getExperimentRunning(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
@@ -87,6 +103,20 @@ public class ExperimentRunningController {
             return new ResponseResult(true,"001","还原实验运行成功");
         }
         return new ResponseResult(false,"002","还原实验运行失败");
+    }
+
+    @ResponseBody
+    @ApiOperation("批量还原实验运行")
+    @RequestMapping(value = "/experimentRunning/multiRestoreExperimentRunning", method = RequestMethod.POST)
+    public ResponseResult multiRestoreExperimentRunning(@RequestParam @ApiParam(value = "实验运行id") Integer[] runningIds,
+                                                       HttpSession httpSession) throws Exception{
+        for(Integer runningId:runningIds) {
+            boolean isSuccess=experimentRunningService.restoreExperimentRunning(runningId);
+            if (isSuccess==false) {
+                return new ResponseResult(false, "002", "批量还原实验运行失败");
+            }
+        }
+        return new ResponseResult(true, "001", "批量还原实验运行成功");
     }
 
     @ResponseBody
