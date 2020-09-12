@@ -102,9 +102,9 @@
 			<artifactId>tomcat-embed-jasper</artifactId>
 			<exclusions>
 				<exclusion>
-					<artifactId>com.sun.xml.bind</artifactId>
-					<groupId>jaxb-impl</groupId>
-				</exclusion>
+				<artifactId>com.sun.xml.bind</artifactId>
+				<groupId>jaxb-impl</groupId>
+			</exclusion>
 			</exclusions>
 		</dependency>
 

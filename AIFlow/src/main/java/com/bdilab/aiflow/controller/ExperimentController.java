@@ -6,15 +6,10 @@ import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.Template;
-import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.service.experiment.ExperimentService;
-import com.bdilab.aiflow.service.workflow.WorkflowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.io.filefilter.FalseFileFilter;
-import org.apache.hadoop.hdfs.server.protocol.NamenodeRegistration;
-import org.apache.zookeeper.server.quorum.FastLeaderElection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +18,6 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,9 +38,6 @@ public class ExperimentController {
     @Autowired
     ExperimentService experimentService;
 
-    @Autowired
-    WorkflowService workflowService;
-
     @ResponseBody
     @ApiOperation("创建实验")
     @RequestMapping(value = "/experiment/createExperiment", method = RequestMethod.POST)
@@ -63,17 +54,6 @@ public class ExperimentController {
                 experimentDesc=null;
             }
             //创建实验
-            Workflow workflow = workflowService.selectWorkflowById(fkWorkflowId);
-            if(workflow.getWorkflowXmlAddr()==null){
-                return new ResponseResult(false,"003","流程尚未保存，不能生成XML文件");
-            }
-            File xmlFilePath = new File(workflow.getWorkflowXmlAddr());
-            if(!xmlFilePath.exists()){
-                return new ResponseResult(false,"004","流程XML文件未找到");
-            }
-            if((workflow.getGgeditorObjectString()==null||(workflow.getGgeditorObjectString().equals("")))){
-                return new ResponseResult(false,"005","流程ggeditorString未生成");
-            }
             Experiment experiment=experimentService.createExperiment(fkWorkflowId,name,experimentDesc);
             Map<String,Object> data=new HashMap<>(1);
             data.put("experimentId",experiment.getId());
