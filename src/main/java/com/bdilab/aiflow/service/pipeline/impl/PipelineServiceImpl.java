@@ -212,15 +212,4 @@ public class PipelineServiceImpl implements PipelineService {
         return stubSize;
     }
 
-    public static void main(String[] args) {
-        Gson gson = new Gson();
-        String xmlPath = "C:\\Users\\cuishaohui\\Desktop\\5cf7ff0e-f836-4ec0-bac8-05d9c88231ba.xml";
-        PipelineServiceImpl pipelineService = new PipelineServiceImpl();
-        Map<String, PythonParameters> pythonParametersMap = XmlUtils.getPythonParametersMap(xmlPath);
-        System.out.println(gson.toJson(pythonParametersMap));
-//        pipelineService.generatePipeline(gson.toJson(pythonParametersMap));
-        // System.out.println(JsonUtils.getParamsByComponentName(gson.toJson(pythonParametersMap),"_3_5"));
-        System.out.println(pipelineService.getFirstComponentId(gson.toJson(pythonParametersMap)));
-        System.out.println(JsonUtils.getRearNodeList("_2_2",gson.toJson(pythonParametersMap)).size());
-    }
 }
