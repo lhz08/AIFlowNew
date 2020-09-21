@@ -66,4 +66,11 @@ public interface UserMapper {
 
     List<User> getAllUsers();
 
+    /**
+     * 根据用户名和密码检索用户
+     * @param username
+     * @param password
+     * @return
+     */
+    User selectUserByNameAndPassword(@Param("username") String username, @Param("password")  String password);
 }

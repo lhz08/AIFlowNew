@@ -9,7 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class AiFlowApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AiFlowApplication.class, args);
+		SpringApplication.
+				run(AiFlowApplication.class, args);
 	}
 
 }

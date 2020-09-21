@@ -1,29 +1,48 @@
 package com.bdilab.aiflow.service.dataset.impl;
 
 
+import com.bdilab.aiflow.common.config.FilePathConfig;
 import com.bdilab.aiflow.common.utils.FileUtils;
+import com.bdilab.aiflow.common.utils.MinioFileUtils;
 import com.bdilab.aiflow.mapper.DatasetMapper;
 import com.bdilab.aiflow.model.Dataset;
+import com.bdilab.aiflow.service.dataset.DatasetService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import io.minio.errors.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 /**
  * @author
  * @create 2020-08-28 15:13
  */
 @Service
-public class DatasetService implements com.bdilab.aiflow.service.dataset.DatasetService {
+public class DatasetServiceImpl implements DatasetService {
+
     @Autowired
     DatasetMapper datasetMapper;
 
+    @Autowired
+    FilePathConfig filePathConfig;
+
+    @Value("${minio.host}")
+    private String host;
+
+    @Value("${minio.access_key}")
+    private String username;
+
+    @Value("${minio.secret_key}")
+    private String password;
     /*
      * 分页获得公开数据集信息列表
      */
@@ -37,6 +56,22 @@ public class DatasetService implements com.bdilab.aiflow.service.dataset.Dataset
         data.put("Total Page Num",pageInfo.getPages());
         data.put("Total",pageInfo.getTotal());
         return data;
+    }
+
+    @Override
+    public boolean uploadDatasetToMinio(MultipartFile file, String datasetName, String tags, String datasetDesc, Integer userId){
+        String filename = file.getOriginalFilename();
+        //获取文件的后缀名
+        String suffixName = filename.substring(filename.lastIndexOf("."));
+        //为上传的文件生成一个随机名字
+        filename = "dataset"+"/"+UUID.randomUUID()+suffixName;
+        MinioFileUtils minioFileUtils = new MinioFileUtils(host,username,password,false);
+        String bucketName = "user"+userId;
+        minioFileUtils.createBucket(bucketName);
+        minioFileUtils.uploadFile(bucketName,file,filename);
+        String filePath = "user"+userId+"/"+filename;
+        insertUserDataset(userId,datasetName,tags,filePath,datasetDesc);
+        return true;
     }
 
     /*分页获得用户自定义数据集信息列表*/

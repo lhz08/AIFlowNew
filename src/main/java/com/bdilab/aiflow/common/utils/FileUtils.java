@@ -19,7 +19,8 @@ public class FileUtils {
      * @param oldFilePath
      * @param newFilePath
      */
-    public static void txtToCsv(String oldFilePath,String newFilePath){
+    public static void
+    txtToCsv(String oldFilePath,String newFilePath){
         File file = new File(oldFilePath);
 
         try {

@@ -1,7 +1,10 @@
 package com.bdilab.aiflow.service.dataset;
 
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.File;
+import java.nio.channels.MulticastChannel;
 import java.util.Map;
 
 /**
@@ -13,6 +16,19 @@ public interface DatasetService {
     Map<String, Object> getPublicDataset(int pageNum, int pageSize);
 
     Map<String, Object> getUserDataset(Integer userId, int pageNum, int pageSize);
+
+    /**
+     *
+     * 上传数据集文件到minio服务器上
+     * @param file
+     * @param datasetName
+     * @param tags
+     * @param datasetDec
+     * @param userId
+     * @return
+     */
+    boolean uploadDatasetToMinio(MultipartFile file, String datasetName, String tags, String datasetDec, Integer userId);
+
 
     boolean insertUserDataset(Integer userId, String datasetName, String tags, String filePath, String datasetDesc);
 

@@ -41,4 +41,17 @@
       #{id}
     </foreach>
   </delete>
+
+  <select id="selectComponentInfoById" parameterType="Integer" resultType="com.bdilab.aiflow.model.ComponentInfo">
+          select component_info.id as id,
+                 component_info.name as name,
+                 component_info.tags as tags,
+                 component_info.is_custom as isCustom,
+                 component_info.component_yaml_addr as componentYamlPath,
+                 component_info.input_stub as inputStub,
+                 component_info.output_stub as outputStub
+          from component_info
+          where component_info.id = #{id}
+  </select>
+
 </mapper>

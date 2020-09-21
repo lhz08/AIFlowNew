@@ -14,4 +14,13 @@
           parameterType="com.bdilab.aiflow.model.User">
                 INSERT INTO user(user_name,password) VALUES (#{userName},#{password});
     </insert>
+
+    <!--查询个人信息-->
+    <select id="selectUserByNameAndPassword" parameterType="String" resultType="com.bdilab.aiflow.model.User">
+                select user.id as id,
+                       user.user_name as userName,
+                       user.password as password
+                from user
+                where user.user_name= #{username} and user.password=#{password}
+            </select>
 </mapper>

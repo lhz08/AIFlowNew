@@ -19,4 +19,51 @@ public class ComponentCreateInfo {
     private ComponentInfo componentInfo;
     private List<ComponentParameter> componentParamList;
 
+    public Byte getComponentType() {
+        return componentType;
+    }
+
+    public void setComponentType(Byte componentType) {
+        this.componentType = componentType;
+    }
+
+    public String getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(String sourceId) {
+        this.sourceId = sourceId;
+    }
+
+    public List<InputStubInfo> getInputStubInfoList() {
+        return inputStubInfoList;
+    }
+
+    public void setInputStubInfoList(List<InputStubInfo> inputStubInfoList) {
+        this.inputStubInfoList = inputStubInfoList;
+    }
+
+    public List<OutputStubInfo> getOutputStubInfoList() {
+        return outputStubInfoList;
+    }
+
+    public void setOutputStubInfoList(List<OutputStubInfo> outputStubInfoList) {
+        this.outputStubInfoList = outputStubInfoList;
+    }
+
+    public ComponentInfo getComponentInfo() {
+        return componentInfo;
+    }
+
+    public void setComponentInfo(ComponentInfo componentInfo) {
+        this.componentInfo = componentInfo;
+    }
+
+    public List<ComponentParameter> getComponentParamList() {
+        return componentParamList;
+    }
+
+    public void setComponentParamList(List<ComponentParameter> componentParamList) {
+        this.componentParamList = componentParamList;
+    }
 }

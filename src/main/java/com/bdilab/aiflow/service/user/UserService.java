@@ -31,5 +31,11 @@ public interface UserService {
      * @return List<User>
      */
     List<User> getAllUsers();
-
+    /**
+     * 登录验证
+     * @param username
+     * @param password
+     * @return
+     */
+    User userLoginCheck(String username, String password);
 }

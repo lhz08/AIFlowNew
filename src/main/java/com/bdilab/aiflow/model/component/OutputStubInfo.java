@@ -10,5 +10,21 @@ public class OutputStubInfo {
 
     private String outputName;
 
+    public String getOutputName() {
+        return outputName;
+    }
+
+    public void setOutputName(String outputName) {
+        this.outputName = outputName;
+    }
+
+    public String getOutputType() {
+        return outputType;
+    }
+
+    public void setOutputType(String outputType) {
+        this.outputType = outputType;
+    }
+
     private String outputType;
 }

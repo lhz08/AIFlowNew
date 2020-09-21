@@ -33,4 +33,16 @@
       #{fk_component_info_id}
     </foreach>
   </delete>
+
+  <select id="selectComponentParameterByComponentId" parameterType="Integer" resultType="com.bdilab.aiflow.model.ComponentParameter">
+          select component_parameter.id as id,
+                 component_parameter.name as name,
+                 component_parameter.fk_component_info_id as fkComponentInfoId,
+                 component_parameter.parameter_type as parameterType,
+                 component_parameter.default_value as defaultValue,
+                 component_parameter.parameter_desc as parameterDesc
+                 from component_parameter
+                 where component_parameter.fk_component_info_id = #{componentInfoId}
+  </select>
+
 </mapper>

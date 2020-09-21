@@ -1,9 +1,11 @@
 package com.bdilab.aiflow.mapper;
 
 import com.bdilab.aiflow.model.Dataset;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
+@Mapper
 public interface DatasetMapper {
 
     //@Select("select * from dataset where type=0 and is_deleted=0")

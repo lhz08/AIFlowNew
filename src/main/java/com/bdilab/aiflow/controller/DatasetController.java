@@ -4,7 +4,9 @@ import com.bdilab.aiflow.common.config.FilePathConfig;
 import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.common.utils.FileUtils;
+import com.bdilab.aiflow.common.utils.MinioFileUtils;
 import com.bdilab.aiflow.service.dataset.DatasetService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +51,7 @@ public class DatasetController {
 
     /*分页获取用户自定义数据集信息列表*/
     @ResponseBody
+    @ApiOperation("分页获取用户自定义数据集")
     @RequestMapping(value = "/dataset/getUserDataset",method = RequestMethod.GET)
     public ResponseResult getUserDataset(@RequestParam(defaultValue = "1") int pageNum,
                                          @RequestParam int userId,
@@ -99,16 +102,32 @@ public class DatasetController {
         }
         return new ResponseResult(false,"002","数据集注册失败");
     }*/
+    @ResponseBody
+    @ApiOperation("上传数据集到minio服务器")
+    @RequestMapping(value = "/dataset/uploadDataset",method = RequestMethod.POST)
+    public ResponseResult uploadDatasetToMinio(@RequestParam MultipartFile file,
+                                        @RequestParam String datasetName,
+                                        @RequestParam String tags,
+                                        @RequestParam String datasetDesc,
+                                        HttpSession httpSession) {
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(datasetService.uploadDatasetToMinio(file,datasetName,tags,datasetDesc,userId)) {
+            return new ResponseResult(true, "001", "上传数据集成功");
+        }
+        return new ResponseResult(true,"002","上传数据集失败");
+    }
+
 
     @ResponseBody
+    @ApiOperation("上传数据集")
     @RequestMapping(value = "/dataset/insertUserDataset",method = RequestMethod.POST)
     public ResponseResult uploadDataset(@RequestParam MultipartFile file,
-                                        @RequestParam Integer userId,
                                         @RequestParam String datasetName,
                                         @RequestParam String tags,
                                         @RequestParam String datasetDesc,
                                         HttpSession httpSession){
 
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         //获取上传文件的原始名
         String filename = file.getOriginalFilename();
         //获取文件的后缀名

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.bdilab.aiflow.mapper.WorkflowMapper">
     <insert id="insertWorkflow" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.Workflow">
-        INSERT INTO workflow(name, fk_user_id, tags, is_deleted, workflow_xml_addr, ggeditor_object_string, generate_pipeline_addr, fk_custom_component_ids, is_custom, create_time, workflow_desc) VALUES (#{name}, #{fkUserId}, #{tags}, #{isDeleted}, #{workflowXmlAddr}, #{ggeditorObjectString}, #{generatePipelineAddr}, #{fkCustomComponentIds}, #{isCustom}, #{createTime}, #{workflowDesc})
+        INSERT INTO workflow(name,fk_user_id,tags,is_deleted,workflow_xml_addr,generate_pipeline_addr,fk_custom_component_ids,is_custom,create_time,workflow_desc,workflow_yaml_addr) VALUES (#{name},#{fkUserId},#{tags},#{isDeleted},#{workflowXmlAddr},#{generatePipelineAddr},#{fkCustomComponentIds},#{isCustom},#{createTime},#{workflowDesc},#{workflowYamlAddr});
     </insert>
 
     <update id="updateWorkflow" parameterType="com.bdilab.aiflow.model.Workflow">

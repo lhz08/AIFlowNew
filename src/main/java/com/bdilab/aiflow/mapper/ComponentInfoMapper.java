@@ -6,6 +6,12 @@ import java.util.List;
 
 public interface ComponentInfoMapper {
 
+    /**
+     * 根据id检索组件信息
+     * @param id
+     * @return
+     */
+    ComponentInfo selectComponentInfoById(Integer id);
     int insertComponentInfo(ComponentInfo componentInfo);
 
     List<String> selectComponentYamlAddr(List<Integer> fkComponentInfoIds);

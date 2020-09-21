@@ -9,6 +9,28 @@ import org.springframework.stereotype.Component;
 public class FilePathConfig {
 
 
+    public void setDatasetUrl(String datasetUrl) {
+        this.datasetUrl = datasetUrl;
+    }
+
+    public String getComponentYamlPath() {
+        return componentYamlPath;
+    }
+
+    public void setComponentYamlPath(String componentYamlPath) {
+        this.componentYamlPath = componentYamlPath;
+    }
+
+    public String getPipelineCodePath() {
+        return pipelineCodePath;
+    }
+
+    public void setPipelineCodePath(String pipelineCodePath) {
+        this.pipelineCodePath = pipelineCodePath;
+    }
+
+
+
     /**
      * 上传dataset地址
      */
@@ -23,4 +45,10 @@ public class FilePathConfig {
 
     @Value("${component.yaml.path}")
     private String componentYamlPath;
+
+    //生成的pipeline python代码存放文件地址
+    @Value("${pipline.pythonCode.path}")
+    private String pipelineCodePath;
+
+
 }
