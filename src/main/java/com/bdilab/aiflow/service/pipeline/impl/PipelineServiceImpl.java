@@ -35,6 +35,8 @@ public class PipelineServiceImpl implements PipelineService {
     WorkflowMapper workflowMapper;
     Logger logger = LoggerFactory.getLogger(this.getClass());
     private List<String> queue = new ArrayList<>();
+
+
     private String getFirstComponentId(String json){
         String firstComponentId="";
         JSONObject jsonObject = JSONObject.parseObject(json, Feature.OrderedField);
@@ -46,6 +48,7 @@ public class PipelineServiceImpl implements PipelineService {
         }
         return firstComponentId;
     }
+
     private int getComponentId(String string){
         return Integer.parseInt(string.split("_")[1]);
     }
@@ -101,6 +104,7 @@ public class PipelineServiceImpl implements PipelineService {
                 queue.add(curRearNodeList.get(i));
             }
         }
+
 
         if(queue.size()==0)
             pipeline+="if __name__ == '__main__':\n" +

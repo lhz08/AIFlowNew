@@ -148,17 +148,46 @@ public class JsonUtils {
         }
         return null;
     }
+    //得到组件的执行顺序
+    public static  List<String> getComponenetByOrder(String json){
+        List<String> queue = new ArrayList<>();
+        List<String> result = new ArrayList<>();
+        JSONObject jsonObject = JSONObject.parseObject(json, Feature.OrderedField);
+        for (String key:jsonObject.keySet()
+        ) {
+            if(jsonObject.getJSONObject(key).getString("priorIds").equals("[]")) {
+                queue.add(key);
+                result.add(key);
+            }
+        }
+        while(queue.size()!=0)
+        {
+            List<String> RearNodeList = getRearNodeList(queue.get(0),json);
+            for(int i = 0;i<RearNodeList.size();i++){
+                if(!(queue.toString().contains(RearNodeList.get(i)))){
+                    queue.add(RearNodeList.get(i));
+                    result.add(RearNodeList.get(i));
+                }
+            }
+            queue.remove(queue.get(0));
+        }
+        return result;
+    }
+
+
+
 
     public static void main(String[] args) {
         Gson gson = new Gson();
-        String xmlPath = "C:\\Users\\cuishaohui\\Desktop\\f47d448d-364c-4521-881d-820a50710b00.xml";
+        String xmlPath = "E:\\process\\20200911\\bb422180-ee40-498a-a533-4d7bdf8d7afe.xml";
         PipelineServiceImpl pipelineService = new PipelineServiceImpl();
         Map<String, PythonParameters> pythonParametersMap = XmlUtils.getPythonParametersMap(xmlPath);
         System.out.println(gson.toJson(pythonParametersMap));
-//        pipelineService.generatePipeline(gson.toJson(pythonParametersMap));
-        // System.out.println(JsonUtils.getParamsByComponentName(gson.toJson(pythonParametersMap),"_3_5"));
-        System.out.println(getFirstToBeExecutedComponent(gson.toJson(pythonParametersMap)));
-        System.out.println(getPriorNodeList("_2_2",gson.toJson(pythonParametersMap)).get(0));
+////        pipelineService.generatePipeline(gson.toJson(pythonParametersMap));
+//        // System.out.println(JsonUtils.getParamsByComponentName(gson.toJson(pythonParametersMap),"_3_5"));
+//        System.out.println(getFirstToBeExecutedComponent(gson.toJson(pythonParametersMap)));
+//        System.out.println(getPriorNodeList("_2_2",gson.toJson(pythonParametersMap)).get(0));
+        System.out.println(getComponenetByOrder(gson.toJson(pythonParametersMap)));
     }
 }
 

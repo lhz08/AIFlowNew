@@ -2,9 +2,6 @@ package com.bdilab.aiflow.controller;
 
 import com.bdilab.aiflow.common.sse.ProcessSseEmitters;
 import com.bdilab.aiflow.mapper.ExperimentRunningMapper;
-import com.bdilab.smartanalyseplatform.common.sse.ProcessSseEmitters;
-import com.bdilab.smartanalyseplatform.mapper.DLProcessLogMapper;
-import com.bdilab.smartanalyseplatform.service.process.ProcessService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -12,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import javax.annotation.Resource;
 
 
 /**
@@ -28,7 +27,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @CrossOrigin
 public class SseProcessController {
 
-    @Autowired
+    @Resource
     ExperimentRunningMapper experimentRunningMapper;
     /**
      * 开启SSE会话
