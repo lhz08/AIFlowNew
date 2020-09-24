@@ -7,13 +7,17 @@ import com.bdilab.aiflow.mapper.WorkflowMapper;
 import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.Template;
 import com.bdilab.aiflow.model.Workflow;
+import com.bdilab.aiflow.service.pipeline.PipelineService;
 import com.bdilab.aiflow.service.workflow.WorkflowService;
 import com.bdilab.aiflow.service.experiment.ExperimentService;
 import com.bdilab.aiflow.vo.WorkflowVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +41,9 @@ public class WorkflowServiceImpl implements WorkflowService {
     @Autowired
     private ExperimentService experimentService;
 
+    @Autowired
+    private PipelineService pipelineService;
+
     /**
      * @// TODO: 2020/9/2 尚不知道pipelineaddr怎么获得，是等python端得到后再写入？
      * todo:2 不知道如何获得FkCustomComponentIds
@@ -47,7 +54,7 @@ public class WorkflowServiceImpl implements WorkflowService {
      * @return
      */
     @Override
-    public Workflow createWorkflow(String workflowName, String tagString, String workflowDesc,Integer userId){
+    public Workflow createAndSaveWorkflow(String workflowName, String tagString, String workflowDesc, String workflowXmlAddr,String ggeditorObjectString,Integer userId){
         Workflow workflow=new Workflow();
 
         workflow.setName(workflowName);
@@ -55,13 +62,35 @@ public class WorkflowServiceImpl implements WorkflowService {
         workflow.setTags(tagString);
         workflow.setIsDeleted(Byte.parseByte("0"));
         workflow.setWorkflowDesc(workflowDesc);
-        workflow.setWorkflowXmlAddr("");
-        workflow.setGeneratePipelineAddr("");
-        workflow.setGgeditorObjectString("");
+        workflow.setWorkflowXmlAddr(workflowXmlAddr);
+        workflow.setGgeditorObjectString(ggeditorObjectString);
         workflow.setIsCustom(Byte.parseByte("0"));
         workflow.setCreateTime(new Date());
 //      workflow.setFkCustomComponentIds("1,2,3");
+        workflow.setGeneratePipelineAddr("");
+        workflow.setPipelineYamlAddr("");
+        workflow.setPipelineId("");
+
+        Map<String,String> data = pipelineService.generatePipeline(workflowXmlAddr,userId);
+        workflow.setPipelineYamlAddr(data.get("pipelineYamlAddr"));
+        workflow.setGeneratePipelineAddr(data.get("generatePipelineAddr"));
+
+        System.out.println(data);
+
+        File file = new File(data.get("pipelineYamlAddr"));
+        try {
+            FileInputStream fileInputStream = new FileInputStream(file);
+            MultipartFile yamlFile = new MockMultipartFile(file.getName(),file.getName(), ContentType.APPLICATION_OCTET_STREAM.toString(),fileInputStream);
+            String pipelineId = pipelineService.uploadPipeline(workflow.getName(),workflow.getWorkflowDesc(),yamlFile);
+            workflow.setPipelineId(pipelineId);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         workflowMapper.insertWorkflow(workflow);
+
         return workflow;
     }
 

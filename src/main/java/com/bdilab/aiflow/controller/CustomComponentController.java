@@ -9,6 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,9 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Api(tags = {"自定义组件管理"})
-@RestController
-@RequestMapping("customComponent")
+@Controller
+@CrossOrigin
+@Api(value="自定义组件Controller")
 public class CustomComponentController {
 
     @Autowired

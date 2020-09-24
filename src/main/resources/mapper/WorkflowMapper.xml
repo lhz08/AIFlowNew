@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.bdilab.aiflow.mapper.WorkflowMapper">
     <insert id="insertWorkflow" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.Workflow">
-        INSERT INTO workflow(name,fk_user_id,tags,is_deleted,workflow_xml_addr,generate_pipeline_addr,fk_custom_component_ids,is_custom,create_time,workflow_desc,workflow_yaml_addr) VALUES (#{name},#{fkUserId},#{tags},#{isDeleted},#{workflowXmlAddr},#{generatePipelineAddr},#{fkCustomComponentIds},#{isCustom},#{createTime},#{workflowDesc},#{workflowYamlAddr});
+        INSERT INTO workflow(name,fk_user_id,tags,is_deleted,workflow_xml_addr,ggeditor_object_string,generate_pipeline_addr,pipeline_yaml_addr,pipeline_id,fk_custom_component_ids,is_custom,create_time,workflow_desc) VALUES (#{name},#{fkUserId},#{tags},#{isDeleted},#{workflowXmlAddr},#{ggeditorObjectString},#{generatePipelineAddr},#{pipelineYamlAddr},#{pipelineId},#{fkCustomComponentIds},#{isCustom},#{createTime},#{workflowDesc});
     </insert>
 
     <update id="updateWorkflow" parameterType="com.bdilab.aiflow.model.Workflow">
@@ -40,6 +40,8 @@
                workflow.workflow_xml_addr as workflowXmlAddr,
                workflow.ggeditor_object_string as ggeditorObjectString,
                workflow.generate_pipeline_addr as generatePipelineAddr,
+               workflow.pipeline_yaml_addr as pipelineYamlAddr,
+               workflow.pipeline_id as pipelineId,
                workflow.fk_custom_component_ids as fkCustomComponentIds,
                workflow.is_custom as isCustom,
                workflow.create_time as createTime,
@@ -57,6 +59,8 @@
                 workflow.workflow_xml_addr as workflowXmlAddr,
                 workflow.ggeditor_object_string as ggeditorObjectString,
                 workflow.generate_pipeline_addr as generatePipelineAddr,
+                workflow.pipeline_yaml_addr as pipelineYamlAddr,
+                workflow.pipeline_id as pipelineId,
                 workflow.fk_custom_component_ids as fkCustomComponentIds,
                 workflow.is_custom as isCustom,
                 workflow.create_time as createTime,

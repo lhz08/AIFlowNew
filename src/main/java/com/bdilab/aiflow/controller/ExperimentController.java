@@ -44,6 +44,7 @@ public class ExperimentController {
     public ResponseResult createExperiment(@RequestParam @ApiParam(value = "流程id") Integer fkWorkflowId,
                                            @RequestParam @ApiParam(value = "实验名") String name,
                                            @RequestParam @ApiParam(value = "实验描述") String experimentDesc,
+                                           @RequestParam @ApiParam(value = "参数json串") String paramJsonString,
                                            HttpSession httpSession) throws Exception{
         try {
             //处理为空串的参数，修改为NULL
@@ -54,7 +55,7 @@ public class ExperimentController {
                 experimentDesc=null;
             }
             //创建实验
-            Experiment experiment=experimentService.createExperiment(fkWorkflowId,name,experimentDesc);
+            Experiment experiment=experimentService.createExperiment(fkWorkflowId,name,experimentDesc,paramJsonString);
             Map<String,Object> data=new HashMap<>(1);
             data.put("experimentId",experiment.getId());
             ResponseResult responseResult = new ResponseResult(true,"001","实验创建成功");

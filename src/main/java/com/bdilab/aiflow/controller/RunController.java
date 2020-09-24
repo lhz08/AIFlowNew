@@ -1,5 +1,6 @@
 package com.bdilab.aiflow.controller;
 
+import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.service.run.RunService;
 import io.swagger.annotations.Api;
@@ -8,6 +9,9 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author smile
@@ -38,6 +42,23 @@ public class RunController {
 //        System.out.println(processInstanceId+" "+taskId+" "+conversationId+resultPath);
     }
 
+    @ApiOperation(value = "创建运行")
+    @ResponseBody
+    @RequestMapping(value = "/createRun",method = RequestMethod.POST)
+    public ResponseResult createRun(String pipelineId,String pipelineName){
+
+        Map<String,Object> parameter = new HashMap<>();
+        parameter.put("input_data","dataset/IrisFS.csv");
+        parameter.put("val_portion","0.2");
+        parameter.put("resultPath","admin");
+
+        String result = runService.createRun(pipelineId,pipelineName,parameter);
+
+        ResponseResult responseResult = new ResponseResult();
+        responseResult.setData(result);
+        responseResult.setMeta(new MetaData(true,"001","成功创建运行"));
+        return responseResult;
+    }
 
 
 }

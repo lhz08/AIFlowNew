@@ -106,10 +106,10 @@ public class TemplateController {
                                            @RequestParam(required = false) String experimentDesc,
                                            HttpSession httpSession){
         Template template = templateService.selectTemplateById(templateId);
-        Map<String, Object> data = templateService.createExperiment(template, userId, workflowName, workflowTags, workflowDesc, experimentName, experimentDesc);
+//        Map<String, Object> data = templateService.createExperiment(template, userId, workflowName, workflowTags, workflowDesc, experimentName, experimentDesc);
 
         ResponseResult responseResult = new ResponseResult(true,"001","完成");
-        responseResult.setData(data);
+//        responseResult.setData(data);
         return responseResult;
     }
 

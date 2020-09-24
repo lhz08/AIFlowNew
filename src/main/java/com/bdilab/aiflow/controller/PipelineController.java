@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 @Api(value = "pipeline控制器")
 @Controller
@@ -20,12 +21,12 @@ public class PipelineController {
     @ResponseBody
     @ApiOperation("生成pipeline")
     @RequestMapping(value = "/pipeline/generatePipeline",method = RequestMethod.POST)
-    public boolean generatePipeline(@RequestParam @ApiParam(value = "xml文件地址") String xmlPath,
+    public String generatePipeline(@RequestParam @ApiParam(value = "xml文件地址") String xmlPath,
                                     @RequestParam @ApiParam(value = "流程名") String workflowName,
                                     HttpSession httpSession) {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        pipelineService.generatePipeline(userId,xmlPath,workflowName);
-        return true;
+        Map<String,String> data = pipelineService.generatePipeline(xmlPath,userId);
+        return data.toString();
     }
 
 }

@@ -92,7 +92,7 @@
 			<version>0.9.5</version>
 		</dependency>
 
-		<!-- jsp -->
+<!--		&lt;!&ndash; jsp &ndash;&gt;
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
@@ -106,7 +106,7 @@
 					<groupId>jaxb-impl</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
+		</dependency-->>
 
 		<!--dbcp2连接池-->
 		<dependency>
@@ -229,8 +229,15 @@
 			<version>7.0.2</version>
 		</dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>5.2.6.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<plugins>

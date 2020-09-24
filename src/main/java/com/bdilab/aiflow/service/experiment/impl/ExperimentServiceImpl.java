@@ -13,9 +13,11 @@ import com.bdilab.aiflow.model.Template;
 import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.service.experiment.ExperimentRunningService;
 import com.bdilab.aiflow.service.experiment.ExperimentService;
+import com.bdilab.aiflow.service.run.RunService;
 import com.bdilab.aiflow.service.template.TemplateService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
 import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +47,9 @@ public class ExperimentServiceImpl implements ExperimentService {
     WorkflowMapper workflowMapper;
 
     @Autowired
+    RunService runService;
+
+    @Autowired
     TemplateMapper templateMapper;
 
     @Autowired
@@ -54,7 +59,7 @@ public class ExperimentServiceImpl implements ExperimentService {
     TemplateService templateService;
 
     @Override
-    public Experiment createExperiment(Integer fkWorkflowId, String name, String experimentDesc){
+    public Experiment createExperiment(Integer fkWorkflowId, String name, String experimentDesc, String paramJsonString){
         //组装实验
         Experiment experiment=new Experiment();
         experiment.setFkWorkflowId(fkWorkflowId);
@@ -62,7 +67,7 @@ public class ExperimentServiceImpl implements ExperimentService {
         experiment.setExperimentDesc(experimentDesc);
         experiment.setIsDeleted(DeleteStatus.NOTDELETED.getValue());
         experiment.setIsMarkTemplate(MarkTemplateStatus.NOTMARKED.getValue());
-        experiment.setParamJsonString("");
+        experiment.setParamJsonString(paramJsonString);
         experiment.setCreateTime(new Date());
         //将实验信息存入experiment表
         experimentMapper.insertExperiment(experiment);
@@ -192,9 +197,23 @@ public class ExperimentServiceImpl implements ExperimentService {
             messageMap.put("message","运行实验失败，创建试验运行失败");
             return messageMap;
         }
+
+        Experiment experiment = experimentMapper.selectExperimentById(experimentId);
+        System.out.println(experiment.getParamJsonString());
+        Gson gson = new Gson();
+        Map<String,Object> map = gson.fromJson(experiment.getParamJsonString(),Map.class);
+        String config = "{\"endpoint\":\"www.cuishaohui.top:9000\",\"access_key\":\"admin\",\"secret_key\":\"admin123456\",\"IP_port\":\"smile.free.idcfengye.com/\",\"resultPath\":\"user2\",\"processInstanceId\":\"1\",\"conversationId\":\"30\",\"component\":{\"mutualInfo\":3,\"knn\":4,\"split_data\":1,\"data_import\":5,\"classification_test\":6}}";
+        map.put("config",config);
+        System.out.println("gson.config=" + map.get("config"));
+
         //通知Kubeflow端运行实验
+        Workflow workflow = workflowMapper.selectWorkflowById(experiment.getFkWorkflowId());
+        System.out.println(workflow.getId());
+        System.out.println(workflow.getPipelineId());
+        runService.createRun(workflow.getPipelineId(),workflow.getName(),map);
+
         messageMap.put("isSuccess",true);
-        messageMap.put("message","运行实验成功，通知kubeflow开始运行还未实现");
+        messageMap.put("message","运行实验成功");
         messageMap.put("experimentRunningId",experimentRunning.getId());
         return messageMap;
     }

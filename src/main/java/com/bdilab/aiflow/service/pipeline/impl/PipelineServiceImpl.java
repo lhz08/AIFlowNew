@@ -3,6 +3,7 @@ package com.bdilab.aiflow.service.pipeline.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.bdilab.aiflow.common.config.FilePathConfig;
+import com.bdilab.aiflow.common.utils.FileUtils;
 import com.bdilab.aiflow.common.utils.JsonUtils;
 import com.bdilab.aiflow.common.utils.RunCommand;
 import com.bdilab.aiflow.common.utils.XmlUtils;
@@ -16,14 +17,27 @@ import com.bdilab.aiflow.service.pipeline.PipelineService;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.*;
 import java.util.*;
 
+import static org.apache.hadoop.yarn.webapp.hamlet.HamletSpec.Method.get;
+
 @Service
 public class PipelineServiceImpl implements PipelineService {
+
+    @Autowired
+    RestTemplate restTemplate;
 
     @Resource
     ComponentInfoMapper componentInfoMapper;
@@ -143,9 +157,10 @@ public class PipelineServiceImpl implements PipelineService {
     }
 
     @Override
-    public void generatePipeline(Integer userId,String xmlPath,String processName){
+    public Map generatePipeline(String workflowXmlAddr, Integer userId){
+        Map<String,String> data = new HashMap<>();
         Gson gson = new Gson();
-        Map<String, PythonParameters> pythonParametersMap = XmlUtils.getPythonParametersMap(xmlPath);
+        Map<String, PythonParameters> pythonParametersMap = XmlUtils.getPythonParametersMap(workflowXmlAddr);
         String json = gson.toJson(pythonParametersMap);
         String pipeline=generateCode(json);
         queue.add(JsonUtils.getFirstToBeExecutedComponent(json));
@@ -163,27 +178,20 @@ public class PipelineServiceImpl implements PipelineService {
             bufferedWriter.write(pipeline);
             bufferedWriter.close();
             RunCommand.exeCmd("python "+filePath);
-            Workflow workflow = new Workflow();
             if(filePath.contains(".py")) {
-                String workflowYamlAddr = filePath+".yaml";
-                File file1  =  new File(workflowYamlAddr);
+                String pipelineYamlAddr = filePath+".yaml";
+                File file1  =  new File(pipelineYamlAddr);
                 if(!file1.exists())
                     throw new IOException("编译失败");
-                workflow.setWorkflowYamlAddr(workflowYamlAddr);
+
+                data.put("pipelineYamlAddr",pipelineYamlAddr);
+                data.put("generatePipelineAddr",filePath);
             }
-            workflow.setName(processName);
-            workflow.setFkUserId(userId);
-            workflow.setIsDeleted(Byte.parseByte("0"));
-            workflow.setIsCustom(Byte.parseByte("0"));
-            workflow.setWorkflowXmlAddr(xmlPath);
-            workflow.setGeneratePipelineAddr(filePath);
-            workflow.setCreateTime(new Date());
-            workflowMapper.insertWorkflow(workflow);
         }catch (IOException e){
             e.printStackTrace();
         }
-
         queue.clear();
+        return data;
     }
     //得到输入桩或输出桩的参数列表
     private List<String> getStubList(String inputStub){
@@ -212,4 +220,30 @@ public class PipelineServiceImpl implements PipelineService {
         return stubSize;
     }
 
+
+    @Override
+    public String uploadPipeline(String name, String description, MultipartFile file) {
+        String url = "http://120.27.69.55:31380/pipeline/apis/v1beta1/pipelines/upload?name=" + name + "&description=" + description;
+        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+
+        //filePath="E:\\hello_world1.py.yaml"
+        FileSystemResource fileSystemResource = null;
+        try {
+            fileSystemResource = new FileSystemResource(FileUtils.transferToFile(file));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        map.add("uploadfile",fileSystemResource);
+
+        HttpEntity<MultiValueMap<String, Object>> params = new HttpEntity<>(map);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, params, String.class);
+
+        if(responseEntity.getStatusCodeValue() != 200){
+            return null;
+        }
+        Gson gson = new Gson();
+        Map<String,String> map1 = gson.fromJson(responseEntity.getBody(),Map.class);
+        String pipelineId = map1.get("id").toString();
+        return pipelineId;
+    }
 }

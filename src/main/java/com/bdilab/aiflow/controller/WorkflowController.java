@@ -28,17 +28,19 @@ public class WorkflowController {
     private WorkflowService workflowService;
 
     @ResponseBody
-    @RequestMapping(value = "/workflow/createWorkflow", method = RequestMethod.POST)
-    public ResponseResult createWorkflow(@RequestParam String workflowName,
-                                         @RequestParam String tagString,
-                                         @RequestParam String workflowDesc,
-                                         @RequestParam Integer userId,
-                                         HttpSession httpSession
-                                    ){
+    @RequestMapping(value = "/workflow/createAndSaveWorkflow", method = RequestMethod.POST)
+    public ResponseResult createAndSaveWorkflow(@RequestParam String workflowName,
+                                                @RequestParam String tagString,
+                                                @RequestParam String workflowDesc,
+                                                @RequestParam String workflowXml,
+                                                @RequestParam String ggeditorObjectString,
+                                                @RequestParam Integer userId,
+                                                HttpSession httpSession
+                                              ){
 
         //在点击新建后立即新建一条流程记录
         //Workflow workflow = workflowService.CreateWorkflow(workflowName,tagString,workflowDesc,Integer.parseInt(httpSession.getAttribute("username").toString()));
-        Workflow workflow = workflowService.createWorkflow(workflowName,tagString,workflowDesc,userId);
+        Workflow workflow = workflowService.createAndSaveWorkflow(workflowName,tagString,workflowDesc,workflowXml,ggeditorObjectString,userId);
 
         Map<String,Object> data = new HashMap<>(1);
         data.put("workflowId",workflow.getId());

@@ -5,6 +5,7 @@ import com.csvreader.CsvWriter;
 import de.siegmar.fastcsv.reader.CsvContainer;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.CsvRow;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -79,5 +80,14 @@ public class FileUtils {
         }
     }
 
+    public static File transferToFile(MultipartFile multipartFile) throws IOException {
+        File file = null;
+        String originalFilename = multipartFile.getOriginalFilename();
+        String[] fileName = originalFilename.split("\\.",2);
+        file = File.createTempFile(fileName[0],fileName[1]);
+        multipartFile.transferTo(file);
+        file.deleteOnExit();
+        return file;
+    }
 
 }

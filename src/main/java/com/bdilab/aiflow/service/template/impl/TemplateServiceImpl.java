@@ -89,14 +89,16 @@ public class TemplateServiceImpl implements TemplateService {
                 data.put("falseReason","wrongWorkflowAddr");
                 return data;
             }
-            Workflow workflow = workflowService.createWorkflow(workflowName, workflowTags, workflowDesc, userId);
+            Workflow workflow = new Workflow();
+                    //workflowService.createWorkflow(workflowName, workflowTags, workflowDesc, userId);
             workflow.setGgeditorObjectString(template.getGgeditorObjectString());
             boolean isSuccess = workflowService.updateWorkflow(workflow,readFile(template.getWorkflowAddr()));
             if(!isSuccess){
                 data.put("falseReason","wrongUpdateWorkflow");
                 return data;
             }
-            Experiment experiment = experimentService.createExperiment(workflow.getId(), experimentName, experimentDesc);
+            Experiment experiment = new Experiment();
+                    //experimentService.createExperiment(workflow.getId(), experimentName, experimentDesc);
             experiment.setParamJsonString(template.getParamJsonString());
             experimentMapper.updateExperiment(experiment);
             data.put("returnType",0);
@@ -106,7 +108,8 @@ public class TemplateServiceImpl implements TemplateService {
         }
         else if (template.getType()==1){
             if(template.getFkExperimentId()==null){
-                Experiment experiment = experimentService.createExperiment(template.getFkWorkflowId(), experimentName, experimentDesc);
+                Experiment experiment = new Experiment();
+                        //experimentService.createExperiment(template.getFkWorkflowId(), experimentName, experimentDesc);
                 experiment.setParamJsonString(template.getParamJsonString());
                 experimentMapper.updateExperiment(experiment);
                 template.setFkExperimentId(experiment.getId());
@@ -140,7 +143,6 @@ public class TemplateServiceImpl implements TemplateService {
         return data;
 
     }
-
 
     /**
      * 单例查询一个template
