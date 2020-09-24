@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.annotation.Resource;
+
 
 /**
  * @Decription sse，server-send-events，服务端向前端发送消息，用于通知任务执行结果
@@ -25,7 +27,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @CrossOrigin
 public class SseProcessController {
 
-    @Autowired
+    @Resource
     ExperimentRunningMapper experimentRunningMapper;
     /**
      * 开启SSE会话
