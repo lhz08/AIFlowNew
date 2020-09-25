@@ -37,6 +37,7 @@ public class TemplateController {
     public ResponseResult saveTemplate(@RequestParam Integer templateId,
                                        @RequestParam String paramJsonString,
                                        HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Template template = new Template();
         template.setId(templateId);
         template.setParamJsonString(paramJsonString);
@@ -53,13 +54,13 @@ public class TemplateController {
      * */
     @ResponseBody
     @RequestMapping(value = "/template/insertTemplate", method = RequestMethod.POST)
-    public ResponseResult insertTemplate(@RequestParam Integer userId,
-                                         @RequestParam Integer originTemplateId,
+    public ResponseResult insertTemplate(@RequestParam Integer originTemplateId,
                                          @RequestParam String templateName,
                                          @RequestParam String tags,
                                          @RequestParam String paramJsonString,
                                          @RequestParam String templateDesc,
                                          HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Template originTemplate = templateService.selectTemplateById(originTemplateId);
         Template template = new Template();
         template.setName(templateName);
@@ -97,14 +98,14 @@ public class TemplateController {
      */
     @ResponseBody
     @RequestMapping(value = "/template/createExperiment", method = RequestMethod.POST)
-    public ResponseResult createExperiment(@RequestParam Integer userId,
-                                           @RequestParam Integer templateId,
+    public ResponseResult createExperiment(@RequestParam Integer templateId,
                                            @RequestParam(required = false) String workflowName,
                                            @RequestParam(required = false) String workflowTags,
                                            @RequestParam(required = false) String workflowDesc,
                                            @RequestParam(required = false) String experimentName,
                                            @RequestParam(required = false) String experimentDesc,
                                            HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Template template = templateService.selectTemplateById(templateId);
 //        Map<String, Object> data = templateService.createExperiment(template, userId, workflowName, workflowTags, workflowDesc, experimentName, experimentDesc);
 
@@ -126,12 +127,12 @@ public class TemplateController {
      */
     @ResponseBody
     @RequestMapping(value = "/template/getTemplate", method = RequestMethod.POST)
-    public ResponseResult selectAllTemplate(@RequestParam Integer userId,
-                                            @RequestParam Integer type,
+    public ResponseResult selectAllTemplate(@RequestParam Integer type,
                                             @RequestParam Integer isDeleted,
                                             @RequestParam(defaultValue = "1") int pageNum,
                                             @RequestParam(defaultValue = "10") int pageSize,
                                             HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         //type=0，系统模板，搜素所有type=0的模板，isDeleted=0为展示，=1为回收站
         Template template = new Template();
         template.setType(type);
@@ -149,13 +150,13 @@ public class TemplateController {
 
     @ResponseBody
     @RequestMapping(value = "/template/searchTemplateByKeyword", method = RequestMethod.POST)
-    public ResponseResult fuzzySearchTemplate(@RequestParam Integer userId,
-                                              @RequestParam Integer type,
+    public ResponseResult fuzzySearchTemplate(@RequestParam Integer type,
                                               @RequestParam(required = false) String name,
                                               @RequestParam(required = false) String tags,
                                               @RequestParam(defaultValue = "1") int pageNum,
                                               @RequestParam(defaultValue = "10") int pageSize,
                                               HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Template template = new Template();
         template.setType(type);
         template.setIsDeleted(0);
@@ -194,6 +195,7 @@ public class TemplateController {
     @RequestMapping(value = "/template/deleteTemplate", method = RequestMethod.POST)
     public ResponseResult deleteTemplate(@RequestParam Integer[] templateIds,
                                          HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         ResponseResult responseResult=new ResponseResult(true,"001","Success");
         for(Integer templateId:templateIds)
         {
@@ -209,9 +211,8 @@ public class TemplateController {
     @ResponseBody
     @RequestMapping(value = "/workflow/restoreTemplate", method = RequestMethod.POST)
     public ResponseResult restoreTemplate(@RequestParam Integer[] templateIds,
-                                          HttpSession httpSession
-    ){
-
+                                          HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         for(Integer templateId:templateIds)
         {
             boolean isSuccess=templateService.restoreTemplate(templateId);
@@ -219,13 +220,6 @@ public class TemplateController {
                 return new ResponseResult(false,"002","FalseId:"+templateId);
             }
         }
-
-
         return new ResponseResult(true,"001","模板还原成功");
     }
-
-
-
-
-
 }

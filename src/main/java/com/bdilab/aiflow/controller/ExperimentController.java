@@ -21,6 +21,7 @@ import javax.validation.constraints.NotEmpty;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -46,6 +47,7 @@ public class ExperimentController {
                                            @RequestParam @ApiParam(value = "实验描述") String experimentDesc,
                                            @RequestParam @ApiParam(value = "参数json串") String paramJsonString,
                                            HttpSession httpSession) throws Exception{
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         try {
             //处理为空串的参数，修改为NULL
             if(name!=null&&name.length()==0){
@@ -75,6 +77,7 @@ public class ExperimentController {
                                          @RequestParam(required = false) @ApiParam(value = "实验描述") String experimentDesc,
                                          @RequestParam(required = false) @ApiParam(value = "实验参数") String paramJsonString,
                                          HttpSession httpSession) throws Exception{
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         if (paramJsonString==null){
             //编辑实验信息
             //处理为空串的参数，修改为NULL
@@ -116,6 +119,7 @@ public class ExperimentController {
                                           @RequestParam @ApiParam(value = "实验名称") String name,
                                           @RequestParam(required = false) @ApiParam(value = "实验描述") String experimentDesc,
                                           HttpSession httpSession) throws Exception{
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         try{
             //处理为空串的参数，修改为NULL
             if(name!=null&&name.length()==0){
@@ -140,6 +144,7 @@ public class ExperimentController {
     @RequestMapping(value = "/experiment/deleteExperiment", method = RequestMethod.POST)
     public  ResponseResult deleteExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
                                             HttpSession httpSession) throws Exception{
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         //service中有个删除服务
         Map<String,Object> isSuccess=experimentService.deleteExperiment(experimentId);
         if(isSuccess.get("isSuccess").equals(true)){
@@ -153,10 +158,13 @@ public class ExperimentController {
     @RequestMapping(value = "/experiment/runExperimentRunning", method = RequestMethod.POST)
     public  ResponseResult runExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
                                          HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> isSuccess=experimentService.startRunExperment(experimentId);
+        String conversationId = UUID.randomUUID().toString();
         if(isSuccess.get("isSuccess").equals(true)){
-            Map<String,Object> data=new HashMap<>(1);
+            Map<String,Object> data=new HashMap<>(2);
             data.put("experimentRunningId",isSuccess.get("experimentRunningId"));
+            data.put("conversationId",conversationId);
             ResponseResult responseResult = new ResponseResult(true,"001",isSuccess.get("message").toString());
             responseResult.setData(data);
             return responseResult;
@@ -170,6 +178,7 @@ public class ExperimentController {
     @RequestMapping(value = "/experiment/stopExperiment", method = RequestMethod.POST)
     public  ResponseResult stopExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
                                           HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> isSuccess=experimentService.stopExperiment(experimentId);
         if(isSuccess.get("isSuccess").equals(true)){
             return new ResponseResult(true,"001",isSuccess.get("message").toString());
@@ -183,6 +192,7 @@ public class ExperimentController {
     public  ResponseResult deleteExperiment(@RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,
                                             @RequestParam(defaultValue = "10")@ApiParam(value = "每页记录数") int pageSize,
                                             HttpSession httpSession) {
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data=experimentService.getDeletedExperiment(DeleteStatus.DELETED.getValue(),pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -195,6 +205,7 @@ public class ExperimentController {
     @RequestMapping(value = "/experiment/restoreExperiment", method = RequestMethod.POST)
     public  ResponseResult restoreExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
                                              HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean isSuccess = experimentService.restoreExperiment(experimentId);
         if(isSuccess){
             return new ResponseResult(true,"001","还原实验成功");
@@ -210,6 +221,7 @@ public class ExperimentController {
                                         @RequestParam @ApiParam(value = "模板描述") String templateDesc,
                                         @RequestParam @ApiParam(value = "模板标签") String templateTags,
                                         HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Template template=experimentService.markTemplate(experimentId,templateName,templateDesc,templateTags);
         if(template.getId()==null){
             return new ResponseResult(false,"002","标记失败，该实验已经标记成模板了");

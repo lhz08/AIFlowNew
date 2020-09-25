@@ -3,14 +3,10 @@ package com.bdilab.aiflow.service.experiment.impl;
 import com.bdilab.aiflow.common.enums.DeleteStatus;
 import com.bdilab.aiflow.common.enums.MarkTemplateStatus;
 import com.bdilab.aiflow.common.enums.RunningStatus;
-import com.bdilab.aiflow.mapper.ExperimentMapper;
-import com.bdilab.aiflow.mapper.ExperimentRunningMapper;
-import com.bdilab.aiflow.mapper.TemplateMapper;
-import com.bdilab.aiflow.mapper.WorkflowMapper;
-import com.bdilab.aiflow.model.Experiment;
-import com.bdilab.aiflow.model.ExperimentRunning;
-import com.bdilab.aiflow.model.Template;
-import com.bdilab.aiflow.model.Workflow;
+import com.bdilab.aiflow.common.utils.JsonUtils;
+import com.bdilab.aiflow.common.utils.XmlUtils;
+import com.bdilab.aiflow.mapper.*;
+import com.bdilab.aiflow.model.*;
 import com.bdilab.aiflow.service.experiment.ExperimentRunningService;
 import com.bdilab.aiflow.service.experiment.ExperimentService;
 import com.bdilab.aiflow.service.run.RunService;
@@ -57,6 +53,9 @@ public class ExperimentServiceImpl implements ExperimentService {
 
     @Autowired
     TemplateService templateService;
+
+    @Autowired
+    ComponentInfoMapper componentInfoMapper;
 
     @Override
     public Experiment createExperiment(Integer fkWorkflowId, String name, String experimentDesc, String paramJsonString){
@@ -186,6 +185,8 @@ public class ExperimentServiceImpl implements ExperimentService {
     @Override
     public Map<String,Object> startRunExperment(Integer experimentId){
         Map<String,Object> messageMap=new HashMap<>(2);
+
+        //封装ExperimentRunning
         ExperimentRunning experimentRunning=new ExperimentRunning();
         experimentRunning.setRunningStatus(RunningStatus.RUNNING.getValue());
         experimentRunning.setFkExperimentId(experimentId);
@@ -200,14 +201,29 @@ public class ExperimentServiceImpl implements ExperimentService {
 
         Experiment experiment = experimentMapper.selectExperimentById(experimentId);
         System.out.println(experiment.getParamJsonString());
+
         Gson gson = new Gson();
-        Map<String,Object> map = gson.fromJson(experiment.getParamJsonString(),Map.class);
-        String config = "{\"endpoint\":\"www.cuishaohui.top:9000\",\"access_key\":\"admin\",\"secret_key\":\"admin123456\",\"IP_port\":\"smile.free.idcfengye.com/\",\"resultPath\":\"user2\",\"processInstanceId\":\"1\",\"conversationId\":\"30\",\"component\":{\"mutualInfo\":3,\"knn\":4,\"split_data\":1,\"data_import\":5,\"classification_test\":6}}";
+        Map<String,Integer> componentIdName = new HashMap<>();
+        Workflow workflow = workflowMapper.selectWorkflowById(experiment.getFkWorkflowId());
+        String xmlPath = workflow.getWorkflowXmlAddr();
+        String json = gson.toJson(XmlUtils.getPythonParametersMap(xmlPath));
+        List<String> taskList = JsonUtils.getComponenetByOrder(json);
+        for(int i=0;i<taskList.size();i++){
+            ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(Integer.parseInt(runService.getComponentId(taskList.get(i))));
+            componentIdName.put(componentInfo.getName(),componentInfo.getId());
+        }
+
+
+        Gson gson1 = new Gson();
+        Map<String,Object> map = gson1.fromJson(experiment.getParamJsonString(),Map.class);
+        String config = "{\"endpoint\":\"www.cuishaohui.top:9000\",\"access_key\":\"admin\",\"secret_key\":\"admin123456\",\"IP_port\":\"smile.free.idcfengye.com/\",\"resultPath\":\"user2\",\"processInstanceId\":\"1\",\"conversationId\":\"30\",";
+        System.out.println(gson1.toJson(componentIdName));
+        config = config + "\"component\":" +gson1.toJson(componentIdName) +"}";
+        //"component":{"mutualInfo":3,"knn":4,"split_data":1,"data_import":5,"classification_test":6}
         map.put("config",config);
         System.out.println("gson.config=" + map.get("config"));
 
         //通知Kubeflow端运行实验
-        Workflow workflow = workflowMapper.selectWorkflowById(experiment.getFkWorkflowId());
         System.out.println(workflow.getId());
         System.out.println(workflow.getPipelineId());
         runService.createRun(workflow.getPipelineId(),workflow.getName(),map);

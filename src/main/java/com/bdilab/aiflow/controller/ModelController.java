@@ -28,9 +28,8 @@ public class ModelController {
     public ResponseResult createWorkflow(@RequestParam String modelName,
                                          @RequestParam String modelDesc,
                                          @RequestParam Integer runningId,
-                                         @RequestParam Integer userId,
-                                         HttpSession httpSession
-    ){
+                                         HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean isSuccess = modelService.createModel(modelName,userId,runningId,modelDesc);
         if (isSuccess){
             return new ResponseResult(true,"001","创建模型成功");
@@ -43,9 +42,8 @@ public class ModelController {
     @RequestMapping(value = "/model/getModelList",method = RequestMethod.GET)
     public ResponseResult getModelList(@RequestParam(defaultValue = "1") int pageNum,
                                        @RequestParam(defaultValue = "10") int pageSize,
-                                       @RequestParam int userId,
                                        HttpSession httpSession){
-        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data = modelService.getModelByUser(userId,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -59,8 +57,8 @@ public class ModelController {
     public ResponseResult editModel(@RequestParam Integer modelId,
                                     @RequestParam String modelName,
                                     @RequestParam String modelDesc,
-                                    HttpSession httpSession
-    ){
+                                    HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean isSuccess = modelService.editModel(modelId,modelName,modelDesc);
         if (isSuccess){
             return new ResponseResult(true,"001","编辑模型成功");
@@ -73,6 +71,7 @@ public class ModelController {
     @RequestMapping(value = "/model/deleteModel",method = RequestMethod.POST)
     public ResponseResult deleteModelById(@RequestParam Integer modelId,
                                           HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean isSuccess = modelService.deleteModelById(modelId);
         if (isSuccess){
             return new ResponseResult(true,"001","模型移入回收站成功");
@@ -85,6 +84,7 @@ public class ModelController {
     @RequestMapping(value = "/model/deleteModelPermanently",method = RequestMethod.POST)
     public ResponseResult deleteModelCompletelyById(@RequestParam Integer modelId,
                                                     HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean isSuccess = modelService.deleteModelCompletelyById(modelId);
         if (isSuccess){
             return new ResponseResult(true,"001","彻底删除模型成功");
@@ -97,10 +97,8 @@ public class ModelController {
     @RequestMapping(value = "/model/getModelInTrash",method = RequestMethod.GET)
     public ResponseResult getModelInTrash(@RequestParam(defaultValue = "1") int pageNum,
                                           @RequestParam(defaultValue = "10") int pageSize,
-                                          @RequestParam Integer userId,
                                           HttpSession httpSession){
-        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        //Integer userId = 1;
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data = modelService.getModelInTrash(userId,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -113,7 +111,7 @@ public class ModelController {
     @RequestMapping(value = "/model/restoreModel",method = RequestMethod.GET)
     public ResponseResult restoreModel(@RequestParam Integer modelId,
                                        HttpSession httpSession){
-        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean  isSuccess= modelService.restoreModel(modelId);
         if (isSuccess){
             return new ResponseResult(true,"001","恢复模型成功");
@@ -126,11 +124,9 @@ public class ModelController {
     @RequestMapping(value = "/model/searchModelByName",method = RequestMethod.GET)
     public ResponseResult searchModelByName(@RequestParam(defaultValue = "1") int pageNum,
                                             @RequestParam(defaultValue = "10") int pageSize,
-                                            @RequestParam Integer userId,
                                             @RequestParam(defaultValue = "test") String modelName,
                                             HttpSession httpSession){
-        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        //Integer userId = 1;
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data = modelService.searchModelByName(userId,modelName,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -143,6 +139,7 @@ public class ModelController {
     @RequestMapping(value = "/dataset/downloadModel",method = RequestMethod.GET)
     public ResponseResult downloadDataset(@RequestParam Integer modelId,
                                           HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         File file = modelService.downloadDataset(modelId);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(file);

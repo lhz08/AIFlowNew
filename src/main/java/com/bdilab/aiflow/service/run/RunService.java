@@ -11,6 +11,8 @@ public interface RunService {
 
     boolean pushData(String processInstanceId,String taskId,String conversationId,String resultTable,String resultPath);
 
+    public String getComponentId(String string);
+
     /*
     创建运行
      */

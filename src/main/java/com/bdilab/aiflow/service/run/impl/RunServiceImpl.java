@@ -56,7 +56,7 @@ public class RunServiceImpl implements RunService {
     RestTemplate restTemplate;
 
     @Override
-    public boolean pushData(String runningId,String taskId,String conversationId,String resultTable,String resultPath){
+    public boolean pushData(String runningId,String taskId,String conversationId,String resultTable,String resultPath) {
         Gson gson = new Gson();
         Integer experimentId = experimentRunningMapper.selectExperimentRunningByRunningId(Integer.parseInt(runningId)).getFkExperimentId();
         Experiment experiment = experimentMapper.selectExperimentById(experimentId);
@@ -64,29 +64,27 @@ public class RunServiceImpl implements RunService {
         String xmlPath = workflow.getWorkflowXmlAddr();
         String json = gson.toJson(XmlUtils.getPythonParametersMap(xmlPath));
         List<String> taskList = JsonUtils.getComponenetByOrder(json);
-        if(!taskId.equals(getComponentId(taskList.get(taskList.size()-1)))) {
-            sendEvent(taskId,conversationId);
+        if (!taskId.equals(getComponentId(taskList.get(taskList.size() - 1)))) {
+            sendEvent(taskId, conversationId);
             return true;
         }
         //推送最后一个组件执行状态
-        sendEvent(taskId,conversationId);
+        sendEvent(taskId, conversationId);
         logger.info("所有结点执行完毕");
-        Map<String,Object> pushFinishData = new HashMap<>();
-        pushFinishData.put("processName",workflow.getName());
-        pushFinishData.put("status","finished");
-        pushFinishData.put("processLogId",runningId);
-        ResponseResult responseResult1 = new ResponseResult(true,"004","完成流程："+runningId,pushFinishData);
+        Map<String, Object> pushFinishData = new HashMap<>();
+        pushFinishData.put("processName", workflow.getName());
+        pushFinishData.put("status", "finished");
+        pushFinishData.put("processLogId", runningId);
+        ResponseResult responseResult1 = new ResponseResult(true, "004", "完成流程：" + runningId, pushFinishData);
         //ProcessSseEmitters.sendEvent(conversationId,responseResult1);
         //结束sse会话
         //ProcessSseEmitters.getSseEmitterByKey(conversationId).complete();
         //清除sse对象
         //ProcessSseEmitters.removeSseEmitterByKey(conversationId);
-    public boolean pushData(String processInstanceId,String taskId,String conversationId,String resultTable,String resultPath){
-
         return true;
-    }
 
-    private String getComponentId(String string){
+    }
+    public String getComponentId(String string){
         return string.split("_")[1];
     }
 
@@ -108,30 +106,13 @@ public class RunServiceImpl implements RunService {
         int paramLength = parameter.size();
         Object[] parameters = new Object[paramLength];
         int i = 0;
-        Gson configGson = new Gson();
         for(Map.Entry<String,Object> entry:parameter.entrySet()){
             ApiParameter apiParameter = new ApiParameter();
-            /*if(entry.getKey().equals("config")){
-                System.out.println(entry.getValue().toString());
-                Map configMap =  configGson.fromJson(entry.getValue().toString(), Map.class);
-                apiParameter.setName(entry.getKey());
-                apiParameter.setValue(configMap.toString());
-                System.out.println("config");
-            }else{
-                apiParameter.setName(entry.getKey());
-                apiParameter.setValue(entry.getValue().toString());
-            }*/
             apiParameter.setName(entry.getKey());
             apiParameter.setValue(entry.getValue().toString());
             parameters[i] = apiParameter;
             i++;
         }
-
-        //pipelineId=a33595a6-e1db-4bc8-90ee-e3ad0de16d2d
-        //pipelineName=helloworldTest
-
-        //pipelineId=df51c437-301f-4fbd-9623-229e8967f50f
-        //pipelineName=?????
         apiRun.setName("run");
         apiRun.setDescription("desc");
         apiPipelineSpec.setPipelineId(pipelineId);

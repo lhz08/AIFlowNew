@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author smile
@@ -42,6 +43,7 @@ public class RunController {
         System.out.println(processInstanceId+" "+taskId+" "+conversationId+resultPath);
     }
 
+    /*测试使用，不用调用*/
     @ApiOperation(value = "创建运行")
     @ResponseBody
     @RequestMapping(value = "/createRun",method = RequestMethod.POST)
@@ -53,7 +55,6 @@ public class RunController {
         parameter.put("resultPath","admin");
 
         String result = runService.createRun(pipelineId,pipelineName,parameter);
-
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(result);
         responseResult.setMeta(new MetaData(true,"001","成功创建运行"));

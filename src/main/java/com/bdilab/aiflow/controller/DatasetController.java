@@ -41,6 +41,7 @@ public class DatasetController {
     public ResponseResult getPublicDataset(@RequestParam(defaultValue = "1") int pageNum,
                                            @RequestParam(defaultValue = "10") int pageSize,
                                            HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data = datasetService.getPublicDataset(pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -54,10 +55,9 @@ public class DatasetController {
     @ApiOperation("分页获取用户自定义数据集")
     @RequestMapping(value = "/dataset/getUserDataset",method = RequestMethod.GET)
     public ResponseResult getUserDataset(@RequestParam(defaultValue = "1") int pageNum,
-                                         @RequestParam int userId,
                                          @RequestParam(defaultValue = "10") int pageSize,
                                          HttpSession httpSession){
-        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data = datasetService.getUserDataset(userId,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -182,7 +182,7 @@ public class DatasetController {
     @RequestMapping(value = "/dataset/deleteDataset",method = RequestMethod.POST)
     public ResponseResult deleteDatasetById(@RequestParam Integer datasetId,
                                             HttpSession httpSession){
-
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean isSuccess = datasetService.deleteDatasetById(datasetId);
         if (isSuccess){
             return new ResponseResult(true,"001","数据集移入回收站成功");
@@ -195,6 +195,7 @@ public class DatasetController {
     @RequestMapping(value = "/dataset/deleteDatasetPermanently",method = RequestMethod.POST)
     public ResponseResult deleteDatasetCompletelyById(@RequestParam Integer datasetId,
                                                       HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean isSuccess = datasetService.deleteDatasetCompletelyById(datasetId);
         if (isSuccess){
             return new ResponseResult(true,"001","彻底删除数据集成功");
@@ -207,10 +208,8 @@ public class DatasetController {
     @RequestMapping(value = "/dataset/getDatasetInTrash",method = RequestMethod.GET)
     public ResponseResult getDatasetInTrash(@RequestParam(defaultValue = "1") int pageNum,
                                             @RequestParam(defaultValue = "10") int pageSize,
-                                            @RequestParam Integer userId,
                                             HttpSession httpSession){
-        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        //Integer userId = 1;
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data = datasetService.getDatasetInTrash(userId,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -223,7 +222,7 @@ public class DatasetController {
     @RequestMapping(value = "/dataset/restoreDataset",method = RequestMethod.GET)
     public ResponseResult restoreDataset(@RequestParam Integer datasetId,
                                          HttpSession httpSession){
-        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean  isSuccess= datasetService.restoreDataset(datasetId);
         if (isSuccess){
             return new ResponseResult(true,"001","恢复数据集成功");
@@ -237,6 +236,7 @@ public class DatasetController {
                                                     @RequestParam(defaultValue = "10") int pageSize,
                                                     @RequestParam(defaultValue = "test") String datasetName,
                                                     HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data = datasetService.searchPublicDatasetByName(datasetName,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -249,11 +249,9 @@ public class DatasetController {
     @RequestMapping(value = "/dataset/searchUserDatasetByName",method = RequestMethod.GET)
     public ResponseResult searchUserDatasetByName(@RequestParam(defaultValue = "1") int pageNum,
                                                   @RequestParam(defaultValue = "10") int pageSize,
-                                                  @RequestParam Integer userId,
                                                   @RequestParam(defaultValue = "test") String datasetName,
                                                   HttpSession httpSession){
-        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        //Integer userId = 1;
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data = datasetService.searchUserDatasetByName(userId,datasetName,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -268,6 +266,7 @@ public class DatasetController {
                                                     @RequestParam(defaultValue = "10") int pageSize,
                                                     @RequestParam String datasetTags,
                                                     HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data = datasetService.searchPublicDatasetByTags(datasetTags,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -280,11 +279,9 @@ public class DatasetController {
     @RequestMapping(value = "/dataset/searchUserDatasetByTags",method = RequestMethod.GET)
     public ResponseResult searchUserDatasetByTags(@RequestParam(defaultValue = "1") int pageNum,
                                                   @RequestParam(defaultValue = "10") int pageSize,
-                                                  @RequestParam Integer userId,
                                                   @RequestParam(defaultValue = "test") String datasetTags,
                                                   HttpSession httpSession){
-        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        //Integer userId = 1;
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data = datasetService.searchUserDatasetByTags(userId,datasetTags,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -297,6 +294,7 @@ public class DatasetController {
     @RequestMapping(value = "/dataset/downloadDataset",method = RequestMethod.GET)
     public ResponseResult downloadDataset(@RequestParam Integer datasetId,
                                           HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         File file = datasetService.downloadDataset(datasetId);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(file);
@@ -309,6 +307,7 @@ public class DatasetController {
     @RequestMapping(value = "/dataset/previewDataset",method = RequestMethod.GET)
     public ResponseResult previewDataset(@RequestParam Integer datasetId,
                                          HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String, Object> data = datasetService.getPreviewList(datasetId);
         if(data.get("content")==null){
             return new ResponseResult(false,"002","获取预览信息失败");

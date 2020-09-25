@@ -2,6 +2,7 @@ package com.bdilab.aiflow.mapper;
 
 import com.bdilab.aiflow.model.CustomComponent;
 import com.bdilab.aiflow.model.component.CustomComponentInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -46,5 +47,5 @@ public interface CustomComponentMapper {
 
     List<CustomComponentInfo> selectCustomComponentByTag(String tag, int type);
 
-    List<CustomComponentInfo> loadCustomComponentByUserIdAndType(int userId, int type);
+    List<CustomComponentInfo> loadCustomComponentByUserIdAndType(@Param("userId")int userId, @Param("type")int type);
 }

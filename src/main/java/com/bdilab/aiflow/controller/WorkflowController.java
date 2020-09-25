@@ -34,9 +34,9 @@ public class WorkflowController {
                                                 @RequestParam String workflowDesc,
                                                 @RequestParam String workflowXml,
                                                 @RequestParam String ggeditorObjectString,
-                                                @RequestParam Integer userId,
                                                 HttpSession httpSession
                                               ){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
 
         //在点击新建后立即新建一条流程记录
         //Workflow workflow = workflowService.CreateWorkflow(workflowName,tagString,workflowDesc,Integer.parseInt(httpSession.getAttribute("username").toString()));
@@ -87,6 +87,7 @@ public class WorkflowController {
                                    HttpServletRequest request,
                                    HttpServletResponse response,
                                    HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Workflow workflow = workflowService.selectWorkflowById(workflowId);
         String pipelineFilePath = workflow.getGeneratePipelineAddr();
         if(pipelineFilePath != null){
@@ -121,7 +122,9 @@ public class WorkflowController {
 
     @ResponseBody
     @RequestMapping(value = "/workflow/selectWorkflowById", method = RequestMethod.POST)
-    public ResponseResult selectWorkflowById(@RequestParam Integer workflowId){
+    public ResponseResult selectWorkflowById(@RequestParam Integer workflowId,
+                                             HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Workflow workflow = workflowService.selectWorkflowById(workflowId);
         Map<String,Object> data = new HashMap<>();
         data.put("workflow",workflow);
@@ -142,18 +145,17 @@ public class WorkflowController {
 
     /**
      * 展示所有未删除的流程和下属实验
-     * @param userId
      * @param pageNum
      * @param pageSize
      * @return WorkflowVOList
      */
     @ResponseBody
     @RequestMapping(value = "/workflow/selectAllWorkflowByUserId", method = RequestMethod.POST)
-    public ResponseResult selectAllWorkflowByUserId(@RequestParam Integer userId,
-                                                    @RequestParam(defaultValue = "1") int pageNum,
+    public ResponseResult selectAllWorkflowByUserId(@RequestParam(defaultValue = "1") int pageNum,
                                                     @RequestParam(defaultValue = "10") int pageSize,
                                                     HttpSession httpSession
                                                     ){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Workflow workflow = new Workflow();
         workflow.setFkUserId(userId);
         workflow.setIsDeleted(Byte.parseByte("0"));
@@ -166,21 +168,20 @@ public class WorkflowController {
 
     /**
      * 搜索栏，根据流程名称、流程标签、实验名称搜索，得到workflowVO
-     * @param userId
      * @param pageNum
      * @param pageSize
      * @return
      */
     @ResponseBody
     @RequestMapping(value = "/workflow/searchWorkflow", method = RequestMethod.POST)
-    public ResponseResult searchWorkflow(@RequestParam Integer userId,
-                                         @RequestParam(required = false) String workflowName,
+    public ResponseResult searchWorkflow(@RequestParam(required = false) String workflowName,
                                          @RequestParam(required = false) String tagString,
                                          @RequestParam(required = false) String experimentName,
                                          @RequestParam(defaultValue = "1") int pageNum,
                                          @RequestParam(defaultValue = "10") int pageSize,
                                          HttpSession httpSession
                                          ){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
 
         Workflow workflow=new Workflow();
         workflow.setFkUserId(userId);
@@ -196,18 +197,17 @@ public class WorkflowController {
 
     /**
      * 展示所有已经删除的流程，不含实验信息
-     * @param userId
      * @param pageNum
      * @param pageSize
      * @return WorkflowList
      */
     @ResponseBody
     @RequestMapping(value = "/workflow/selectDeletedWorkflow", method = RequestMethod.POST)
-    public ResponseResult selectDeletedWorkflow(@RequestParam Integer userId,
-                                                @RequestParam(defaultValue = "1") int pageNum,
+    public ResponseResult selectDeletedWorkflow(@RequestParam(defaultValue = "1") int pageNum,
                                                 @RequestParam(defaultValue = "10") int pageSize,
                                                 HttpSession httpSession
                                              ){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Workflow workflow = new Workflow();
         workflow.setFkUserId(userId);
         workflow.setIsDeleted(Byte.parseByte("1"));
@@ -235,6 +235,7 @@ public class WorkflowController {
                                         @RequestParam String workflowDesc,
                                         HttpSession httpSession
                                         ){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Workflow workflow=workflowService.selectWorkflowById(workflowId);
         Workflow newWorkflow=workflowService.cloneWorkflow(workflow,workflowName,tagString,workflowDesc);
 
@@ -256,6 +257,7 @@ public class WorkflowController {
     @RequestMapping(value = "/workflow/deleteWorkflow", method = RequestMethod.POST)
     public ResponseResult deleteWorkflow(@RequestParam Integer workflowId,
                                          HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Workflow workflow= workflowService.selectWorkflowById(workflowId);
         if(workflow.getIsDeleted()==0) {
             boolean isSuccess=workflowService.deleteWorkflow(workflow);
@@ -280,6 +282,7 @@ public class WorkflowController {
     public ResponseResult restoreWorkflow(@RequestParam Integer workflowId,
                                           HttpSession httpSession
                                         ){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean isSuccess=workflowService.restoreWorkflow(workflowId);
         if(isSuccess){
             return new ResponseResult(true,"001","流程还原成功");

@@ -38,7 +38,7 @@ public class ExperimentRunningController {
     @RequestMapping(value = "/experimentRunning/deleteExperimentRunning", method = RequestMethod.POST)
     public  ResponseResult deleteExperimentRunning(@RequestParam @ApiParam(value = "实验运行id") Integer runningId,
                                           HttpSession httpSession) throws Exception{
-
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> isSuccess=experimentRunningService.deleteExperimentRunning(runningId);
         if(isSuccess.get("isSuccess").equals(true)){
             return new ResponseResult(true,"001",isSuccess.get("message").toString());
@@ -53,6 +53,7 @@ public class ExperimentRunningController {
                                                 @RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,
                                                 @RequestParam(defaultValue = "10")@ApiParam(value = "每页记录数") int pageSize,
                                                    HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
 
         Map<String,Object> data=experimentRunningService.selectRunningByExperimentId(
                 experimentId, DeleteStatus.NOTDELETED.getValue(),pageNum,pageSize);
@@ -69,6 +70,7 @@ public class ExperimentRunningController {
     public  ResponseResult deleteExperimentRunning(@RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,
                                                    @RequestParam(defaultValue = "10")@ApiParam(value = "每页记录数") int pageSize,
                                                    HttpSession httpSession) throws Exception{
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data=experimentRunningService.getDeletedRunning(DeleteStatus.DELETED.getValue(),pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -82,6 +84,7 @@ public class ExperimentRunningController {
     @RequestMapping(value = "/experimentRunning/restoreExperimentRunning", method = RequestMethod.POST)
     public  ResponseResult restoreExperimentRunning(@RequestParam @ApiParam(value = "实验运行id") Integer runningId,
                                                    HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean isSuccess = experimentRunningService.restoreExperimentRunning(runningId);
         if(isSuccess){
             return new ResponseResult(true,"001","还原实验运行成功");
@@ -94,6 +97,7 @@ public class ExperimentRunningController {
     @RequestMapping(value = "/experimentRunning/getExperimentRunningLog", method = RequestMethod.POST)
     public  ResponseResult getExperimentRunningLog(@RequestParam @ApiParam(value = "实验运行id") Integer runningId,
                                                    HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> data=experimentRunningService.getRunningLog(runningId);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
