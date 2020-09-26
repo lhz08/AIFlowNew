@@ -42,6 +42,9 @@ public class DatasetController {
                                            @RequestParam(defaultValue = "10") int pageSize,
                                            HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         Map<String,Object> data = datasetService.getPublicDataset(pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -58,6 +61,9 @@ public class DatasetController {
                                          @RequestParam(defaultValue = "10") int pageSize,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         Map<String,Object> data = datasetService.getUserDataset(userId,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -111,6 +117,9 @@ public class DatasetController {
                                         @RequestParam String datasetDesc,
                                         HttpSession httpSession) {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         if(datasetService.uploadDatasetToMinio(file,datasetName,tags,datasetDesc,userId)) {
             return new ResponseResult(true, "001", "上传数据集成功");
         }
@@ -128,6 +137,9 @@ public class DatasetController {
                                         HttpSession httpSession){
 
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         //获取上传文件的原始名
         String filename = file.getOriginalFilename();
         //获取文件的后缀名
@@ -183,6 +195,9 @@ public class DatasetController {
     public ResponseResult deleteDatasetById(@RequestParam Integer datasetId,
                                             HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         boolean isSuccess = datasetService.deleteDatasetById(datasetId);
         if (isSuccess){
             return new ResponseResult(true,"001","数据集移入回收站成功");
@@ -196,6 +211,9 @@ public class DatasetController {
     public ResponseResult deleteDatasetCompletelyById(@RequestParam Integer datasetId,
                                                       HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         boolean isSuccess = datasetService.deleteDatasetCompletelyById(datasetId);
         if (isSuccess){
             return new ResponseResult(true,"001","彻底删除数据集成功");
@@ -210,6 +228,9 @@ public class DatasetController {
                                             @RequestParam(defaultValue = "10") int pageSize,
                                             HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         Map<String,Object> data = datasetService.getDatasetInTrash(userId,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -223,6 +244,9 @@ public class DatasetController {
     public ResponseResult restoreDataset(@RequestParam Integer datasetId,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         boolean  isSuccess= datasetService.restoreDataset(datasetId);
         if (isSuccess){
             return new ResponseResult(true,"001","恢复数据集成功");
@@ -237,6 +261,9 @@ public class DatasetController {
                                                     @RequestParam(defaultValue = "test") String datasetName,
                                                     HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         Map<String,Object> data = datasetService.searchPublicDatasetByName(datasetName,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -252,6 +279,9 @@ public class DatasetController {
                                                   @RequestParam(defaultValue = "test") String datasetName,
                                                   HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         Map<String,Object> data = datasetService.searchUserDatasetByName(userId,datasetName,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -267,6 +297,9 @@ public class DatasetController {
                                                     @RequestParam String datasetTags,
                                                     HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         Map<String,Object> data = datasetService.searchPublicDatasetByTags(datasetTags,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -282,6 +315,9 @@ public class DatasetController {
                                                   @RequestParam(defaultValue = "test") String datasetTags,
                                                   HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         Map<String,Object> data = datasetService.searchUserDatasetByTags(userId,datasetTags,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -295,6 +331,9 @@ public class DatasetController {
     public ResponseResult downloadDataset(@RequestParam Integer datasetId,
                                           HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         File file = datasetService.downloadDataset(datasetId);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(file);
@@ -308,6 +347,9 @@ public class DatasetController {
     public ResponseResult previewDataset(@RequestParam Integer datasetId,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         Map<String, Object> data = datasetService.getPreviewList(datasetId);
         if(data.get("content")==null){
             return new ResponseResult(false,"002","获取预览信息失败");

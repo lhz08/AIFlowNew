@@ -1,0 +1,51 @@
+import kfp
+from kfp import components
+from kfp import dsl
+
+
+classification_test_op=components.load_component_from_file('E:\home\pipelineYaml\classification_test.yaml')
+data_import_op=components.load_component_from_file('E:\home\pipelineYaml\data_import.yaml')
+knn_op=components.load_component_from_file('E:\home\pipelineYaml\knn.yaml')
+mutualInfo_op=components.load_component_from_file('E:\home\pipelineYaml\mutualInfo.yaml')
+split_data_op=components.load_component_from_file('E:\home\pipelineYaml\split_data.yaml')
+
+
+@dsl.pipeline(
+    name='test',
+    description='split data test pipeline.'
+)
+def test_pipeline(
+        mutualInfo_threshold,
+        split_data_ratio,
+        config,
+        input_data
+):
+
+    _data_import_op=data_import_op(
+        inputdata= input_data,
+        config=config
+).set_display_name('data_import')
+
+    _mutualInfo_op=mutualInfo_op(
+        inputdata=_data_import_op.outputs['data'],
+        config=config
+).after(_data_import_op).set_display_name('mutualInfo')
+
+    _split_data_op=split_data_op(
+        inputdata=_mutualInfo_op.outputs['data'],
+        config=config
+).after(_mutualInfo_op).set_display_name('split_data')
+
+    _knn_op=knn_op(
+        traindata=_split_data_op.outputs['traindata'],
+        config=config
+).after(_split_data_op).set_display_name('knn')
+
+    _classification_test_op=classification_test_op(
+        valdata=_split_data_op.outputs['valdata'],
+        model=_knn_op.outputs['model'],
+        config=config
+).after(_split_data_op).after(_knn_op).set_display_name('classification_test')
+
+if __name__ == '__main__':
+    kfp.compiler.Compiler().compile(test_pipeline, __file__ + '.yaml')

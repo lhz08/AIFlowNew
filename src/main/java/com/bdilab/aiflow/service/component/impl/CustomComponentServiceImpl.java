@@ -231,4 +231,13 @@ public class CustomComponentServiceImpl implements CustomComponentService {
         PageInfo<CustomComponentInfo> pageInfo = new PageInfo<>(customComponentList);
         return pageInfo;
     }
+
+    @Override
+    public PageInfo<CustomComponentInfo> loadPublicComponentInfo(int pageNum,int pageSize){
+        PageHelper.startPage(pageNum, pageSize);
+        List<CustomComponentInfo> customComponentList = componentInfoMapper.loadPublicComponentInfo();
+        System.out.println(customComponentList);
+        PageInfo<CustomComponentInfo> pageInfo = new PageInfo<>(customComponentList);
+        return pageInfo;
+    }
 }

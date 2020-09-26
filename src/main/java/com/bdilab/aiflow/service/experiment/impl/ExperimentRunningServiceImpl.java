@@ -9,6 +9,7 @@ import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.service.component.ComponentOutputStubService;
 import com.bdilab.aiflow.service.experiment.ExperimentRunningService;
 import com.bdilab.aiflow.service.model.ModelService;
+import com.bdilab.aiflow.service.run.RunService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,9 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
     @Autowired
     ComponentOutputStubService componentOutputStubService;
 
+    @Autowired
+    RunService runService;
+
     @Override
     public boolean updateExperimentRunning(ExperimentRunning experimentRunning){
         return experimentRunningMapper.updateExperimentRunning(experimentRunning)==1;
@@ -63,34 +67,36 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
                 messageMap.put("isSuccess",false);
                 messageMap.put("message","实验删除失败，具体信息：删除实验运行出错");
                 return messageMap;
-                }else{
-                    //彻底删除
-                    //查看该实验运行是否有关联的模型
-                    List<Model> modellist=modelService.getAllModelByRunningIdAndIsDeleted(runningId,
-                            Byte.parseByte(DeleteStatus.NOTDELETED.getValue()+""));
-                    for(Model model:modellist){
-                        //将模型的实验运行外键置空
-                        boolean isSuccess=modelService.setRunningIdNull(model.getId());
-                        if(!isSuccess){
-                            messageMap.put("isSuccess",false);
-                            messageMap.put("message","实验运行删除失败,具体信息：在处理该实验运行关联的模型的时候失败");
-                            return messageMap;
-                        }
-                    }
-                    //彻底删除该实验运行的输出桩记录
-                    boolean isSuccess_Output=componentOutputStubService.deleteOutputByRunningId(runningId);
-                    //彻底删除该实验运行记录
-                    boolean isSuccess_Running=experimentRunningMapper.deleteRunningByRunningId(runningId)==1;
-                    if(isSuccess_Output&&isSuccess_Running){
-                        messageMap.put("isSuccess",true);
-                        messageMap.put("message","实验彻底删除成功,已从回收站移除");
+            }else{
+                //彻底删除
+                //查看该实验运行是否有关联的模型
+                List<Model> modellist=modelService.getAllModelByRunningIdAndIsDeleted(runningId,
+                        Byte.parseByte(DeleteStatus.NOTDELETED.getValue()+""));
+                for(Model model:modellist){
+                    //将模型的实验运行外键置空
+                    boolean isSuccess=modelService.setRunningIdNull(model.getId());
+                    if(!isSuccess){
+                        messageMap.put("isSuccess",false);
+                        messageMap.put("message","实验运行删除失败,具体信息：在处理该实验运行关联的模型的时候失败");
                         return messageMap;
                     }
+                }
+                //彻底删除该实验运行的输出桩记录
+                boolean isSuccess_Output=componentOutputStubService.deleteOutputByRunningId(runningId);
+                //彻底删除该实验运行记录
+                boolean isSuccess_Running=experimentRunningMapper.deleteRunningByRunningId(runningId)==1;
+                // TODO: 2020/9/25 0025  从kubeflow上删除运行，运行表中应该加kubeflow的运行id字段。
+                //runService.deleteRunById(experimentRunning.getId().toString());
+
+                if(isSuccess_Output&&isSuccess_Running){
+                    messageMap.put("isSuccess",true);
+                    messageMap.put("message","实验彻底删除成功,已从回收站移除");
+                    return messageMap;
+                }
                 messageMap.put("isSuccess",false);
                 messageMap.put("message","实验彻底删除失败");
                 return messageMap;
-
-                }
+            }
         }else{
             messageMap.put("isSuccess",false);
             messageMap.put("message","实验删除失败,具体信息：该实验正在运行中，无法进行删除操作");

@@ -52,4 +52,9 @@ public interface CustomComponentService {
      */
     PageInfo<CustomComponentInfo> selectComponentByKeyword(String keyword, int type, int pageNum, int pageSize);
     PageInfo<CustomComponentInfo> loadCustomComponentByUserIdAndType(int userId, int pageNum, int pageSize, int type);
+
+    /*
+    加载系统组件
+     */
+    PageInfo<CustomComponentInfo> loadPublicComponentInfo(int pageNum,int pageSize);
 }

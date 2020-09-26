@@ -39,6 +39,9 @@ public class CustomComponentController {
                                           @RequestPart @ApiParam(value = "component") ComponentCreateInfo componentCreateInfo,
                                           HttpSession httpSession) {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         System.out.println(componentCreateInfo);
         System.out.println("file:"+componentFile.getOriginalFilename());
 
@@ -61,6 +64,9 @@ public class CustomComponentController {
     public ResponseResult deleteComponent(@RequestParam @ApiParam(value = "componentId") Integer componentId,
                                           HttpSession httpSession) {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         boolean isComponentDelete = customComponentService.deleteComponent(componentId);
         if (isComponentDelete) {
             return new ResponseResult(true,"001","Deleted successfully.");
@@ -80,6 +86,9 @@ public class CustomComponentController {
     public ResponseResult deleteComponentPermanently(@RequestParam @ApiParam(value = "componentId") List<Integer> componentIds,
                                                      HttpSession httpSession) {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         boolean isDeletePermanently = customComponentService.deleteComponentPermanently(componentIds);
         if (isDeletePermanently) {
             return new ResponseResult(true,"001","Deleted forever.");
@@ -99,6 +108,9 @@ public class CustomComponentController {
     public ResponseResult restoreComponent(@RequestParam @ApiParam(value = "componentId") List<Integer> componentIds,
                                            HttpSession httpSession) {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         boolean isComponentRestore = customComponentService.restoreComponent(componentIds);
         if (isComponentRestore) {
             return new ResponseResult(true,"001","Restore successfully.");
@@ -115,6 +127,9 @@ public class CustomComponentController {
                                                           @RequestParam(defaultValue = "10")@ApiParam(value = "每页记录数") int pageSize,
                                                           HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         PageInfo<CustomComponentInfo> customComponentList = customComponentService.selectComponentByKeyword(keyword,type,pageNum,pageSize);
         Map<String, Object> data = new HashMap<>(2);
         if(customComponentList!=null&&customComponentList.getSize()!=0) {
@@ -132,6 +147,9 @@ public class CustomComponentController {
                                                       @RequestParam(defaultValue = "10")@ApiParam(value = "每页记录数") int pageSize,
                                                       HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         PageInfo<CustomComponentInfo> customComponentList = customComponentService.selectComponentByTag(tag,type,pageNum,pageSize);
         Map<String, Object> data = new HashMap<>(2);
         if(customComponentList!=null && customComponentList.getSize()!=0) {
@@ -142,14 +160,31 @@ public class CustomComponentController {
     }
 
     @ResponseBody
-    @ApiOperation("加载用户组件信息")
+    @ApiOperation("加载用户自定义组件信息")
     @RequestMapping(value = "/customComponent/loadCustomComponentInfo", method = RequestMethod.POST)
     public ResponseResult loadCustomComponentInfo(@RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,
                                                   @RequestParam(defaultValue = "10")@ApiParam(value = "每页记录数") int pageSize,
                                                   @RequestParam(value = "type") int type,
                                                   HttpSession httpSession) {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
         PageInfo<CustomComponentInfo> data = customComponentService.loadCustomComponentByUserIdAndType(userId,pageNum,pageSize,type);
         return new ResponseResult(true,"001","成功加载用户组件信息",data,(int)data.getTotal());
+    }
+
+    @ResponseBody
+    @ApiOperation("加载系统组件信息")
+    @RequestMapping(value = "/publicComponent/loadPublicComponentInfo", method = RequestMethod.POST)
+    public ResponseResult loadPublicComponentInfo(@RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,
+                                                  @RequestParam(defaultValue = "10")@ApiParam(value = "每页记录数") int pageSize,
+                                                  HttpSession httpSession) {
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
+        PageInfo<CustomComponentInfo> data = customComponentService.loadPublicComponentInfo(pageNum,pageSize);
+        return new ResponseResult(true,"001","成功加载系统组件信息",data,(int)data.getTotal());
     }
 }

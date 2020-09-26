@@ -15,12 +15,14 @@ import com.bdilab.aiflow.model.PythonParameters;
 import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.service.pipeline.PipelineService;
 import com.google.gson.Gson;
+import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -226,17 +228,23 @@ public class PipelineServiceImpl implements PipelineService {
 
 
     @Override
-    public String uploadPipeline(String name, String description, MultipartFile file) {
+    public String uploadPipeline(String name, String description, File file) {
+
         String url = "http://120.27.69.55:31380/pipeline/apis/v1beta1/pipelines/upload?name=" + name + "&description=" + description;
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-
-        //filePath="E:\\hello_world1.py.yaml"
         FileSystemResource fileSystemResource = null;
+
+        //将File类型转换成API需要的MultipartFile类型
         try {
-            fileSystemResource = new FileSystemResource(FileUtils.transferToFile(file));
+            FileInputStream fileInputStream = new FileInputStream(file);
+            MultipartFile multipartFile = new MockMultipartFile(file.getName(),file.getName(), ContentType.APPLICATION_OCTET_STREAM.toString(),fileInputStream);
+            fileSystemResource = new FileSystemResource(FileUtils.transferToFile(multipartFile));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         map.add("uploadfile",fileSystemResource);
 
         HttpEntity<MultiValueMap<String, Object>> params = new HttpEntity<>(map);
@@ -249,5 +257,27 @@ public class PipelineServiceImpl implements PipelineService {
         Map<String,String> map1 = gson.fromJson(responseEntity.getBody(),Map.class);
         String pipelineId = map1.get("id").toString();
         return pipelineId;
+    }
+
+    @Override
+    public String getPipelineById(String pipelineId) {
+        //b5e588e3-062e-4e9c-b1c6-eddabea88c89
+        String url = "http://120.27.69.55:31380/pipeline/apis/v1beta1/pipelines/" + pipelineId;
+        Map<String, Object> paramMap = new HashMap<>();
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(url,String.class,paramMap);
+        int statusCodeValue = responseEntity.getStatusCodeValue();
+        System.out.println("statusCodeValue = " + statusCodeValue);
+        if(statusCodeValue == 200){
+            return responseEntity.getBody();
+        }else {
+            return null;
+        }
+    }
+
+    @Override
+    public boolean deletePipelineById(String pipelineId) {
+        String url = "http://120.27.69.55:31380/pipeline/apis/v1beta1/pipelines/" + pipelineId;
+        restTemplate.delete(url);
+        return true;
     }
 }

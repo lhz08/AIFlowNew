@@ -61,5 +61,17 @@ public class RunController {
         return responseResult;
     }
 
-
+    @ApiOperation(value = "根据运行id删除对应的运行")
+    @ResponseBody
+    @RequestMapping(value = "/deleteRunById",method = RequestMethod.POST)
+    public ResponseResult deleteRunById(String runId){
+        boolean result = runService.deleteRunById(runId);
+        ResponseResult responseResult = new ResponseResult();
+        if (result){
+            responseResult.setMeta(new MetaData(true,"001","成功删除运行"));
+        }else {
+            responseResult.setMeta(new MetaData(true,"001","删除运行失败"));
+        }
+        return responseResult;
+    }
 }

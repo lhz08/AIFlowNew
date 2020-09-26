@@ -29,7 +29,13 @@ public class FilePathConfig {
         this.pipelineCodePath = pipelineCodePath;
     }
 
+    public String getWorkflowXmlFilePath() {
+        return workflowXmlFilePath;
+    }
 
+    public void setWorkflowXmlFilePath(String workflowXmlFilePath) {
+        this.workflowXmlFilePath = workflowXmlFilePath;
+    }
 
     /**
      * 上传dataset地址
@@ -50,5 +56,7 @@ public class FilePathConfig {
     @Value("${pipline.pythonCode.path}")
     private String pipelineCodePath;
 
+    @Value("${workflow.xmlFile.path}")
+    private String workflowXmlFilePath;
 
 }

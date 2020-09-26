@@ -135,4 +135,11 @@ public class RunServiceImpl implements RunService {
         }
         return null;
     }
+
+    @Override
+    public boolean deleteRunById(String runId) {
+        String url = "http://120.27.69.55:31380/pipeline/apis/v1beta1/runs/" + runId;
+        restTemplate.delete(url);
+        return true;
+    }
 }
