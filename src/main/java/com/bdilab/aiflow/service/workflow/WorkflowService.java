@@ -14,7 +14,7 @@ public interface WorkflowService {
      * @param userId 用户id
      * @return 流程模型
      */
-    Workflow createWorkflow(String workflowName, String tagString, String workflowDesc,Integer userId);
+    Workflow createAndSaveWorkflow(String workflowName, String tagString, String workflowDesc, String workflowXml, String ggeditorObjectString, Integer userId);
 
     /**
      * 克隆流程

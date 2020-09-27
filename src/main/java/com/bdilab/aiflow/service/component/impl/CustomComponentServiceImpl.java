@@ -5,14 +5,18 @@ import com.bdilab.aiflow.common.config.FilePathConfig;
 import com.bdilab.aiflow.mapper.ComponentInfoMapper;
 import com.bdilab.aiflow.mapper.ComponentParameterMapper;
 import com.bdilab.aiflow.mapper.CustomComponentMapper;
+import com.bdilab.aiflow.mapper.EnumValueMapper;
 import com.bdilab.aiflow.model.ComponentInfo;
 import com.bdilab.aiflow.model.ComponentParameter;
 import com.bdilab.aiflow.model.CustomComponent;
+import com.bdilab.aiflow.model.EnumValue;
 import com.bdilab.aiflow.model.component.ComponentCreateInfo;
 import com.bdilab.aiflow.model.component.CustomComponentInfo;
 import com.bdilab.aiflow.model.component.InputStubInfo;
 import com.bdilab.aiflow.model.component.OutputStubInfo;
+import com.bdilab.aiflow.model.workflow.Variable;
 import com.bdilab.aiflow.service.component.CustomComponentService;
+import com.bdilab.aiflow.vo.ComponentInfoVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,25 +24,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class CustomComponentServiceImpl implements CustomComponentService {
 
-    @Autowired
+    @Resource
     FilePathConfig filePathConfig;
 
-    @Autowired
+    @Resource
     CustomComponentMapper customComponentMapper;
 
-    @Autowired
+    @Resource
     ComponentInfoMapper componentInfoMapper;
 
-    @Autowired
+    @Resource
     ComponentParameterMapper componentParamMapper;
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -225,8 +230,47 @@ public class CustomComponentServiceImpl implements CustomComponentService {
     @Override
     public PageInfo<CustomComponentInfo> loadCustomComponentByUserIdAndType(int userId, int pageNum, int pageSize, int type) {
         PageHelper.startPage(pageNum, pageSize);
+        System.out.println(userId);
         List<CustomComponentInfo> customComponentList = customComponentMapper.loadCustomComponentByUserIdAndType(userId, type);
+        System.out.println(customComponentList);
         PageInfo<CustomComponentInfo> pageInfo = new PageInfo<>(customComponentList);
         return pageInfo;
+    }
+
+    @Override
+    public Map<String,List<ComponentInfoVO>> loadPublicComponentInfo(){
+        List<ComponentInfo> systemComponentInfos = componentInfoMapper.loadPublicComponentInfo();
+        List<ComponentInfoVO> systemComponentVOs = new ArrayList<>();
+        for(ComponentInfo componentInfo:systemComponentInfos){
+            systemComponentVOs.add(buildComponentInfoVO(componentInfo));
+        }
+        Map<String,List<ComponentInfoVO>> result = new HashMap<>();
+        result.put("System Component",systemComponentVOs);
+        return result;
+    }
+
+    /**
+     * 输入componentInfo，组装成componentInfoVO
+     * @param componentInfo
+     * @return
+     */
+    private ComponentInfoVO buildComponentInfoVO(ComponentInfo componentInfo){
+        ComponentInfoVO componentInfoVO = new ComponentInfoVO();
+        componentInfoVO.setComponentId(componentInfo.getId());
+        componentInfoVO.setComponentName(componentInfo.getName());
+        componentInfoVO.setComponentNameChs(componentInfo.getComponentDesc());
+        List<Variable> variables = new ArrayList<>();
+        //根据componentInfoId检索参数
+        List<ComponentParameter> componentVariablesList = componentParamMapper.selectComponentParameterByComponentId(componentInfo.getId());
+        for(ComponentParameter componentParameter:componentVariablesList){
+            Variable variable = new Variable();
+            variable.setVariableName(componentParameter.getName());
+            variable.setDefaultValue(componentParameter.getDefaultValue());
+            variable.setVariableDes(componentParameter.getParameterDesc());
+            variable.setVariableType(Integer.parseInt(componentParameter.getParameterType()));
+            variables.add(variable);
+        }
+        componentInfoVO.setVariables(variables);
+        return componentInfoVO;
     }
 }

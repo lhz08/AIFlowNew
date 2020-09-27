@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://www.activiti.org/test" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" expressionLanguage="http://www.w3.org/1999/XPath" id="m1563795588614" name="" targetNamespace="http://www.activiti.org/test" typeLanguage="http://www.w3.org/2001/XMLSchema">
+<process id="myProcess_1" isClosed="false" isExecutable="true" processType="None">
+<startEvent id="start_1" name="StartEvent"/>
+<userTask activiti:exclusive="true" id="_4_2" name="train">
+<documentation id="_2_D_2"><![CDATA[[input] train,[output] model,[prior] _4 ,[end] false]]></documentation>
+</userTask>
+<userTask activiti:exclusive="true" id="_3_3" name="mutualInfo">
+<documentation id="_3_D_3"><![CDATA[[input] train,[output] model,[algorithm] threshold=0.05 ,[prior] _6 ,[end] false]]></documentation>
+</userTask>
+<userTask activiti:exclusive="true" id="_1_4" name="split_data">
+<documentation id="_4_D_4"><![CDATA[[input] train,[output] model,[algorithm] ratio=0.2 ,[prior] _3 ,[end] false]]></documentation>
+</userTask>
+<userTask activiti:exclusive="true" id="_6_5" name="classification_test">
+<documentation id="_5_D_5"><![CDATA[[input] train,[output] model,[prior] _4 _2 ,[end] true]]></documentation>
+</userTask>
+<userTask activiti:exclusive="true" id="_5_6" name="data_import">
+<documentation id="_6_D_6"><![CDATA[[input] ,[output] ,[algorithm] addr= ,[prior] _1 ,[end] false]]></documentation>
+</userTask>
+<parallelGateway gatewayDirection="Unspecified" id="_7" name="split_data"/>
+<parallelGateway gatewayDirection="Unspecified" id="_8" name="classification_test"/>
+<endEvent id="end_1" name="EndEvent"/>
+<sequenceFlow id="start" sourceRef="start_1" targetRef="_5_6"/>
+<sequenceFlow id="_9" sourceRef="_5_6" targetRef="_3_3"/>
+<sequenceFlow id="_10" sourceRef="_3_3" targetRef="_1_4"/>
+<sequenceFlow id="end" sourceRef="_6_5" targetRef="end_1"/>
+<sequenceFlow id="_11" sourceRef="_1_4" targetRef="_7"/>
+<sequenceFlow id="_12" sourceRef="_7" targetRef="_4_2"/>
+<sequenceFlow id="_13" sourceRef="_7" targetRef="_8"/>
+<sequenceFlow id="_14" sourceRef="_4_2" targetRef="_8"/>
+<sequenceFlow id="_15" sourceRef="_8" targetRef="_6_5"/>
+</process></definitions>

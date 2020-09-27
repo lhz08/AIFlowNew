@@ -2,10 +2,12 @@ package com.bdilab.aiflow.service.component;
 
 import com.bdilab.aiflow.model.component.ComponentCreateInfo;
 import com.bdilab.aiflow.model.component.CustomComponentInfo;
+import com.bdilab.aiflow.vo.ComponentInfoVO;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CustomComponentService {
 
@@ -52,4 +54,9 @@ public interface CustomComponentService {
      */
     PageInfo<CustomComponentInfo> selectComponentByKeyword(String keyword, int type, int pageNum, int pageSize);
     PageInfo<CustomComponentInfo> loadCustomComponentByUserIdAndType(int userId, int pageNum, int pageSize, int type);
+
+    /*
+    加载系统组件
+     */
+    Map<String,List<ComponentInfoVO>> loadPublicComponentInfo();
 }

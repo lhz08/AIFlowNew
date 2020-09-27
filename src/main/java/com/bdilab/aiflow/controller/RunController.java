@@ -1,5 +1,6 @@
 package com.bdilab.aiflow.controller;
 
+import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.service.run.RunService;
 import io.swagger.annotations.Api;
@@ -8,6 +9,10 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author smile
@@ -38,6 +43,35 @@ public class RunController {
         System.out.println(processInstanceId+" "+taskId+" "+conversationId+resultPath);
     }
 
+    /*测试使用，不用调用*/
+    @ApiOperation(value = "创建运行")
+    @ResponseBody
+    @RequestMapping(value = "/createRun",method = RequestMethod.POST)
+    public ResponseResult createRun(String pipelineId,String pipelineName){
 
+        Map<String,Object> parameter = new HashMap<>();
+        parameter.put("input_data","dataset/IrisFS.csv");
+        parameter.put("val_portion","0.2");
+        parameter.put("resultPath","admin");
 
+        String result = runService.createRun(pipelineId,pipelineName,parameter);
+        ResponseResult responseResult = new ResponseResult();
+        responseResult.setData(result);
+        responseResult.setMeta(new MetaData(true,"001","成功创建运行"));
+        return responseResult;
+    }
+
+    @ApiOperation(value = "根据运行id删除对应的运行")
+    @ResponseBody
+    @RequestMapping(value = "/deleteRunById",method = RequestMethod.POST)
+    public ResponseResult deleteRunById(String runId){
+        boolean result = runService.deleteRunById(runId);
+        ResponseResult responseResult = new ResponseResult();
+        if (result){
+            responseResult.setMeta(new MetaData(true,"001","成功删除运行"));
+        }else {
+            responseResult.setMeta(new MetaData(true,"001","删除运行失败"));
+        }
+        return responseResult;
+    }
 }

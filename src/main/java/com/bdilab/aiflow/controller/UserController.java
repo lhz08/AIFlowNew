@@ -56,4 +56,34 @@ public class UserController {
         } else
             return new ResponseResult(false, "002", "用户名或密码错误", null);
     }
+
+    @ResponseBody
+    @ApiOperation("用户注册")
+    @RequestMapping(value = "/register",method = RequestMethod.POST)
+    public ResponseResult register(@RequestParam @ApiParam(value = "用户名") String username,
+                                   @RequestParam @ApiParam(value = "密码") String password,
+                                   HttpSession httpSession)throws IOException, NoSuchAlgorithmException {
+        User user = new User();
+        if(userService.userRegisterCheck(username)!=null) {
+            return new ResponseResult(true, "002", "注册失败，用户名已存在", null);
+        }
+        String md5Password = DecryptUtils.getMd5(password);
+        user.setUserName(username);
+        user.setPassword(md5Password);
+        userService.createUser(user);
+        return new ResponseResult(true, "001", "注册成功",username);
+    }
+
+    /**
+     * 用户注销
+     * @param httpSession
+     * @return
+     */
+    @ResponseBody
+    @ApiOperation("用户注销")
+    @RequestMapping(value = "/logout",method = RequestMethod.POST)
+    public ResponseResult logout(HttpSession httpSession) {
+        httpSession.invalidate();
+        return new ResponseResult(true,"001","注销成功");
+    }
 }

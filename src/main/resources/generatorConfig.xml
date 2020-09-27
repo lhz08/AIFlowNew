@@ -8,7 +8,7 @@
     <!--指定属性配置文件，使用springboot的-->
     <properties resource="application.properties"></properties>
     <!--指定数据库的jdbc驱动包位置，需要绝对路径-->
-    <classPathEntry location="C:\Users\鲢鱼QAQ\.m2\repository\mysql\mysql-connector-java\5.1.35\mysql-connector-java-5.1.35.jar"/>
+    <classPathEntry location="C:\Users\cuishaohui\.m2\repository\mysql\mysql-connector-java\5.1.35\mysql-connector-java-5.1.35.jar"/>
 
     <!--
       context:生成一组对象的环境

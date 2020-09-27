@@ -1,6 +1,10 @@
 package com.bdilab.aiflow.service.pipeline;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.util.Map;
 
 /**
  * @author smile
@@ -8,7 +12,13 @@ import org.springframework.stereotype.Service;
  **/
 public interface PipelineService {
 
-    public void generatePipeline(Integer userId,String xmlPath,String name);
+    public Map generatePipeline(String workflowXmlAddr, Integer userId);
     public String generateCode(String json);
+
+    String uploadPipeline(String name, String description, File file);
+
+    String getPipelineById(String pipelineId);
+
+    boolean deletePipelineById(String pipelineId);
 }
 

@@ -2,7 +2,7 @@ package com.bdilab.aiflow.model;
 
 import io.swagger.models.auth.In;
 
-import javax.validation.constraints.NotEmpty;
+//import javax.validation.constraints.NotEmpty;
 import java.util.Date;
 
 public class Experiment {

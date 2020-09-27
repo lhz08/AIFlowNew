@@ -22,7 +22,7 @@ public interface ExperimentService {
      * @param name
      * @param experimentDesc
      */
-    Experiment createExperiment(Integer fkWorkflowId, String name, String experimentDesc);
+    Experiment createExperiment(Integer fkWorkflowId, String name, String experimentDesc, String paramJsonString);
 
     /**
      * 更新实验

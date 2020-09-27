@@ -1,19 +1,27 @@
 package com.bdilab.aiflow.service.workflow.impl;
 
+import com.bdilab.aiflow.common.config.FilePathConfig;
 import com.bdilab.aiflow.common.enums.DeleteStatus;
+import com.bdilab.aiflow.common.utils.DateUtils;
+import com.bdilab.aiflow.common.utils.XmlUtils;
 import com.bdilab.aiflow.mapper.ExperimentMapper;
 import com.bdilab.aiflow.mapper.TemplateMapper;
 import com.bdilab.aiflow.mapper.WorkflowMapper;
 import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.Template;
 import com.bdilab.aiflow.model.Workflow;
+import com.bdilab.aiflow.service.pipeline.PipelineService;
 import com.bdilab.aiflow.service.workflow.WorkflowService;
 import com.bdilab.aiflow.service.experiment.ExperimentService;
 import com.bdilab.aiflow.vo.WorkflowVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.http.entity.ContentType;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +45,12 @@ public class WorkflowServiceImpl implements WorkflowService {
     @Autowired
     private ExperimentService experimentService;
 
+    @Autowired
+    private PipelineService pipelineService;
+
+    @Autowired
+    FilePathConfig filePathConfig;
+
     /**
      * @// TODO: 2020/9/2 尚不知道pipelineaddr怎么获得，是等python端得到后再写入？
      * todo:2 不知道如何获得FkCustomComponentIds
@@ -47,7 +61,7 @@ public class WorkflowServiceImpl implements WorkflowService {
      * @return
      */
     @Override
-    public Workflow createWorkflow(String workflowName, String tagString, String workflowDesc,Integer userId){
+    public Workflow createAndSaveWorkflow(String workflowName, String tagString, String workflowDesc, String workflowXml,String ggeditorObjectString,Integer userId){
         Workflow workflow=new Workflow();
 
         workflow.setName(workflowName);
@@ -55,13 +69,29 @@ public class WorkflowServiceImpl implements WorkflowService {
         workflow.setTags(tagString);
         workflow.setIsDeleted(Byte.parseByte("0"));
         workflow.setWorkflowDesc(workflowDesc);
-        workflow.setWorkflowXmlAddr("");
-        workflow.setGeneratePipelineAddr("");
-        workflow.setGgeditorObjectString("");
+        workflow.setGgeditorObjectString(ggeditorObjectString);
         workflow.setIsCustom(Byte.parseByte("0"));
         workflow.setCreateTime(new Date());
 //      workflow.setFkCustomComponentIds("1,2,3");
+        workflow.setGeneratePipelineAddr("");
+        workflow.setPipelineYamlAddr("");
+        workflow.setPipelineId("");
+
+        //将workflowXml存到文件里，将文件地址存入workflowXmlAddr字段
+        String fileName = UUID.randomUUID()+".xml";
+        String workflowXmlAddr = filePathConfig.getWorkflowXmlFilePath() + File.separatorChar + DateUtils.getCurrentDate()+File.separatorChar+fileName;
+        workflow.setWorkflowXmlAddr(XmlUtils.generateXmlFile(workflowXml,workflowXmlAddr));
+
+        Map<String,String> data = pipelineService.generatePipeline(workflowXmlAddr,userId);
+        System.out.println(data.get("pipelineYamlAddr"));
+        workflow.setPipelineYamlAddr(data.get("pipelineYamlAddr"));
+        workflow.setGeneratePipelineAddr(data.get("generatePipelineAddr"));
+
+        File file = new File(data.get("pipelineYamlAddr"));
+        String pipelineId = pipelineService.uploadPipeline(workflow.getName(),workflow.getWorkflowDesc(),file);
+        workflow.setPipelineId(pipelineId);
         workflowMapper.insertWorkflow(workflow);
+
         return workflow;
     }
 
@@ -75,25 +105,30 @@ public class WorkflowServiceImpl implements WorkflowService {
      */
     @Override
     public Workflow cloneWorkflow(Workflow originWorkflow,String workflowName, String tagString, String workflowDesc){
+        //创建新的workflow
         Workflow workflow=new Workflow();
         workflow.setName(workflowName);
         workflow.setFkUserId(originWorkflow.getFkUserId());
         workflow.setTags(tagString);
         workflow.setIsDeleted(Byte.parseByte("0"));
         workflow.setWorkflowDesc(workflowDesc);
+        workflow.setGgeditorObjectString(originWorkflow.getGgeditorObjectString());
+        workflow.setIsCustom(Byte.parseByte("0"));
+        workflow.setFkCustomComponentIds(originWorkflow.getFkCustomComponentIds());
+        workflow.setCreateTime(new Date());
 
-        if(workflow.getWorkflowXmlAddr()!=null) {
-            if (!workflow.getWorkflowXmlAddr().equals("")) {
+        //设置workflow的xmlAddr
+        if(originWorkflow.getWorkflowXmlAddr()!=null) {
+            if (!originWorkflow.getWorkflowXmlAddr().equals("")) {
                 workflow.setWorkflowXmlAddr(createXmlFile(readFile(originWorkflow.getWorkflowXmlAddr())));
             }
-        }
-        else{
+        } else{
             workflow.setWorkflowXmlAddr("");
         }
 
-        //todo 原流程尚未获得pipeline写入机会
-        if(workflow.getGeneratePipelineAddr()!=null) {
-            if (!workflow.getGeneratePipelineAddr().equals("")) {
+        //设置workflow的generatePipelineAddr
+        if(originWorkflow.getGeneratePipelineAddr()!=null) {
+            if (!originWorkflow.getGeneratePipelineAddr().equals("")) {
                 workflow.setGeneratePipelineAddr(createPipelineFile(readFile(originWorkflow.getGeneratePipelineAddr())));
             }
         }
@@ -101,11 +136,10 @@ public class WorkflowServiceImpl implements WorkflowService {
             workflow.setGeneratePipelineAddr("");
         }
 
-        //todo 尚不知道这样是否可行，不知道ggeditor内容和流程id有无关联，需等待解析结构
-        workflow.setGgeditorObjectString(originWorkflow.getGgeditorObjectString());
-        workflow.setIsCustom(Byte.parseByte("0"));
-        workflow.setFkCustomComponentIds(originWorkflow.getFkCustomComponentIds());
-        workflow.setCreateTime(new Date());
+        //在kubeflow上创建新的pipeline，并和克隆生成的workflow绑定
+        File file = new File(originWorkflow.getGeneratePipelineAddr());
+        String pipelineId = pipelineService.uploadPipeline(workflowName,workflowDesc,file);
+        workflow.setPipelineId(pipelineId);
 
         workflowMapper.insertWorkflow(workflow);
         return workflow;
@@ -308,6 +342,10 @@ public class WorkflowServiceImpl implements WorkflowService {
                 pipelinefile.delete();
             }
         }
+
+        //删除kubeflow上的pipeline
+        pipelineService.deletePipelineById(workflow.getPipelineId());
+
         if(workflowMapper.deleteWorkflowById(workflow.getId())!=1){
             return false;
         }

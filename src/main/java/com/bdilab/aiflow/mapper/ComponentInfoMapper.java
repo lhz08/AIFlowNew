@@ -1,6 +1,7 @@
 package com.bdilab.aiflow.mapper;
 
 import com.bdilab.aiflow.model.ComponentInfo;
+import com.bdilab.aiflow.model.component.CustomComponentInfo;
 
 import java.util.List;
 
@@ -18,4 +19,5 @@ public interface ComponentInfoMapper {
 
     int deleteComponentPermanently(List<Integer> componentIds);
 
+    List<ComponentInfo> loadPublicComponentInfo();
 }
