@@ -111,7 +111,7 @@ public class PipelineServiceImpl implements PipelineService {
             for(int i=0;i<componentParameters.size();i++){
                 pipeline+="        "+componentParameters.get(i).getName()+"="+componentName+"_"+componentParameters.get(i).getName()+",\n";
             }
-            pipeline+="        "+inputStubList.get(0)+"= input_data,\n"+"        config"+"=config\n";
+            pipeline+="        config"+"=config\n";
             pipeline+=").set_display_name('"+componentName+"')\n\n";
         }
         queue.remove(id);
@@ -159,7 +159,7 @@ public class PipelineServiceImpl implements PipelineService {
                 componentParams +="        "+name+"_"+param.getName()+",\n";
             }
         }
-        pipeline+=componentParams+"        config,\n"+"        input_data\n"+"):\n\n";
+        pipeline+=componentParams+"        config\n"+"):\n\n";
         return pipeline;
     }
 
@@ -237,7 +237,7 @@ public class PipelineServiceImpl implements PipelineService {
         FileSystemResource fileSystemResource = null;
 
         //将File类型转换成API需要的MultipartFile类型
-        try {
+        /*try {
             FileInputStream fileInputStream = new FileInputStream(file);
             MultipartFile multipartFile = new MockMultipartFile(file.getName(),file.getName(), ContentType.APPLICATION_OCTET_STREAM.toString(),fileInputStream);
             fileSystemResource = new FileSystemResource(FileUtils.transferToFile(multipartFile));
@@ -247,6 +247,8 @@ public class PipelineServiceImpl implements PipelineService {
             e.printStackTrace();
         }
 
+*/
+        fileSystemResource = new FileSystemResource(file);
         map.add("uploadfile",fileSystemResource);
 
         HttpEntity<MultiValueMap<String, Object>> params = new HttpEntity<>(map);
