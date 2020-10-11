@@ -18,21 +18,23 @@ public interface WorkflowService {
 
     /**
      * 克隆流程
-     * @param workflow
+     * @param workflowId
      * @param workflowName
      * @param tagString
      * @param workflowDesc
+     * @param userId
      * @return
      */
-    Workflow cloneWorkflow(Workflow workflow,String workflowName, String tagString, String workflowDesc);
+    Workflow cloneWorkflow(Integer workflowId,String workflowName, String tagString, String workflowDesc, Integer userId);
 
     /**
-     * 更新流程xml
-     * @param workflow
+     * 修改workflow
+     * @param workflowId
      * @param workflowXml
+     * @param ggeditorObjectString
      * @return
      */
-    boolean updateWorkflow(Workflow workflow, String workflowXml);
+    boolean updateWorkflow(Integer workflowId, String workflowXml, String ggeditorObjectString, Integer userId);
 
     /**
      * 搜索单一实验
