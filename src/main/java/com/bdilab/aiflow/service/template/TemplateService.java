@@ -1,5 +1,6 @@
 package com.bdilab.aiflow.service.template;
 
+import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.Template;
 import com.bdilab.aiflow.model.Workflow;
 
@@ -8,23 +9,34 @@ import java.util.Map;
 public interface TemplateService {
 
     /**
-     * 向表中插入新模板
-     * @param template
+     * 将实验标记为模板
+     * @param experimentId
+     * @param templateName
+     * @param tags
+     * @param templateDesc
+     * @param userId
+     * @return
      */
-    Template createTemplate(Template template);
+    boolean markExperimentToTemplate(Integer experimentId, String templateName, String tags, String templateDesc, Integer userId);
 
     /**
      * 从模板创建实验
-     * @param template
-     * @param userId
-     * @param workflowName
-     * @param workflowTags
-     * @param workflowDesc
+     * @param templateId
      * @param experimentName
      * @param experimentDesc
      * @return
      */
-    Map<String,Object> createExperiment(Template template, Integer userId, String workflowName, String workflowTags, String workflowDesc, String experimentName, String experimentDesc);
+    Experiment createExperimentFromTemplate(Integer templateId, String experimentName, String experimentDesc);
+
+    /**
+     * 修改模板的名称、描述和标签
+     * @param templateId
+     * @param tamplateName
+     * @param templateTags
+     * @param templateDesc
+     * @return
+     */
+    boolean updateTemplate(Integer templateId, String tamplateName, String templateTags, String templateDesc);
 
     /**
      * 单例查找模板
@@ -32,13 +44,6 @@ public interface TemplateService {
      * @return
      */
     Template selectTemplateById(Integer templateId);
-
-    /**
-     * 更新模板的参数表
-     * @param template
-     * @return
-     */
-    boolean updateTemplateParamJsonString(Template template);
 
     /**
      * 将模板的实验运行外键置NULL

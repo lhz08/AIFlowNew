@@ -24,100 +24,72 @@ public class TemplateController {
     @Autowired
     TemplateService templateService;
 
-
     /**
-     * 在线保存模板，更新参数列表
-     * @param templateId
-     * @param paramJsonString
+     * 将实验标记为模板
+     * @param experimentId
+     * @param templateName
+     * @param templateDesc
      * @param httpSession
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/template/saveTemplate", method = RequestMethod.POST)
-    public ResponseResult saveTemplate(@RequestParam Integer templateId,
-                                       @RequestParam String paramJsonString,
-                                       HttpSession httpSession){
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Template template = new Template();
-        template.setId(templateId);
-        template.setParamJsonString(paramJsonString);
-        Boolean isSuccess = templateService.updateTemplateParamJsonString(template);
-        if(!isSuccess){
-            return new ResponseResult(false,"002","在线保存模板参数失败");
-        }
-        return new ResponseResult(true,"001","在线保存模板参数成功");
-    }
-
-
-    /**
-     * 模板另存为，输入名称描述和tags，
-     * */
-    @ResponseBody
-    @RequestMapping(value = "/template/insertTemplate", method = RequestMethod.POST)
-    public ResponseResult insertTemplate(@RequestParam Integer originTemplateId,
+    @RequestMapping(value = "/template/markExperimentToTemplate", method = RequestMethod.POST)
+    public ResponseResult markExperimentToTemplate(@RequestParam Integer experimentId,
                                          @RequestParam String templateName,
                                          @RequestParam String tags,
-                                         @RequestParam String paramJsonString,
                                          @RequestParam String templateDesc,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Template originTemplate = templateService.selectTemplateById(originTemplateId);
-        Template template = new Template();
-        template.setName(templateName);
-        template.setType(1);
-        template.setFkUserId(userId);
-        template.setFkWorkflowId(originTemplate.getFkWorkflowId());
-        template.setTags(tags);
-        template.setIsDeleted(0);
-        template.setWorkflowAddr(originTemplate.getWorkflowAddr());
-        template.setParamJsonString(paramJsonString);
-        template.setGgeditorObjectString(originTemplate.getGgeditorObjectString());
-        template.setTemplateDesc(templateDesc);
-
-        template = templateService.createTemplate(template);
-        Map<String, Object> data = new HashMap<>();
-        ResponseResult responseResult=new ResponseResult(true,"001","另存模板参数成功");
-        data.put("templateId", template.getId());
-        responseResult.setData(data);
-        return responseResult;
+        templateService.markExperimentToTemplate(experimentId,templateName,tags,templateDesc,userId);
+        return new ResponseResult(true,"001","将实验标记为模板成功");
     }
 
-
-
     /**
-     * 从流程创建实验
-     * @param userId
+     * 从模板创建实验
      * @param templateId
-     * @param workflowName
-     * @param workflowTags
-     * @param workflowDesc
      * @param experimentName
      * @param experimentDesc
      * @param httpSession
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/template/createExperiment", method = RequestMethod.POST)
-    public ResponseResult createExperiment(@RequestParam Integer templateId,
-                                           @RequestParam(required = false) String workflowName,
-                                           @RequestParam(required = false) String workflowTags,
-                                           @RequestParam(required = false) String workflowDesc,
-                                           @RequestParam(required = false) String experimentName,
-                                           @RequestParam(required = false) String experimentDesc,
-                                           HttpSession httpSession){
+    @RequestMapping(value = "/template/createExperimentFromTemplate", method = RequestMethod.POST)
+    public ResponseResult createExperimentFromTemplate(@RequestParam Integer templateId,
+                                                       @RequestParam(required = false) String experimentName,
+                                                       @RequestParam(required = false) String experimentDesc,
+                                                       HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Template template = templateService.selectTemplateById(templateId);
-//        Map<String, Object> data = templateService.createExperiment(template, userId, workflowName, workflowTags, workflowDesc, experimentName, experimentDesc);
+        Experiment data = templateService.createExperimentFromTemplate(templateId, experimentName, experimentDesc);
 
-        ResponseResult responseResult = new ResponseResult(true,"001","完成");
-//        responseResult.setData(data);
+        ResponseResult responseResult = new ResponseResult(true,"001","从实验创建模板成功");
+        responseResult.setData(data);
         return responseResult;
     }
 
+    /**
+     * 修改模板的名称、描述和标签
+     * @param templateId
+     * @param tamplateName
+     * @param templateTags
+     * @param templateDesc
+     * @param httpSession
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/template/updateTemplate",method = RequestMethod.POST)
+    public ResponseResult updateTemplate(@RequestParam Integer templateId,
+                                         @RequestParam String tamplateName,
+                                         @RequestParam String templateTags,
+                                         @RequestParam String templateDesc,
+                                         HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        boolean b = templateService.updateTemplate(templateId, tamplateName, templateTags, templateDesc);
+        ResponseResult responseResult = new ResponseResult(true,"001","修改模板成功");
+        return responseResult;
+    }
 
     /**
      * 获得所有模板，首先根据type判断是否公共
-     * @param userId
      * @param type
      * @param isDeleted
      * @param pageNum
