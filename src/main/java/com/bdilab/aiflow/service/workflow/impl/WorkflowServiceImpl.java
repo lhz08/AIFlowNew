@@ -83,11 +83,13 @@ public class WorkflowServiceImpl implements WorkflowService {
         String workflowXmlAddr = filePathConfig.getWorkflowXmlFilePath() + File.separatorChar + DateUtils.getCurrentDate()+File.separatorChar+fileName;
         workflow.setWorkflowXmlAddr(XmlUtils.generateXmlFile(workflowXml,workflowXmlAddr));
 
+        //生成pipeline的py文件和yaml文件，存入相应的字段
         Map<String,String> data = pipelineService.generatePipeline(workflowXmlAddr,userId);
         System.out.println(data.get("pipelineYamlAddr"));
         workflow.setPipelineYamlAddr(data.get("pipelineYamlAddr"));
         workflow.setGeneratePipelineAddr(data.get("generatePipelineAddr"));
 
+        //上传pipeline，返回pipelineId
         File file = new File(data.get("pipelineYamlAddr"));
         String pipelineName = UUID.randomUUID()+workflow.getName();
         String pipelineId = pipelineService.uploadPipeline(pipelineName,workflow.getWorkflowDesc(),file);
@@ -99,14 +101,16 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     /**
      * 克隆一个workflow
-     * @param originWorkflow 原workflow
+     * @param workflowId 原workflowId
      * @param workflowName  新workflow名称
      * @param tagString 新的tags标签
      * @param workflowDesc 新的描述
      * @return 得到的新workflow
      */
     @Override
-    public Workflow cloneWorkflow(Workflow originWorkflow,String workflowName, String tagString, String workflowDesc){
+    public Workflow cloneWorkflow(Integer workflowId,String workflowName, String tagString, String workflowDesc, Integer userId){
+        Workflow originWorkflow=workflowMapper.selectWorkflowById(workflowId);
+
         //创建新的workflow
         Workflow workflow=new Workflow();
         workflow.setName(workflowName);
@@ -120,23 +124,14 @@ public class WorkflowServiceImpl implements WorkflowService {
         workflow.setCreateTime(new Date());
 
         //设置workflow的xmlAddr
-        if(originWorkflow.getWorkflowXmlAddr()!=null) {
-            if (!originWorkflow.getWorkflowXmlAddr().equals("")) {
-                workflow.setWorkflowXmlAddr(createXmlFile(readFile(originWorkflow.getWorkflowXmlAddr())));
-            }
-        } else{
-            workflow.setWorkflowXmlAddr("");
-        }
+        String workflowXmlAddr = createXmlFile(readFile(originWorkflow.getWorkflowXmlAddr()));
+        workflow.setWorkflowXmlAddr(workflowXmlAddr);
 
-        //设置workflow的generatePipelineAddr
-        if(originWorkflow.getGeneratePipelineAddr()!=null) {
-            if (!originWorkflow.getGeneratePipelineAddr().equals("")) {
-                workflow.setGeneratePipelineAddr(createPipelineFile(readFile(originWorkflow.getGeneratePipelineAddr())));
-            }
-        }
-        else{
-            workflow.setGeneratePipelineAddr("");
-        }
+        //生成pipeline的py文件和yaml文件
+        Map<String,String> data = pipelineService.generatePipeline(workflowXmlAddr,userId);
+        System.out.println(data.get("pipelineYamlAddr"));
+        workflow.setPipelineYamlAddr(data.get("pipelineYamlAddr"));
+        workflow.setGeneratePipelineAddr(data.get("generatePipelineAddr"));
 
         //在kubeflow上创建新的pipeline，并和克隆生成的workflow绑定
         File file = new File(originWorkflow.getGeneratePipelineAddr());
@@ -148,22 +143,58 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     /**
-     * todo 怎么更新pipeline文件地址?
-     * 更新已有的workflow
-     * @param workflow 基本属性已赋值的workflow
-     * @param workflowXml 前端传入的xml字符串(string)
+     * 修改workflow
+     * @param workflowId
+     * @param workflowXml
+     * @param ggeditorObjectString
      * @return true=成功
      */
     @Override
-    public boolean updateWorkflow(Workflow workflow, String workflowXml){
+    public boolean updateWorkflow(Integer workflowId, String workflowXml, String ggeditorObjectString, Integer userId){
+        Workflow workflow = workflowMapper.selectWorkflowById(workflowId);
         //如果已经有地址了，该地址还不是空的，则将原来的文件删除
-        if(workflow.getWorkflowXmlAddr()!=null) {
-            if (!workflow.getWorkflowXmlAddr().equals("")) {
-                File xmlfile = new File(workflow.getWorkflowXmlAddr());
+        String workflowXmlAddr = workflow.getWorkflowXmlAddr();
+        if(workflowXmlAddr!=null) {
+            if (!workflowXmlAddr.equals("")) {
+                File xmlfile = new File(workflowXmlAddr);
                 xmlfile.delete();
             }
         }
-        workflow.setWorkflowXmlAddr(createXmlFile(workflowXml));
+        String fileName = UUID.randomUUID()+".xml";
+        String workflowXmlAddrNew = filePathConfig.getWorkflowXmlFilePath() + File.separatorChar + DateUtils.getCurrentDate()+File.separatorChar+fileName;
+        workflow.setWorkflowXmlAddr(XmlUtils.generateXmlFile(workflowXml,workflowXmlAddrNew));
+
+        workflow.setGgeditorObjectString(ggeditorObjectString);
+
+        //删除修改前的workflow的py文件和yaml文件
+        String pipelineYamlAddr = workflow.getPipelineYamlAddr();
+        String generatePipelineAddr = workflow.getGeneratePipelineAddr();
+        if(pipelineYamlAddr!=null) {
+            if (!pipelineYamlAddr.equals("")) {
+                File yamlFile = new File(pipelineYamlAddr);
+                yamlFile.delete();
+            }
+        }
+        if(generatePipelineAddr!=null) {
+            if (!generatePipelineAddr.equals("")) {
+                File pipelineFile = new File(generatePipelineAddr);
+                pipelineFile.delete();
+            }
+        }
+
+        //生成pipeline的py文件和yaml文件，存入相应的字段
+        Map<String,String> data = pipelineService.generatePipeline(workflowXmlAddrNew,userId);
+        System.out.println(data.get("pipelineYamlAddr"));
+        workflow.setPipelineYamlAddr(data.get("pipelineYamlAddr"));
+        workflow.setGeneratePipelineAddr(data.get("generatePipelineAddr"));
+
+        //删除修改前的workflow的pipeline，重新生成修改后的workflow的pipeline，上传到kubeflow上，并将返回的pipelineId存入相应字段
+        boolean isSuccess = pipelineService.deletePipelineById(workflow.getPipelineId());
+        if(isSuccess){
+            File file = new File(data.get("pipelineYamlAddr"));
+            String pipelineId = pipelineService.uploadPipeline(workflow.getName(),workflow.getWorkflowDesc(),file);
+            workflow.setPipelineId(pipelineId);
+        }
         return workflowMapper.updateWorkflow(workflow)==1;
     }
 
@@ -344,6 +375,10 @@ public class WorkflowServiceImpl implements WorkflowService {
                 pipelinefile.delete();
             }
         }
+        if(workflow.getPipelineYamlAddr()!=null && !workflow.getPipelineYamlAddr().equals("")){
+            File yamlFile = new File(workflow.getPipelineYamlAddr());
+            yamlFile.delete();
+        }
 
         //删除kubeflow上的pipeline
         pipelineService.deletePipelineById(workflow.getPipelineId());
@@ -456,33 +491,6 @@ public class WorkflowServiceImpl implements WorkflowService {
         { e.printStackTrace(); }
         return xmlFilePath;
     }
-
-    /**
-     * todo 未完成 ，尚不知道pipeline如何获得
-     * 创建pipeline的yaml文件
-     * @param workflowPipeline 传入的Pipeline内容
-     * @return Pipeline文件路径
-     */
-    private String createPipelineFile(String workflowPipeline){
-
-        String yamlFilePath = System.getProperty("user.dir")+File.separatorChar
-                +"pipeline"+File.separatorChar
-                +new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime())+File.separatorChar
-                +UUID.randomUUID()+".yaml";
-
-        try {
-            File newFile = new File(yamlFilePath);
-            if (!newFile.getParentFile().exists()) {
-                newFile.getParentFile().mkdir();
-            }
-            BufferedWriter out = new BufferedWriter(new FileWriter(yamlFilePath));
-            out.write(workflowPipeline);
-            out.close();
-        } catch(IOException e)
-        { e.printStackTrace(); }
-        return yamlFilePath;
-    }
-
 
     @Override
     public boolean restoreWorkflow(Integer fkWorkflowId){

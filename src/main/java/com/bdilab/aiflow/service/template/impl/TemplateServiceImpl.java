@@ -47,101 +47,60 @@ public class TemplateServiceImpl implements TemplateService {
     ExperimentService experimentService;
 
 
-
-
     @Override
-    public Template createTemplate(Template template){
-        templateMapper.insertTempalte(template);
-        return template;
+    public boolean markExperimentToTemplate(Integer experimentId, String templateName, String tags, String templateDesc, Integer userId) {
+        //从实验创建的模板和实验共用一份流程文件（包括xml、py、yaml）
+        Experiment experiment = experimentMapper.selectExperimentById(experimentId);
+        //若该实验已经被标记为模板，则不能再从该实验创建模板
+        if (experiment.getIsMarkTemplate() == 1){
+            return false;
+        }
+        Workflow workflow = workflowService.selectWorkflowById(experiment.getFkWorkflowId());
 
+        Template template = new Template();
+        template.setName(templateName);
+        template.setType(1);
+        template.setFkUserId(userId);
+        template.setFkWorkflowId(experiment.getFkWorkflowId());
+        template.setFkExperimentId(experimentId);
+        template.setTags(tags);
+        template.setIsDeleted(0);
+        template.setWorkflowAddr(workflow.getWorkflowXmlAddr());
+        template.setParamJsonString(experiment.getParamJsonString());
+        template.setGgeditorObjectString(workflow.getGgeditorObjectString());
+        template.setTemplateDesc(templateDesc);
+        //往template表中添加一条记录
+        templateMapper.insertTempalte(template);
+        //将实验的isMarkTemplate字段标记为1
+        experiment.setIsMarkTemplate(1);
+        experimentMapper.updateExperimentIsMarkTemplate(experiment);
+        return true;
     }
 
-
-
-    /**todo 流程的pipeline尚未获得更新机会
+    /**
+     * 从模板创建实验
      * type=0，需要新建流程和实验
-     * type=1，实验id=null，说明没有父实验，需要新建实验。将fkExperimentId赋新id
-     * type=1，实验id!=null，该实验isDeleted=0，说明有未删除父实验，需要定位到原实验
-     * type=1，实验id!=null，该实验isDeleted=1，说明父实验被删除，在回收站，需要提示
-     * @param template
-     * @param userId
-     * @param workflowName
-     * @param workflowTags
-     * @param workflowDesc
+     * @param templateId
      * @param experimentName
      * @param experimentDesc
      * @return
      */
     @Override
-    public Map<String,Object> createExperiment(Template template,
-                                               Integer userId,
-                                               String workflowName,
-                                               String workflowTags,
-                                               String workflowDesc,
-                                               String experimentName,
-                                               String experimentDesc){
-        Map<String,Object> data = new HashMap<>(3);
+    public Experiment createExperimentFromTemplate(Integer templateId, String experimentName, String experimentDesc){
+        Template template = templateMapper.selectTemplateById(templateId);
+        Experiment experiment = experimentService.copyExperiment(template.getFkExperimentId(), experimentName, experimentDesc);
+        return experiment;
 
-        if(template.getType()==0){
-            File xmlFile = new File(template.getWorkflowAddr());
-            if(!xmlFile.exists())
-            {
-                data.put("falseReason","wrongWorkflowAddr");
-                return data;
-            }
-            Workflow workflow = new Workflow();
-                    //workflowService.createWorkflow(workflowName, workflowTags, workflowDesc, userId);
-            workflow.setGgeditorObjectString(template.getGgeditorObjectString());
-            boolean isSuccess = workflowService.updateWorkflow(workflow,readFile(template.getWorkflowAddr()));
-            if(!isSuccess){
-                data.put("falseReason","wrongUpdateWorkflow");
-                return data;
-            }
-            Experiment experiment = new Experiment();
-                    //experimentService.createExperiment(workflow.getId(), experimentName, experimentDesc);
-            experiment.setParamJsonString(template.getParamJsonString());
-            experimentMapper.updateExperiment(experiment);
-            data.put("returnType",0);
-            data.put("message","Insert workflow and experiment" );
-            data.put("newWorkflowId",workflow.getId());
-            data.put("newExperimentId",experiment.getId());
-        }
-        else if (template.getType()==1){
-            if(template.getFkExperimentId()==null){
-                Experiment experiment = new Experiment();
-                        //experimentService.createExperiment(template.getFkWorkflowId(), experimentName, experimentDesc);
-                experiment.setParamJsonString(template.getParamJsonString());
-                experimentMapper.updateExperiment(experiment);
-                template.setFkExperimentId(experiment.getId());
-                boolean isSuccess = templateMapper.updateTemplate(template)==1;
-                if(!isSuccess){
-                    data.put("falseReason","wrongUpdatefkExperimentId");
-                    return data;
-                }
-                data.put("returnType",1);
-                data.put("message","Insert experiment" );
-                data.put("newExperimentId",experiment.getId());
-            }
-            else{
-                Experiment experiment = experimentMapper.selectExperimentById(template.getFkExperimentId());
-                if(experiment.getIsDeleted()==0){
-                    data.put("returnType",2);
-                    data.put("message","Locate experiment" );
-                    data.put("experimentId",experiment.getId());
-                }
-                else if(experiment.getIsDeleted()==1){
-                    data.put("returnType",3);
-                    data.put("message","Deleted experiment" );
-                    data.put("experimentId",experiment.getId());
-                }
-                else{
-                    data.put("falseReason","wrongExperimentIsDeleted");
-                }
-            }
-        }
+    }
 
-        return data;
-
+    @Override
+    public boolean updateTemplate(Integer templateId, String tamplateName, String templateTags, String templateDesc) {
+        Template template = templateMapper.selectTemplateById(templateId);
+        template.setName(tamplateName);
+        template.setTags(templateTags);
+        template.setTemplateDesc(templateDesc);
+        templateMapper.updateTemplate(template);
+        return true;
     }
 
     /**
@@ -190,18 +149,6 @@ public class TemplateServiceImpl implements TemplateService {
         data.put("Total",pageInfo.getTotal());
         return data;
     }
-
-
-    /**
-     * 更新参数表，同时会将fkExperimentId置为null
-     * @param template
-     * @return
-     */
-    @Override
-    public boolean updateTemplateParamJsonString(Template template){
-        return templateMapper.updateTemplateParamJsonString(template)==1;
-    }
-
 
     @Override
     public boolean setRunningIdNull(Integer experimentId){

@@ -212,25 +212,4 @@ public class ExperimentController {
         }
         return new ResponseResult(false,"002","还原实验失败");
     }
-
-    @ResponseBody
-    @ApiOperation("标记成模板")
-    @RequestMapping(value = "/experiment/markTemplate", method = RequestMethod.POST)
-    public  ResponseResult markTemplate(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
-                                        @RequestParam @ApiParam(value = "模板名称") String templateName,
-                                        @RequestParam @ApiParam(value = "模板描述") String templateDesc,
-                                        @RequestParam @ApiParam(value = "模板标签") String templateTags,
-                                        HttpSession httpSession){
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Template template=experimentService.markTemplate(experimentId,templateName,templateDesc,templateTags);
-        if(template.getId()==null){
-            return new ResponseResult(false,"002","标记失败，该实验已经标记成模板了");
-        }
-        Map<String,Object> data=new HashMap<>(1);
-        data.put("templateId",template.getId());
-        ResponseResult responseResult = new ResponseResult(true,"001","标记成模板成功");
-        responseResult.setData(data);
-        return responseResult;
-    }
-
 }

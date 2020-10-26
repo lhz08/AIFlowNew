@@ -73,11 +73,4 @@ public interface ExperimentService {
      * @param pageSize
      */
     Map<String, Object> getDeletedExperiment(Integer isDeleted,int pageNum,int pageSize);
-
-    /**
-     * 实验标记成模板
-     * @param experimentId
-     */
-    Template markTemplate(Integer experimentId, String templateName, String templateDesc, String templateTags);
-
 }

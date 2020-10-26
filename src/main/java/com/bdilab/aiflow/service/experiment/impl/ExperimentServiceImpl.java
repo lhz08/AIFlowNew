@@ -100,13 +100,16 @@ public class ExperimentServiceImpl implements ExperimentService {
     @Override
     public Experiment copyExperiment(Integer experimentId,String name,String experimentDesc){
         Experiment experiment=experimentMapper.selectExperimentById(experimentId);
-        experiment.setName(name);
-        experiment.setExperimentDesc(experimentDesc);
-        experiment.setIsDeleted(DeleteStatus.NOTDELETED.getValue());
-        experiment.setIsMarkTemplate(MarkTemplateStatus.NOTMARKED.getValue());
-        experiment.setCreateTime(new Date());
-        experimentMapper.insertExperiment(experiment);
-        return experiment;
+        Experiment newExperiment = new Experiment();
+        newExperiment.setName(name);
+        newExperiment.setFkWorkflowId(experiment.getFkWorkflowId());
+        newExperiment.setIsDeleted(DeleteStatus.NOTDELETED.getValue());
+        newExperiment.setParamJsonString(experiment.getParamJsonString());
+        newExperiment.setIsMarkTemplate(MarkTemplateStatus.NOTMARKED.getValue());
+        newExperiment.setExperimentDesc(experimentDesc);
+        newExperiment.setCreateTime(new Date());
+        experimentMapper.insertExperiment(newExperiment);
+        return newExperiment;
     }
 
     @Override
@@ -298,51 +301,5 @@ public class ExperimentServiceImpl implements ExperimentService {
         experiment1.setId(experimentId);
         experiment1.setIsDeleted(DeleteStatus.NOTDELETED.getValue());
         return experimentMapper.updateExperiment(experiment1)==1;
-    }
-
-    @Override
-    public Template markTemplate(Integer experimentId, String templateName, String templateDesc,String templateTags){
-        //对模板表进行插入
-        Experiment experiment=experimentMapper.selectExperimentById(experimentId);
-        if(experiment.getIsMarkTemplate()==MarkTemplateStatus.MARKED.getValue()){
-            return new Template();
-        }
-        Workflow workflow=workflowMapper.selectWorkflowById(experiment.getFkWorkflowId());
-        Template template=new Template();
-        template.setName(templateName);
-        template.setTemplateDesc(templateDesc);
-        template.setType(1);
-        template.setFkUserId(workflow.getFkUserId());
-        template.setFkWorkflowId(experiment.getFkWorkflowId());
-        template.setFkExperimentId(experimentId);
-        template.setTags(templateTags);
-        template.setIsDeleted(DeleteStatus.NOTDELETED.getValue());
-        template.setWorkflowAddr(workflow.getWorkflowXmlAddr());
-        template.setParamJsonString(experiment.getParamJsonString());
-        template.setGgeditorObjectString(workflow.getGgeditorObjectString());
-        Template template1=templateService.createTemplate(template);
-        //修改实验表的is_mark_template属性
-        Experiment experiment1=new Experiment();
-        experiment1.setId(experimentId);
-        experiment1.setIsMarkTemplate(MarkTemplateStatus.MARKED.getValue());
-        experimentMapper.updateExperiment(experiment1);
-        return template1;
-    }
-    private Map<String,String> getComponentNameAndId(Integer experimentId){
-        Map<String,String> map = new HashMap<>();
-        Integer workflowId = experimentMapper.selectExperimentById(experimentId).getFkWorkflowId();
-        String xmlPath = workflowMapper.selectWorkflowById(workflowId).getWorkflowXmlAddr();
-        Map<String, PythonParameters> pythonParametersMap = XmlUtils.getPythonParametersMap(xmlPath);
-        Gson gson = new Gson();
-        List<String> componenetByOrder = JsonUtils.getComponenetByOrder(gson.toJson(pythonParametersMap));
-        for (String s:componenetByOrder
-             ) {
-            String componentId = getComponentId(s);
-            map.put(componentInfoMapper.selectComponentInfoById(Integer.parseInt(componentId)).getName(),componentId);
-        }
-        return map;
-    }
-    private String getComponentId(String string){
-        return string.split("_")[1];
     }
 }

@@ -27,6 +27,16 @@ public class WorkflowController {
     @Autowired
     private WorkflowService workflowService;
 
+    /**
+     * 保存流程
+     * @param workflowName
+     * @param tagString
+     * @param workflowDesc
+     * @param workflowXml
+     * @param ggeditorObjectString
+     * @param httpSession
+     * @return
+     */
     @ResponseBody
     @RequestMapping(value = "/workflow/createAndSaveWorkflow", method = RequestMethod.POST)
     public ResponseResult createAndSaveWorkflow(@RequestParam String workflowName,
@@ -50,7 +60,7 @@ public class WorkflowController {
     }
 
     /**
-     * todo 在传来xml时，更新一个流程的pipeline文件，kuberflow端接口
+     * 修改流程（只能修改未曾创建实验的流程）
      *
      * @param workflowId
      * @param workflowXml
@@ -59,25 +69,22 @@ public class WorkflowController {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/workflow/saveWorkflow", method = RequestMethod.POST)
-    public ResponseResult saveWorkflow(@RequestParam Integer workflowId,
-                                       @RequestParam String workflowXml,
-                                       @RequestParam String ggeditorObjectString,
-                                       HttpSession httpSession
-                                    ){
-        Workflow workflow=new Workflow();
-        workflow.setId(workflowId);
-        workflow.setGgeditorObjectString(ggeditorObjectString);
-        boolean isSuccess = workflowService.updateWorkflow(workflow,workflowXml);
+    @RequestMapping(value = "/workflow/updateWorkflow", method = RequestMethod.POST)
+    public ResponseResult updateWorkflow(@RequestParam Integer workflowId,
+                                         @RequestParam String workflowXml,
+                                         @RequestParam String ggeditorObjectString,
+                                         HttpSession httpSession
+                                      ){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        boolean isSuccess = workflowService.updateWorkflow(workflowId,workflowXml,ggeditorObjectString,userId);
         if(isSuccess){
-            return new ResponseResult(true,"001","流程保存成功");
+            return new ResponseResult(true,"001","流程修改成功");
         }
-        return new ResponseResult(false,"002","流程保存失败");
+        return new ResponseResult(false,"002","流程修改失败");
     }
 
     /**
-     * todo pipeline未获得生成机会，现在可以进行下载
-     * 根据流程id获取其pipeline文件
+     * 根据流程id下载其pipeline文件
      * @param workflowId
      * @return
      */
@@ -220,7 +227,7 @@ public class WorkflowController {
 
 
     /**
-     * 克隆一个流程
+     * 克隆流程
      * @param workflowId
      * @param workflowName
      * @param tagString
@@ -236,8 +243,7 @@ public class WorkflowController {
                                         HttpSession httpSession
                                         ){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Workflow workflow=workflowService.selectWorkflowById(workflowId);
-        Workflow newWorkflow=workflowService.cloneWorkflow(workflow,workflowName,tagString,workflowDesc);
+        Workflow newWorkflow=workflowService.cloneWorkflow(workflowId,workflowName,tagString,workflowDesc,userId);
 
         Map<String,Object> data=new HashMap<>();
         data.put("newWorkflowId",newWorkflow.getId());
@@ -289,29 +295,4 @@ public class WorkflowController {
         }
         return new ResponseResult(true,"002","流程还原失败");
     }
-
-
-
-
-
-
-
-
-    /**
-     * todo 新建组件不能直接使用组件controller，需要更新is_custom
-     * @param workflowId
-     * @param httpSession
-     * @return
-     */
-//    @ResponseBody
-//    @RequestMapping(value = "/workflow/updateWorkflowPipeline", method = RequestMethod.POST)
-//    public ResponseResult createWorkflowComponent(@RequestParam Integer workflowId,
-//                                                  HttpSession httpSession
-//                                            ){
-//            Workflow workflow= workflowService.selectWorkflowById(workflowId);
-//
-//        return new ResponseResult(true,"002","");
-//    }
-
-
 }

@@ -46,7 +46,9 @@ public class PipelineServiceImpl implements PipelineService {
     ComponentParameterMapper componentParameterMapper;
     @Resource
     FilePathConfig filePathConfig;
-
+    @Resource
+    WorkflowMapper workflowMapper;
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     private List<String> queue = new ArrayList<>();
 
 
@@ -222,7 +224,7 @@ public class PipelineServiceImpl implements PipelineService {
         FileSystemResource fileSystemResource = null;
 
         //将File类型转换成API需要的MultipartFile类型
-        try {
+        /*try {
             FileInputStream fileInputStream = new FileInputStream(file);
             MultipartFile multipartFile = new MockMultipartFile(file.getName(),file.getName(), ContentType.APPLICATION_OCTET_STREAM.toString(),fileInputStream);
             fileSystemResource = new FileSystemResource(FileUtils.transferToFile(multipartFile));
@@ -232,6 +234,8 @@ public class PipelineServiceImpl implements PipelineService {
             e.printStackTrace();
         }
 
+*/
+        fileSystemResource = new FileSystemResource(file);
         map.add("uploadfile",fileSystemResource);
 
         HttpEntity<MultiValueMap<String, Object>> params = new HttpEntity<>(map);
