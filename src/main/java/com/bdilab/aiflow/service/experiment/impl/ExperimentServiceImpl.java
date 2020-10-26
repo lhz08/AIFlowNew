@@ -16,12 +16,10 @@ import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Decription TODO
@@ -56,6 +54,15 @@ public class ExperimentServiceImpl implements ExperimentService {
 
     @Autowired
     ComponentInfoMapper componentInfoMapper;
+
+    @Value("${web.address}")
+    private String webAddress;
+    @Value("${minio.host}")
+    private String minioHost;
+    @Value("${minio.access_key}")
+    private String minioAccessKey;
+    @Value("${minio.secret_key}")
+    private String minioSecretKey;
 
     @Override
     public Experiment createExperiment(Integer fkWorkflowId, String name, String experimentDesc, String paramJsonString){
@@ -183,7 +190,7 @@ public class ExperimentServiceImpl implements ExperimentService {
     }
 
     @Override
-    public Map<String,Object> startRunExperment(Integer experimentId){
+    public Map<String,Object> startRunExperment(Integer experimentId,Integer userId,String conversationId){
         Map<String,Object> messageMap=new HashMap<>(2);
 
         //封装ExperimentRunning
@@ -203,20 +210,22 @@ public class ExperimentServiceImpl implements ExperimentService {
         System.out.println(experiment.getParamJsonString());
 
         Gson gson = new Gson();
-        Map<String,Integer> componentIdName = new HashMap<>();
+        Map<String,String> componentIdName = new LinkedHashMap<>();
         Workflow workflow = workflowMapper.selectWorkflowById(experiment.getFkWorkflowId());
         String xmlPath = workflow.getWorkflowXmlAddr();
         String json = gson.toJson(XmlUtils.getPythonParametersMap(xmlPath));
         List<String> taskList = JsonUtils.getComponenetByOrder(json);
         for(int i=0;i<taskList.size();i++){
             ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(Integer.parseInt(runService.getComponentId(taskList.get(i))));
-            componentIdName.put(componentInfo.getName(),componentInfo.getId());
+            componentIdName.put(componentInfo.getName(),componentInfo.getId().toString());
         }
+        System.out.println("componentIdName:"+componentIdName.toString());
 
 
         Gson gson1 = new Gson();
         Map<String,Object> map = gson1.fromJson(experiment.getParamJsonString(),Map.class);
-        String config = "{\"endpoint\":\"www.cuishaohui.top:9000\",\"access_key\":\"admin\",\"secret_key\":\"admin123456\",\"IP_port\":\"smile.free.idcfengye.com/\",\"resultPath\":\"user2\",\"processInstanceId\":\"1\",\"conversationId\":\"30\",";
+        String config = "{\"endpoint\":\""+minioHost.replace("http://", "")+"\",\"access_key\":\""+minioAccessKey+"\",\"secret_key\":\""+minioSecretKey+"\",\"IP_port\":\""+webAddress+"\",\"resultPath\":"+"\"user"+userId+"\",\"processInstanceId\":\""+experimentRunning.getId()+"\",\"conversationId\":\""+conversationId+"\",";
+        System.out.println(config);
         System.out.println(gson1.toJson(componentIdName));
         config = config + "\"component\":" +gson1.toJson(componentIdName) +"}";
         //"component":{"mutualInfo":3,"knn":4,"split_data":1,"data_import":5,"classification_test":6}
@@ -227,6 +236,7 @@ public class ExperimentServiceImpl implements ExperimentService {
         System.out.println(workflow.getId());
         System.out.println(workflow.getPipelineId());
         runService.createRun(workflow.getPipelineId(),workflow.getName(),map);
+
 
         messageMap.put("isSuccess",true);
         messageMap.put("message","运行实验成功");
@@ -317,5 +327,22 @@ public class ExperimentServiceImpl implements ExperimentService {
         experiment1.setIsMarkTemplate(MarkTemplateStatus.MARKED.getValue());
         experimentMapper.updateExperiment(experiment1);
         return template1;
+    }
+    private Map<String,String> getComponentNameAndId(Integer experimentId){
+        Map<String,String> map = new HashMap<>();
+        Integer workflowId = experimentMapper.selectExperimentById(experimentId).getFkWorkflowId();
+        String xmlPath = workflowMapper.selectWorkflowById(workflowId).getWorkflowXmlAddr();
+        Map<String, PythonParameters> pythonParametersMap = XmlUtils.getPythonParametersMap(xmlPath);
+        Gson gson = new Gson();
+        List<String> componenetByOrder = JsonUtils.getComponenetByOrder(gson.toJson(pythonParametersMap));
+        for (String s:componenetByOrder
+             ) {
+            String componentId = getComponentId(s);
+            map.put(componentInfoMapper.selectComponentInfoById(Integer.parseInt(componentId)).getName(),componentId);
+        }
+        return map;
+    }
+    private String getComponentId(String string){
+        return string.split("_")[1];
     }
 }

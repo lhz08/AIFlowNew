@@ -60,22 +60,6 @@ public class JsonUtils {
         return componentPrior;
     }
 
-    //根据组件名和它的后置结点数组中已经执行完的结点，返回接下来可以执行的组件列表。
-    public static List<String> getExecutableComponent(String componentName, String executedComponent, String json) {
-        List<String> list = getRearNodeList(componentName, json);
-        List<String> result = getRearNodeList(componentName, json);
-        for (String s : list
-        ) {
-            if (!s.equals(executedComponent)) {
-                result.remove(s);
-            } else {
-                result.remove(executedComponent);
-                break;
-            }
-        }
-
-        return result;
-    }
 
     //解析json得到每个python组件中的变量
     public static Map<String, Map<String, String>> getpythonParams(String json) {
@@ -173,7 +157,6 @@ public class JsonUtils {
         }
         return result;
     }
-
 
 
 

@@ -1,22 +1,35 @@
 package com.bdilab.aiflow.service.component.impl;
 
+import com.bdilab.aiflow.common.config.FilePathConfig;
 import com.bdilab.aiflow.common.hbase.HBaseConnection;
 import com.bdilab.aiflow.common.hbase.HBaseUtils;
+import com.bdilab.aiflow.common.utils.FileUtils;
+import com.bdilab.aiflow.mapper.ComponentInfoMapper;
 import com.bdilab.aiflow.mapper.ComponentOutputStubMapper;
+import com.bdilab.aiflow.mapper.GraphTypeMapper;
+import com.bdilab.aiflow.model.ComponentInfo;
 import com.bdilab.aiflow.model.ComponentOutputStub;
+import com.bdilab.aiflow.model.GraphType;
 import com.bdilab.aiflow.service.component.ComponentOutputStubService;
 import org.apache.hadoop.hbase.client.Connection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ComponentOutputStubServiceImpl implements ComponentOutputStubService {
 
-    @Autowired
+    @Resource
     ComponentOutputStubMapper componentOutputStubMapper;
+    @Resource
+    FilePathConfig filePathConfig;
+    @Resource
+    GraphTypeMapper graphTypeMapper;
 
     @Override
     public boolean deleteOutputByRunningId(Integer runningId) throws Exception{
@@ -63,5 +76,29 @@ public class ComponentOutputStubServiceImpl implements ComponentOutputStubServic
         }
         return true;
 
+    }
+
+    @Override
+    public List<ComponentOutputStub> getComponentResult(Integer runningId,Integer componentId) {
+        return componentOutputStubMapper.selectByRunningId(runningId);
+    }
+
+    @Override
+    public Map<String, Object> previewResult(Integer componentOutputStubId,Integer userId) {
+        ComponentOutputStub componentOutputStub =   componentOutputStubMapper.selectById(componentOutputStubId);
+        String filePath =  filePathConfig.getComponentResultPath()+"user"+userId+componentOutputStub.getOutputFileAddr();
+        //String filePath = filePathConfig.getComponentResultPath()+"user"+userId;
+        System.out.println(filePath);
+        List<String[]> csvContent = FileUtils.csvContentPreview(filePath);
+        Map<String,Object> data = new HashMap<>();
+        Map<String,String> graph = new HashMap<>();
+        GraphType graphType = graphTypeMapper.selectById(componentOutputStub.getGraphType());
+        graph.put("graph_id",graphType.getId().toString());
+        graph.put("graph_name",graphType.getGraphTypeName());
+        graph.put("graph_desc",graphType.getGraphDesc());
+        data.put("content",csvContent);
+        data.put("total",csvContent == null?0:csvContent.size());
+        data.put("graph",graph);
+        return data;
     }
 }

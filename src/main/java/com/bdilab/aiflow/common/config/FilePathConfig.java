@@ -37,6 +37,22 @@ public class FilePathConfig {
         this.workflowXmlFilePath = workflowXmlFilePath;
     }
 
+    public String getComponentResultPath() {
+        return componentResultPath;
+    }
+
+    public void setComponentResultPath(String componentResultPath) {
+        this.componentResultPath = componentResultPath;
+    }
+
+    public String getDatasetPath() {
+        return datasetPath;
+    }
+
+    public void setDatasetPath(String datasetPath) {
+        this.datasetPath = datasetPath;
+    }
+
     /**
      * 上传dataset地址
      */
@@ -59,4 +75,9 @@ public class FilePathConfig {
     @Value("${workflow.xmlFile.path}")
     private String workflowXmlFilePath;
 
+    @Value("${component.result.path}")
+    private String componentResultPath;
+
+    @Value("${dataset.path}")
+    private String datasetPath;
 }

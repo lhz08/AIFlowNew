@@ -48,11 +48,11 @@ public class FileUtils {
         List<String[]> previewContent = new ArrayList<>();
         try{
             CsvContainer csv = csvReader.read(file, StandardCharsets.UTF_8);
-            int totalCount = 10;
-            if(csv.getRowCount()<totalCount){
-                totalCount = csv.getRowCount();
-            }
-            for(int i = 0;i<totalCount;i++){
+//            int totalCount = 10;
+//            if(csv.getRowCount()<totalCount){
+//                totalCount = csv.getRowCount();
+//            }
+            for(int i = 0;i< csv.getRowCount();i++){
                 CsvRow row = csv.getRow(i);
                 String[] singleLine = new String[row.getFieldCount()];
                 for(int j = 0;j<row.getFieldCount();j++){

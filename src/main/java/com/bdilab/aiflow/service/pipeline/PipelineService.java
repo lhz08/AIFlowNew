@@ -13,7 +13,6 @@ import java.util.Map;
 public interface PipelineService {
 
     public Map generatePipeline(String workflowXmlAddr, Integer userId);
-    public String generateCode(String json);
 
     String uploadPipeline(String name, String description, File file);
 

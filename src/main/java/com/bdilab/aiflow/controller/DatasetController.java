@@ -223,7 +223,7 @@ public class DatasetController {
 
     /*分页获取回收站中的数据集列表*/
     @ResponseBody
-    @RequestMapping(value = "/dataset/getDatasetInTrash",method = RequestMethod.GET)
+    @RequestMapping(value = "/dataset/getDatasetInTrash",method = RequestMethod.POST)
     public ResponseResult getDatasetInTrash(@RequestParam(defaultValue = "1") int pageNum,
                                             @RequestParam(defaultValue = "10") int pageSize,
                                             HttpSession httpSession){
@@ -240,7 +240,7 @@ public class DatasetController {
 
     /*从回收站恢复数据集*/
     @ResponseBody
-    @RequestMapping(value = "/dataset/restoreDataset",method = RequestMethod.GET)
+    @RequestMapping(value = "/dataset/restoreDataset",method = RequestMethod.POST)
     public ResponseResult restoreDataset(@RequestParam Integer datasetId,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());

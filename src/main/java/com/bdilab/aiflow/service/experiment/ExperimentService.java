@@ -50,9 +50,9 @@ public interface ExperimentService {
 
     /**
      * 开始运行实验，插入实验运行，通知Kubeflow开始运行
-     * @param experimentId
+     * @param experimentId,userId
      */
-    Map<String,Object> startRunExperment(Integer experimentId);
+    Map<String,Object> startRunExperment(Integer experimentId,Integer userId,String conversationId);
 
     /**
      * 停止实验

@@ -32,8 +32,8 @@ public class RunController {
     public void executeTask(@RequestParam @ApiParam(value = "processInstanceId") String processInstanceId,
                                       @RequestParam @ApiParam(value = "taskId") String taskId,
                                       @RequestParam @ApiParam(value = "conversationId") String conversationId,
-                                      @RequestParam @ApiParam(value = "IP_port") String IP_port,
-                                      @RequestParam @ApiParam(value = "resultPath")String resultPath,
+                                      @RequestParam(required = false,defaultValue = "") @ApiParam(value = "IP_port") String IP_port,
+                                      @RequestParam(required = false,defaultValue = "") @ApiParam(value = "resultPath")String resultPath,
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "resultTable") String resultTable){
         boolean isInProcess = runService.pushData(processInstanceId,taskId,conversationId,resultTable,resultPath);
 //        if(isInProcess){

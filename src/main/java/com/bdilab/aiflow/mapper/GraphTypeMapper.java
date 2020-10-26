@@ -44,4 +44,6 @@ public interface GraphTypeMapper {
      * @mbg.generated Sun Aug 30 16:18:08 CST 2020
      */
     int updateByPrimaryKey(GraphType record);
+
+    GraphType selectById(Integer id);
 }

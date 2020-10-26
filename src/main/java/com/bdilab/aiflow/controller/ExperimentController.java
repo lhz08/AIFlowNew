@@ -159,8 +159,8 @@ public class ExperimentController {
     public  ResponseResult runExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Map<String,Object> isSuccess=experimentService.startRunExperment(experimentId);
         String conversationId = UUID.randomUUID().toString();
+        Map<String,Object> isSuccess=experimentService.startRunExperment(experimentId,userId,conversationId);
         if(isSuccess.get("isSuccess").equals(true)){
             Map<String,Object> data=new HashMap<>(2);
             data.put("experimentRunningId",isSuccess.get("experimentRunningId"));

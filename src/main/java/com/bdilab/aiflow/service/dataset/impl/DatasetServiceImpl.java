@@ -66,10 +66,14 @@ public class DatasetServiceImpl implements DatasetService {
         filename = "dataset"+"/"+UUID.randomUUID()+suffixName;
         MinioFileUtils minioFileUtils = new MinioFileUtils(host,username,password,false);
         String bucketName = "user"+userId;
-        minioFileUtils.createBucket(bucketName);
-        minioFileUtils.uploadFile(bucketName,file,filename);
-        String filePath = "user"+userId+"/"+filename;
-        insertUserDataset(userId,datasetName,tags,filePath,datasetDesc);
+        try {
+            minioFileUtils.createBucket(bucketName);
+            System.out.println(bucketName+file.getOriginalFilename()+filename);
+            minioFileUtils.uploadFile(bucketName,file,filename);
+        }catch (Exception e){
+            return false;
+        }
+        insertUserDataset(userId,datasetName,tags,filename,datasetDesc);
         return true;
     }
 
@@ -211,7 +215,7 @@ public class DatasetServiceImpl implements DatasetService {
     @Override
     public Map<String, Object> getPreviewList(Integer datasetId) {
         Dataset dataset = datasetMapper.selectDatasetById(datasetId);
-        String filePath=dataset.getDatasetAddr();
+        String filePath=filePathConfig.getDatasetPath()+"user"+dataset.getFkUserId()+File.separatorChar+dataset.getDatasetAddr();
         Map<String, Object> data = new HashMap<>();
         List<String[]> csvContent = FileUtils.csvContentPreview(filePath);
         data.put("content",csvContent);

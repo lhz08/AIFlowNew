@@ -23,6 +23,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -33,22 +34,22 @@ import java.util.*;
 @Service
 public class WorkflowServiceImpl implements WorkflowService {
 
-    @Autowired
+    @Resource
     private WorkflowMapper workflowMapper;
 
-    @Autowired
+    @Resource
     private TemplateMapper templateMapper;
 
-    @Autowired
+    @Resource
     private ExperimentMapper experimentMapper;
 
     @Autowired
     private ExperimentService experimentService;
 
-    @Autowired
+    @Resource
     private PipelineService pipelineService;
 
-    @Autowired
+    @Resource
     FilePathConfig filePathConfig;
 
     /**
@@ -88,7 +89,8 @@ public class WorkflowServiceImpl implements WorkflowService {
         workflow.setGeneratePipelineAddr(data.get("generatePipelineAddr"));
 
         File file = new File(data.get("pipelineYamlAddr"));
-        String pipelineId = pipelineService.uploadPipeline(workflow.getName(),workflow.getWorkflowDesc(),file);
+        String pipelineName = UUID.randomUUID()+workflow.getName();
+        String pipelineId = pipelineService.uploadPipeline(pipelineName,workflow.getWorkflowDesc(),file);
         workflow.setPipelineId(pipelineId);
         workflowMapper.insertWorkflow(workflow);
 

@@ -65,6 +65,6 @@ public interface ComponentOutputStubMapper {
      * @mbg.generated Sun Aug 30 16:18:08 CST 2020
      */
     int updateByPrimaryKey(ComponentOutputStub record);
-
+    ComponentOutputStub selectById(Integer id);
 
 }

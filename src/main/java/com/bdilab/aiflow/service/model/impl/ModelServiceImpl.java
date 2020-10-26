@@ -23,6 +23,7 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public boolean createModel(String modelName, Integer userId, Integer runningId, String modelDesc) {
+
         Model model=new Model();
         model.setName(modelName);
         model.setFkUserId(userId);

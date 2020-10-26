@@ -70,6 +70,7 @@
         <if test="isDeleted != null"> and workflow.is_deleted = #{isDeleted}</if>
         <if test="name != null"> and workflow.name = #{name}</if>
         <if test="tags != null"> and workflow.tags = #{tags}</if>
+        order by createTime desc
     </select>
 
     <delete id="deleteWorkflowById" parameterType="Integer">

@@ -33,7 +33,6 @@ import javax.annotation.Resource;
 import java.io.*;
 import java.util.*;
 
-import static org.apache.hadoop.yarn.webapp.hamlet.HamletSpec.Method.get;
 
 @Service
 public class PipelineServiceImpl implements PipelineService {
@@ -47,30 +46,16 @@ public class PipelineServiceImpl implements PipelineService {
     ComponentParameterMapper componentParameterMapper;
     @Resource
     FilePathConfig filePathConfig;
-    @Resource
-    WorkflowMapper workflowMapper;
-    Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private List<String> queue = new ArrayList<>();
 
-
-    private String getFirstComponentId(String json){
-        String firstComponentId="";
-        JSONObject jsonObject = JSONObject.parseObject(json, Feature.OrderedField);
-        for (String key:jsonObject.keySet()
-        ) {
-            if(jsonObject.getJSONObject(key).getString("priorIds").equals("[]"))
-
-                firstComponentId=key;
-        }
-        return firstComponentId;
-    }
 
     private int getComponentId(String string){
         return Integer.parseInt(string.split("_")[1]);
     }
 
     //生成每个组件的代码，组件id为xml中的组件id
-    private String executeTask(String id,String json,String pipeline,Integer userId){
+    private String executeTask(String id,String json,String pipeline){
         //拿到当前结点的后置结点和前置结点list，拼接当前结点的python代码，将它的后置结点数组添加到待执行的队列中，得到它的所有前置节点的输出，作为当前结点的输入。
         List<String> curRearNodeList = JsonUtils.getRearNodeList(id,json);
         List<String> curPriorNodeList = JsonUtils.getPriorNodeList(id,json);
@@ -111,7 +96,7 @@ public class PipelineServiceImpl implements PipelineService {
             for(int i=0;i<componentParameters.size();i++){
                 pipeline+="        "+componentParameters.get(i).getName()+"="+componentName+"_"+componentParameters.get(i).getName()+",\n";
             }
-            pipeline+="        "+inputStubList.get(0)+"= input_data,\n"+"        config"+"=config\n";
+            pipeline+="        config"+"=config\n";
             pipeline+=").set_display_name('"+componentName+"')\n\n";
         }
         queue.remove(id);
@@ -159,7 +144,7 @@ public class PipelineServiceImpl implements PipelineService {
                 componentParams +="        "+name+"_"+param.getName()+",\n";
             }
         }
-        pipeline+=componentParams+"        config,\n"+"        input_data\n"+"):\n\n";
+        pipeline+=componentParams+"        config,\n):\n\n";
         return pipeline;
     }
 
@@ -172,7 +157,7 @@ public class PipelineServiceImpl implements PipelineService {
         String pipeline=generateCode(json);
         queue.add(JsonUtils.getFirstToBeExecutedComponent(json));
         while(queue.size()!=0){
-            pipeline = executeTask(queue.get(0),json,pipeline,userId);
+            pipeline = executeTask(queue.get(0),json,pipeline);
         }
         String filePath = filePathConfig.getPipelineCodePath()+ File.separatorChar+ UUID.randomUUID()+".py";
         File file = new File(filePath);
