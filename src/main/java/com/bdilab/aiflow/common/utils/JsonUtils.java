@@ -148,7 +148,7 @@ public class JsonUtils {
         {
             List<String> RearNodeList = getRearNodeList(queue.get(0),json);
             for(int i = 0;i<RearNodeList.size();i++){
-                if(!(queue.toString().contains(RearNodeList.get(i)))){
+                if(!(result.toString().contains(RearNodeList.get(i)))){
                     queue.add(RearNodeList.get(i));
                     result.add(RearNodeList.get(i));
                 }

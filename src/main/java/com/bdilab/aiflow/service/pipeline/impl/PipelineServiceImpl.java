@@ -49,7 +49,7 @@ public class PipelineServiceImpl implements PipelineService {
     @Resource
     WorkflowMapper workflowMapper;
     Logger logger = LoggerFactory.getLogger(this.getClass());
-    private List<String> queue = new ArrayList<>();
+
 
 
     private int getComponentId(String string){
@@ -57,7 +57,8 @@ public class PipelineServiceImpl implements PipelineService {
     }
 
     //生成每个组件的代码，组件id为xml中的组件id
-    private String executeTask(String id,String json,String pipeline){
+    private String executeTask(List<String> queue,String json,String pipeline){
+        String id = queue.get(0);
         //拿到当前结点的后置结点和前置结点list，拼接当前结点的python代码，将它的后置结点数组添加到待执行的队列中，得到它的所有前置节点的输出，作为当前结点的输入。
         List<String> curRearNodeList = JsonUtils.getRearNodeList(id,json);
         List<String> curPriorNodeList = JsonUtils.getPriorNodeList(id,json);
@@ -152,6 +153,7 @@ public class PipelineServiceImpl implements PipelineService {
 
     @Override
     public Map generatePipeline(String workflowXmlAddr, Integer userId){
+        List<String> queue = new ArrayList<>();
         Map<String,String> data = new HashMap<>();
         Gson gson = new Gson();
         Map<String, PythonParameters> pythonParametersMap = XmlUtils.getPythonParametersMap(workflowXmlAddr);
@@ -159,7 +161,7 @@ public class PipelineServiceImpl implements PipelineService {
         String pipeline=generateCode(json);
         queue.add(JsonUtils.getFirstToBeExecutedComponent(json));
         while(queue.size()!=0){
-            pipeline = executeTask(queue.get(0),json,pipeline);
+            pipeline = executeTask(queue,json,pipeline);
         }
         String filePath = filePathConfig.getPipelineCodePath()+ File.separatorChar+ UUID.randomUUID()+".py";
         File file = new File(filePath);
