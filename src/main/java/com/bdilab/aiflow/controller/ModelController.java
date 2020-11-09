@@ -3,7 +3,10 @@ package com.bdilab.aiflow.controller;
 import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.service.model.ModelService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,13 +27,15 @@ public class ModelController {
 
     /*创建模型*/
     @ResponseBody
+    @ApiOperation("python端调用接口，保存模型至系统")
     @RequestMapping(value = "/model/createModel", method = RequestMethod.POST)
     public ResponseResult createWorkflow(@RequestParam String modelName,
                                          @RequestParam String modelDesc,
                                          @RequestParam Integer runningId,
+                                         @RequestParam String modelAddr,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        boolean isSuccess = modelService.createModel(modelName,userId,runningId,modelDesc);
+        boolean isSuccess = modelService.createModel(modelName,userId,runningId,modelDesc,modelAddr);
         if (isSuccess){
             return new ResponseResult(true,"001","创建模型成功");
         }
@@ -146,4 +151,17 @@ public class ModelController {
         responseResult.setMeta(new MetaData(true,"001","成功导出模型"));
         return responseResult;
     }
+//    @ResponseBody
+//    @ApiParam("模型封装成组件")
+//    @RequestMapping(value = "/model/modelToComponent",method = RequestMethod.GET)
+//    public ResponseResult modelToComponent(@RequestParam @ApiParam(value="模型id")Integer modeId,
+//                                           @RequestParam @ApiParam(value="组件名") String componentName,
+//                                           @RequestParam @ApiParam(value = "组件描述") String dec
+//     ){
+//
+//
+//
+//
+//        return new ResponseResult();
+//    }
 }

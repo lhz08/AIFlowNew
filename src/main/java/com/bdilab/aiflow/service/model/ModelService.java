@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface ModelService {
 
-    boolean createModel(String modelName, Integer userId, Integer runningId, String modelDesc);
+    boolean createModel(String modelName, Integer userId, Integer runningId, String modelDesc,String model);
 
     Map<String, Object> getModelByUser(Integer userId, int pageNum, int pageSize);
 

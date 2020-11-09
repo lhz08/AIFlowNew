@@ -1,6 +1,7 @@
 package com.bdilab.aiflow.mapper;
 
 import com.bdilab.aiflow.model.ComponentOutputStub;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public interface ComponentOutputStubMapper {
      * @param runningId
      * @return
      */
-    List<ComponentOutputStub> selectByRunningId(Integer runningId);
+    List<ComponentOutputStub> selectByRunningId(@Param("runningId") Integer runningId, @Param("fkComponentInfoId") Integer fkComponentInfoId);
 
     /**
      * 通过组件输出id删除组件输出

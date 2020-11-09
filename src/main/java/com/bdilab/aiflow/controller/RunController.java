@@ -35,7 +35,7 @@ public class RunController {
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "IP_port") String IP_port,
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "resultPath")String resultPath,
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "resultTable") String resultTable){
-        boolean isInProcess = runService.pushData(processInstanceId,taskId,conversationId,resultTable,resultPath);
+        boolean isInProcess = runService.pushData(processInstanceId,taskId,conversationId,resultTable);
 //        if(isInProcess){
 //            return new ResponseResult(true,"001","已完成id为"+taskId+"的任务");
 //        }

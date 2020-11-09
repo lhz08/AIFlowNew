@@ -50,8 +50,6 @@ public class PipelineServiceImpl implements PipelineService {
     WorkflowMapper workflowMapper;
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
-
     private int getComponentId(String string){
         return Integer.parseInt(string.split("_")[1]);
     }
@@ -80,13 +78,13 @@ public class PipelineServiceImpl implements PipelineService {
                 for(int i=0;i<componentParameters.size();i++){
                     pipeline+="        "+componentParameters.get(i).getName()+"="+componentName+"_"+componentParameters.get(i).getName()+",\n";
                 }
-                pipeline+="        config"+"=config\n"+")"+".after(_"+getComponentName(curPriorNodeList.get(0))+"_op)"+".set_display_name('"+componentName+"')\n\n";
+                pipeline+="        config"+"=config\n    "+")"+".after(_"+getComponentName(curPriorNodeList.get(0))+"_op)"+".set_display_name('"+componentName+"')\n\n";
 
             }
             else {
                 pipeline += "        " + inputStubList.get(0) + "=_" + getComponentName(curPriorNodeList.get(0)) + "_op.outputs" + "['"+getStubList(componentInfoMapper.selectComponentInfoById(getComponentId(curPriorNodeList.get(0))).getOutputStub()).get(1) + "'],\n";
                 pipeline += "        " + inputStubList.get(1) + "=_" + getComponentName(curPriorNodeList.get(1)) + "_op.outputs" + "['"+getStubList(componentInfoMapper.selectComponentInfoById(getComponentId(curPriorNodeList.get(1))).getOutputStub()).get(0) + "'],\n";
-                pipeline+="        config"+"=config\n"+")";
+                pipeline+="        config"+"=config\n    "+")";
                 for(int i=0;i<curPriorNodeList.size();i++){
                     pipeline+=".after(_"+getComponentName(curPriorNodeList.get(i))+"_op)";
                 }
@@ -99,8 +97,8 @@ public class PipelineServiceImpl implements PipelineService {
             for(int i=0;i<componentParameters.size();i++){
                 pipeline+="        "+componentParameters.get(i).getName()+"="+componentName+"_"+componentParameters.get(i).getName()+",\n";
             }
-            pipeline+="        config"+"=config\n";
-            pipeline+=").set_display_name('"+componentName+"')\n\n";
+            pipeline+="        config"+"=config\n    )";
+            pipeline+=".set_display_name('"+componentName+"')\n\n";
         }
         queue.remove(id);
         for(int i = 0;i<curRearNodeList.size();i++){
@@ -111,7 +109,7 @@ public class PipelineServiceImpl implements PipelineService {
 
 
         if(queue.size()==0)
-            pipeline+="if __name__ == '__main__':\n" +
+            pipeline+="    dsl.get_pipeline_conf().set_image_pull_secrets([k8s_client.V1ObjectReference(name=\"aiflow\")])\n\n\n"+"if __name__ == '__main__':\n" +
                     "    kfp.compiler.Compiler().compile(test_pipeline, __file__ + '.yaml')\n";
         return pipeline;
     }
@@ -122,7 +120,8 @@ public class PipelineServiceImpl implements PipelineService {
         List<String> componentIdList = JsonUtils.getToBeExecutedComponentQueue(json);
         String pipeline="import kfp\n" +
                 "from kfp import components\n" +
-                "from kfp import dsl\n\n\n";
+                "from kfp import dsl\n" +
+                "from kubernetes import client as k8s_client\n\n\n";
         for (String s:componentIdList
         ) {
             componentId = getComponentId(s);

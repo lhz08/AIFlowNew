@@ -9,7 +9,7 @@ import java.util.Map;
 public interface RunService {
 
 
-    boolean pushData(String processInstanceId,String taskId,String conversationId,String resultTable,String resultPath);
+    boolean pushData(String processInstanceId,String taskId,String conversationId,String resultTable);
 
     public String getComponentId(String string);
 

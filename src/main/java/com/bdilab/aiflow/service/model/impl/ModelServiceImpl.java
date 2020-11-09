@@ -9,6 +9,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,18 +19,18 @@ import java.util.Map;
 @Service
 public class ModelServiceImpl implements ModelService {
 
-    @Autowired
+    @Resource
     ModelMapper modelMapper;
 
     @Override
-    public boolean createModel(String modelName, Integer userId, Integer runningId, String modelDesc) {
+    public boolean createModel(String modelName, Integer userId, Integer runningId, String modelDesc,String modelAddr) {
 
         Model model=new Model();
         model.setName(modelName);
         model.setFkUserId(userId);
         model.setFkRunningId(runningId);
         model.setIsDeleted((byte) 0);
-        model.setModelFileAddr(".");
+        model.setModelFileAddr(modelAddr);
         model.setModelDesc(modelDesc);
         Date date = new Date();
         model.setCreateTime(date);

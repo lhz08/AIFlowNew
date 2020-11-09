@@ -90,4 +90,15 @@ public class FileUtils {
         return file;
     }
 
+    public static void main(String[] args) {
+        List<String[]> strings = csvContentPreview("C:\\Users\\cuishaohui\\Desktop\\c37164e8-a4ce-4fd2-8c92-385265ebdbd9.csv");
+        for (String[] s:strings
+             ) {
+            for (String s1:s
+                 ) {
+                System.out.println(s1);
+            }
+        }
+    }
+
 }

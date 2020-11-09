@@ -28,14 +28,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author smile
@@ -62,35 +58,29 @@ public class RunServiceImpl implements RunService {
     RestTemplate restTemplate;
 
     @Override
-    public boolean pushData(String runningId,String taskId,String conversationId,String resultTable,String resultPath) {
+    public boolean pushData(String runningId,String taskId,String conversationId,String resultTable) {
         Gson gson = new Gson();
         Integer experimentId = experimentRunningMapper.selectExperimentRunningByRunningId(Integer.parseInt(runningId)).getFkExperimentId();
         Experiment experiment = experimentMapper.selectExperimentById(experimentId);
         Workflow workflow = workflowMapper.selectWorkflowById(experiment.getFkWorkflowId());
         String xmlPath = workflow.getWorkflowXmlAddr();
+        System.out.println(runningId+taskId+resultTable);
+
         String json = gson.toJson(XmlUtils.getPythonParametersMap(xmlPath));
         List<String> taskList = JsonUtils.getComponenetByOrder(json);
+
         if(!taskId.equals(getComponentId(taskList.get(taskList.size()-1)))) {
-            setComponentOutputStub(runningId, taskId, resultPath);
-            if(!sendEvent(taskId, conversationId, resultPath,getNextNode(taskId,taskList))) {
+            System.out.println(resultTable);
+            setComponentOutputStub(runningId, taskId, resultTable);
+            if(!sendEvent(taskId, conversationId,getNextNode(taskId,taskList,json))) {
                 return false;
             }
             return true;
         }
         //将最后一个组件的执行结果存表
-        List<Map<String,String>> resultTableList = gson.fromJson(resultTable,List.class);
-        for (Map<String,String> map : resultTableList){
-            ComponentOutputStub componentOutputStub = new ComponentOutputStub();
-            componentOutputStub.setFkRunningId(Integer.parseInt(runningId));
-            componentOutputStub.setFkComponentInfoId(Integer.parseInt(taskId));
-            componentOutputStub.setOutputFileAddr(map.get("result_path"));
-            componentOutputStub.setOutputFileType(1);
-            componentOutputStub.setOutputTableName(map.get("result_path"));
-            componentOutputStub.setGraphType(Integer.parseInt(map.get("graph_type").trim()));
-            componentOutputStubMapper.insert(componentOutputStub);
-        }
+        setComponentOutputStub(runningId, taskId, resultTable);
         //推送最后一个组件执行状态
-        sendEvent(taskId,conversationId,resultPath,null);
+        sendEvent(taskId,conversationId,null);
         logger.info("所有结点执行完毕");
         Map<String, Object> pushFinishData = new HashMap<>();
         pushFinishData.put("processName", workflow.getName());
@@ -114,15 +104,17 @@ public class RunServiceImpl implements RunService {
     }
 
 
-    private boolean sendEvent(String taskId,String conversationId,String resultPath,String nextTaskId){
+    private boolean sendEvent(String taskId,String conversationId,List<String> nextTaskId){
         Map<String,Object> pushData = new HashMap<>();
         String taskName=componentInfoMapper.selectComponentInfoById(Integer.parseInt(taskId)).getName();
-        String nextTaskName="";
+        List<String> nextTaskName = null;
         if(nextTaskId!=null) {
-            nextTaskName = componentInfoMapper.selectComponentInfoById(Integer.parseInt(nextTaskId)).getName();
+            nextTaskName = new ArrayList<>(nextTaskId.size()) ;
+            for(int i =0;i<nextTaskId.size();i++) {
+                nextTaskName.add(i,componentInfoMapper.selectComponentInfoById(Integer.parseInt(getComponentId(nextTaskId.get(i)))).getComponentDesc());
+            }
         }
         pushData.put("taskName",taskName);
-        pushData.put("resultPath",resultPath);
         pushData.put("nextTask",nextTaskName);
         ResponseResult responseResult = new ResponseResult(true,"001","完成任务：",pushData);
         ProcessSseEmitters.sendEvent(conversationId,responseResult);
@@ -130,28 +122,36 @@ public class RunServiceImpl implements RunService {
         return true;
     }
 
-    private String getNextNode(String curComponeneId,List<String> taskList){
-        for(int i = 0 ;i<taskList.size();i++){
-            if (getComponentId(taskList.get(i)).equals(curComponeneId)) {
-                taskList = taskList.subList(i, taskList.size());
-                System.out.println(componentInfoMapper.selectComponentInfoById(Integer.parseInt(curComponeneId)).getName()+"  asf"+taskList.toString());
-                break;
+    private List<String> getNextNode(String curComponeneId,List<String> taskList,String json){
+//        for(int i = 0 ;i<taskList.size();i++){
+//            if (getComponentId(taskList.get(i)).equals(curComponeneId)) {
+//                taskList = taskList.subList(i, taskList.size());
+//                System.out.println(componentInfoMapper.selectComponentInfoById(Integer.parseInt(curComponeneId)).getName()+"  asf"+taskList.toString());
+//                break;
+//            }
+//        }
+//        return getComponentId(taskList.get(1));
+        for (String s:taskList
+        ) {
+            if (getComponentId(s).equals(curComponeneId)){
+                curComponeneId = s;
             }
         }
-        return getComponentId(taskList.get(1));
+        return JsonUtils.getRearNodeList(curComponeneId,json);
     }
-    private void setComponentOutputStub(String runningId,String taskId,String resultPath){
-        String substring = resultPath.substring(1, resultPath.length() - 1);
-        String[] split = substring.split(",");
-        for (int i = 0;i<split.length;i++) {
-            String substring1 = split[i].trim().substring(1, split[i].length() - 1);
+
+
+    private void setComponentOutputStub(String runningId,String taskId,String resultTable){
+        Gson gson = new Gson();
+        List<Map<String,String>> resultTableList = gson.fromJson(resultTable,List.class);
+        for (Map<String,String> map : resultTableList){
             ComponentOutputStub componentOutputStub = new ComponentOutputStub();
             componentOutputStub.setFkRunningId(Integer.parseInt(runningId));
             componentOutputStub.setFkComponentInfoId(Integer.parseInt(taskId));
-            componentOutputStub.setOutputFileAddr(substring1);
-            componentOutputStub.setOutputFileType(1);
-            componentOutputStub.setOutputTableName(substring1);
-            componentOutputStub.setGraphType(0);
+            componentOutputStub.setOutputFileAddr(map.get("result_path").replace("'",""));
+            componentOutputStub.setOutputFileType(map.get("result_type"));
+            componentOutputStub.setOutputTableName(map.get("result_path").replace("'",""));
+            componentOutputStub.setGraphType(Integer.parseInt(map.get("graph_type").trim()));
             componentOutputStubMapper.insert(componentOutputStub);
         }
     }
