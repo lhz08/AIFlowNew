@@ -50,5 +50,6 @@ public interface WorkflowMapper {
      */
     int deleteWorkflowById(Integer workflowId);
 
+    List<Workflow> selectWorkflowByUserId(Integer userId);
 
 }

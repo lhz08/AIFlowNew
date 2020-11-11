@@ -38,4 +38,19 @@ public interface ModelService {
      * @param modelId
      */
     boolean setRunningIdNull(Integer modelId);
+    /**
+     * 将模型封装成自定义组件
+     *
+     */
+    boolean setModelToComponent(Integer modelId,Integer userId,String componentDesc);
+
+    /**
+     * python端保存模型到本地
+     * @param runningId
+     * @param componentId
+     * @param conversationId
+     * @param modelFileAddr
+     * @return
+     */
+    boolean saveModel(String runningId,String componentId,String conversationId,String modelFileAddr);
 }

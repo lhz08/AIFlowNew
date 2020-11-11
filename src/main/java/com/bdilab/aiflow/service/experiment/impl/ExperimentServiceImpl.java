@@ -11,10 +11,13 @@ import com.bdilab.aiflow.service.experiment.ExperimentRunningService;
 import com.bdilab.aiflow.service.experiment.ExperimentService;
 import com.bdilab.aiflow.service.run.RunService;
 import com.bdilab.aiflow.service.template.TemplateService;
+import com.bdilab.aiflow.vo.ExperimentVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import io.swagger.models.auth.In;
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -65,11 +68,12 @@ public class ExperimentServiceImpl implements ExperimentService {
     private String minioSecretKey;
 
     @Override
-    public Experiment createExperiment(Integer fkWorkflowId, String name, String experimentDesc, String paramJsonString){
+    public Experiment createExperiment(Integer fkWorkflowId, String name, Integer userId,String experimentDesc, String paramJsonString){
         //组装实验
         Experiment experiment=new Experiment();
         experiment.setFkWorkflowId(fkWorkflowId);
         experiment.setName(name);
+        experiment.setFkUserId(userId);
         experiment.setExperimentDesc(experimentDesc);
         experiment.setIsDeleted(DeleteStatus.NOTDELETED.getValue());
         experiment.setIsMarkTemplate(MarkTemplateStatus.NOTMARKED.getValue());
@@ -202,6 +206,7 @@ public class ExperimentServiceImpl implements ExperimentService {
         experimentRunning.setFkExperimentId(experimentId);
         experimentRunning.setIsDeleted(DeleteStatus.NOTDELETED.getValue());
         experimentRunning.setStartTime(new Date());
+        experimentRunning.setFkUserId(userId);
         boolean isSuccess=experimentRunningMapper.insertExperimentRunning(experimentRunning)==1;
         if(!isSuccess){
             messageMap.put("isSuccess",false);
@@ -301,5 +306,25 @@ public class ExperimentServiceImpl implements ExperimentService {
         experiment1.setId(experimentId);
         experiment1.setIsDeleted(DeleteStatus.NOTDELETED.getValue());
         return experimentMapper.updateExperiment(experiment1)==1;
+    }
+    @Override
+    public List<ExperimentVO> getExperiment( Integer userId, Integer experimentNum){
+        List<Experiment> experiments = experimentMapper.selectRecentExperiment(userId, experimentNum);
+        List<ExperimentVO> list = new ArrayList<>();
+        for (Experiment experiment: experiments) {
+            ExperimentVO experimentVO = new ExperimentVO();
+            experimentVO.setId(experiment.getId());
+            experimentVO.setName(experiment.getName());
+            experimentVO.setFkUserId(experiment.getFkUserId());
+            experimentVO.setFkWorkflowId(experiment.getFkWorkflowId());
+            experimentVO.setIsDeleted(experiment.getIsDeleted());
+            experimentVO.setParamJsonString(experiment.getParamJsonString());
+            experimentVO.setIsMarkTemplate(experiment.getIsMarkTemplate());
+            experimentVO.setExperimentDesc(experiment.getExperimentDesc());
+            experimentVO.setCreateTime(experiment.getCreateTime());
+            experimentVO.setGgeditorObjectString(workflowMapper.selectWorkflowById(experiment.getFkWorkflowId()).getGgeditorObjectString());
+            list.add(experimentVO);
+        }
+        return list;
     }
 }

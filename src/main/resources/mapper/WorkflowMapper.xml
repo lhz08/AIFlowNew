@@ -52,6 +52,25 @@
         where workflow.id= #{workflowId}
     </select>
 
+    <select id="selectWorkflowByUserId" parameterType="Integer" resultType="com.bdilab.aiflow.model.Workflow">
+        select workflow.id as id,
+               workflow.name as name,
+               workflow.fk_user_id as fkUserId,
+               workflow.tags as tags,
+               workflow.is_deleted as isDeleted,
+               workflow.workflow_xml_addr as workflowXmlAddr,
+               workflow.ggeditor_object_string as ggeditorObjectString,
+               workflow.generate_pipeline_addr as generatePipelineAddr,
+               workflow.pipeline_yaml_addr as pipelineYamlAddr,
+               workflow.pipeline_id as pipelineId,
+               workflow.fk_custom_component_ids as fkCustomComponentIds,
+               workflow.is_custom as isCustom,
+               workflow.create_time as createTime,
+               workflow.workflow_desc as workflowDesc
+        from workflow
+        where workflow.fk_user_id= #{userId}
+    </select>
+
     <select id="selectAllWorkflow" parameterType="com.bdilab.aiflow.model.Workflow" resultType="com.bdilab.aiflow.model.Workflow">
          select workflow.id as id,
                 workflow.name as name,

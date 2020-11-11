@@ -66,6 +66,30 @@ public class FileUtils {
         }
         return previewContent;
     }
+    public static List<String[]> csvContentPreview1(String filePath){
+        List<String[]> list = new ArrayList<>();
+        try {
+            String str = "";
+            String[] s ;
+            InputStreamReader inputStreamReader = new InputStreamReader( new FileInputStream(filePath),"GBK");
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            while((str = bufferedReader.readLine())!=null){
+
+                s = str.split(",");
+                String []singleLine = new String[s.length+1];
+                for(int i = 0;i<s.length;i++)
+                {
+                    singleLine[i] = s[i];
+                }
+                singleLine[singleLine.length-1] = "";
+                list.add(singleLine);
+            }
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return list;
+    }
     private static void writeIntoCsv(String buffer,String csvFilePath){
         File saveCsv = new File(csvFilePath);
         try {

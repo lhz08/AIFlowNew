@@ -2,7 +2,9 @@ package com.bdilab.aiflow.service.experiment;
 
 import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.Template;
+import com.bdilab.aiflow.vo.ExperimentVO;
 import io.swagger.models.auth.In;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,7 @@ public interface ExperimentService {
      * @param name
      * @param experimentDesc
      */
-    Experiment createExperiment(Integer fkWorkflowId, String name, String experimentDesc, String paramJsonString);
+    Experiment createExperiment(Integer fkWorkflowId, String name,Integer userId, String experimentDesc, String paramJsonString);
 
     /**
      * 更新实验
@@ -73,4 +75,11 @@ public interface ExperimentService {
      * @param pageSize
      */
     Map<String, Object> getDeletedExperiment(Integer isDeleted,int pageNum,int pageSize);
+
+    /**
+     * 获取最近创建的实验
+     *
+     */
+    List<ExperimentVO> getExperiment(Integer userId, Integer experimentNum);
+
 }

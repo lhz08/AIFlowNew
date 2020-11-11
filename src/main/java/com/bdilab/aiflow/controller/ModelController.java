@@ -27,7 +27,7 @@ public class ModelController {
 
     /*创建模型*/
     @ResponseBody
-    @ApiOperation("python端调用接口，保存模型至系统")
+    @ApiOperation("用户调用接口，保存模型，保存之后，用户可以使用该模型")
     @RequestMapping(value = "/model/createModel", method = RequestMethod.POST)
     public ResponseResult createWorkflow(@RequestParam String modelName,
                                          @RequestParam String modelDesc,
@@ -40,6 +40,17 @@ public class ModelController {
             return new ResponseResult(true,"001","创建模型成功");
         }
         return new ResponseResult(false,"002","创建模型失败");
+    }
+
+    @ResponseBody
+    @ApiOperation("python端调用接口，保存模型至系统")
+    @RequestMapping(value = "/model/saveModel",method = RequestMethod.POST)
+    public ResponseResult saveModel(@RequestParam @ApiParam(value = "runningId") String runningId,
+                                    @RequestParam @ApiParam(value = "componentId") String componentId,
+                                    @RequestParam @ApiParam(value = "conversationId") String conversationId,
+                                    @RequestParam @ApiParam(value = "modelFileAddr") String modelFileAddr){
+        modelService.saveModel(runningId,componentId,conversationId,modelFileAddr);
+        return new ResponseResult(true,"001","成功保存模型。");
     }
 
     /*分页获取模型信息列表*/
@@ -151,17 +162,19 @@ public class ModelController {
         responseResult.setMeta(new MetaData(true,"001","成功导出模型"));
         return responseResult;
     }
-//    @ResponseBody
-//    @ApiParam("模型封装成组件")
-//    @RequestMapping(value = "/model/modelToComponent",method = RequestMethod.GET)
-//    public ResponseResult modelToComponent(@RequestParam @ApiParam(value="模型id")Integer modeId,
-//                                           @RequestParam @ApiParam(value="组件名") String componentName,
-//                                           @RequestParam @ApiParam(value = "组件描述") String dec
-//     ){
-//
-//
-//
-//
-//        return new ResponseResult();
-//    }
+    @ResponseBody
+    @ApiParam("模型封装成组件")
+    @RequestMapping(value = "/model/modelToComponent",method = RequestMethod.GET)
+    public ResponseResult modelToComponent(@RequestParam @ApiParam(value="模型id")Integer modeId,
+                                           @RequestParam @ApiParam(value="组件名") String componentName,
+                                           @RequestParam @ApiParam(value = "组件描述") String dec,
+                                           HttpSession httpSession
+     ){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("userId").toString());
+
+
+
+
+        return new ResponseResult();
+    }
 }

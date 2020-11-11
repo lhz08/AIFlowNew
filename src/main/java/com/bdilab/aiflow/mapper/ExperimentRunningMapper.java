@@ -1,5 +1,6 @@
 package com.bdilab.aiflow.mapper;
 
+import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.ExperimentRunning;
 import org.apache.ibatis.annotations.Param;
 
@@ -56,4 +57,11 @@ public interface ExperimentRunningMapper {
      * @return
      */
     int deleteRunningByRunningId(Integer runningId);
+
+    /**
+     * 获取指定数量的近期创建的实验运行
+     *
+     */
+    List<ExperimentRunning> selectRecentExperimentRunning(@Param("userId") Integer userId, @Param("experimentRunningNum") Integer experimentRunningNum);
+
 }

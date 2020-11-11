@@ -2,6 +2,7 @@ package com.bdilab.aiflow.mapper;
 
 import com.bdilab.aiflow.model.Dataset;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -27,9 +28,9 @@ public interface DatasetMapper {
 
     List<Dataset> fuzzySelectPublicDatasetByName(String datasetName);
 
-    List<Dataset> fuzzySelectUserDatasetByName(Integer userId, String datasetName);
+    List<Dataset> fuzzySelectUserDatasetByName(@Param("userId")Integer userId, @Param("datasetName")String datasetName);
 
     List<Dataset> fuzzySelectPublicDatasetByTags(String datasetTags);
 
-    List<Dataset> fuzzySelectUserDatasetByTags(Integer userId, String datasetTags);
+    List<Dataset> fuzzySelectUserDatasetByTags(@Param("userId")Integer userId, @Param("datasetTags")String datasetTags);
 }

@@ -3,13 +3,14 @@
 <mapper namespace="com.bdilab.aiflow.mapper.ExperimentRunningMapper" >
 
   <insert id="insertExperimentRunning" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.ExperimentRunning">
-        insert into experiment_running (id, running_status, fk_experiment_id, is_deleted, start_time, end_time)
-        values (#{id}, #{runningStatus}, #{fkExperimentId}, #{isDeleted}, #{startTime}, #{endTime})
+        insert into experiment_running (id, fk_user_id,running_status, fk_experiment_id, is_deleted, start_time, end_time)
+        values (#{id},#{fkUserId}, #{runningStatus}, #{fkExperimentId}, #{isDeleted}, #{startTime}, #{endTime})
     </insert>
 
   <!--selectAllExperimentRunningByExperimentId获取的试验运行记录is_Deleted为0或者1的-->
   <select id="selectAllExperimentRunningByExperimentId" parameterType="Integer" resultType="com.bdilab.aiflow.model.ExperimentRunning">
         select experiment_running.id as id,
+        experiment_running.fk_user_id as fkUserId,
         experiment_running.running_status as runningStatus,
         experiment_running.fk_experiment_id as fkExperimentId,
         experiment_running.is_deleted as isDeleted,
@@ -22,6 +23,7 @@
     <!--selectExperimentRunningByRunningId 通过实验运行id获取实验运行-->
     <select id="selectExperimentRunningByRunningId" parameterType="Integer" resultType="com.bdilab.aiflow.model.ExperimentRunning">
         select experiment_running.id as id,
+        experiment_running.fk_user_id as fkUserId,
         experiment_running.running_status as runningStatus,
         experiment_running.fk_experiment_id as fkExperimentId,
         experiment_running.is_deleted as isDeleted,
@@ -33,6 +35,7 @@
 
     <select id="selectRunningByExperimentIdAndIsDeleted" resultType="com.bdilab.aiflow.model.ExperimentRunning">
         select experiment_running.id as id,
+        experiment_running.fk_user_id as fkUserId,
         experiment_running.running_status as runningStatus,
         experiment_running.fk_experiment_id as fkExperimentId,
         experiment_running.is_deleted as isDeleted,
@@ -44,6 +47,7 @@
 
     <select id="selectAllRunningByisDeleted" resultType="com.bdilab.aiflow.model.ExperimentRunning">
         select experiment_running.id as id,
+        experiment_running.fk_user_id as fkUserId,
         experiment_running.running_status as runningStatus,
         experiment_running.fk_experiment_id as fkExperimentId,
         experiment_running.is_deleted as isDeleted,
@@ -51,6 +55,18 @@
         experiment_running.end_time as endTime
         from experiment_running
         where experiment_running.is_deleted = #{isDeleted} order by id desc
+    </select>
+
+    <select id="selectRecentExperimentRunning" resultType="com.bdilab.aiflow.model.ExperimentRunning">
+        select experiment_running.id as id,
+        experiment_running.fk_user_id as fkUserId,
+        experiment_running.running_status as runningStatus,
+        experiment_running.fk_experiment_id as fkExperimentId,
+        experiment_running.is_deleted as isDeleted,
+        experiment_running.start_time as startTime,
+        experiment_running.end_time as endTime
+        from experiment_running
+        where experiment_running.fk_user_id = #{userId} order by experiment_running.start_time desc limit #{experimentRunningNum}
     </select>
     <!--更新Experiment信息-->
     <update id="updateExperimentRunning"  parameterType="com.bdilab.aiflow.model.ExperimentRunning">

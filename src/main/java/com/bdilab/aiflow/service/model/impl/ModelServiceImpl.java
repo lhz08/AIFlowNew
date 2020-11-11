@@ -1,8 +1,9 @@
 package com.bdilab.aiflow.service.model.impl;
 
-import com.bdilab.aiflow.mapper.ModelMapper;
-import com.bdilab.aiflow.model.Dataset;
-import com.bdilab.aiflow.model.Model;
+import com.bdilab.aiflow.common.response.ResponseResult;
+import com.bdilab.aiflow.common.sse.ProcessSseEmitters;
+import com.bdilab.aiflow.mapper.*;
+import com.bdilab.aiflow.model.*;
 import com.bdilab.aiflow.service.model.ModelService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -21,7 +22,14 @@ public class ModelServiceImpl implements ModelService {
 
     @Resource
     ModelMapper modelMapper;
-
+    @Resource
+    ExperimentRunningMapper experimentRunningMapper;
+    @Resource
+    ExperimentMapper experimentMapper;
+    @Resource
+    WorkflowMapper workflowMapper;
+    @Resource
+    ComponentInfoMapper componentInfoMapper;
     @Override
     public boolean createModel(String modelName, Integer userId, Integer runningId, String modelDesc,String modelAddr) {
 
@@ -134,5 +142,35 @@ public class ModelServiceImpl implements ModelService {
     public boolean setRunningIdNull(Integer modelId){
         boolean isSuccess=modelMapper.updateRunningIdNull(modelId)==1;
         return isSuccess;
+    }
+    @Override
+    public boolean setModelToComponent(Integer modelId,Integer userId,String componentDesc){
+
+
+        return true;
+    }
+
+    @Override
+    public boolean saveModel(String runningId, String componentId, String conversationId,String modelFileAddr) {
+        Integer experimentId = experimentRunningMapper.selectExperimentRunningByRunningId(Integer.parseInt(runningId)).getFkExperimentId();
+        Experiment experiment = experimentMapper.selectExperimentById(experimentId);
+        Workflow workflow = workflowMapper.selectWorkflowById(experiment.getFkWorkflowId());
+        ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(Integer.parseInt(componentId));
+        Model model = new Model();
+
+        model.setFkUserId(workflow.getFkUserId());
+        //方法名，从xml中解析获得
+        model.setFkRunningId(Integer.parseInt(runningId));
+        model.setCreateTime(new Date());
+        model.setModelFileAddr(modelFileAddr);
+        model.setIsDeleted((byte) 0);
+        //插入数据库
+        modelMapper.insertModel(model);
+        //推送消息
+        Map<String,String> data = new HashMap<>(2);
+        data.put("taskName",componentInfo.getName());
+        data.put("status","saving model");
+        ProcessSseEmitters.sendEvent(conversationId,new ResponseResult(true,"005","成功保存模型",data));
+        return true;
     }
 }

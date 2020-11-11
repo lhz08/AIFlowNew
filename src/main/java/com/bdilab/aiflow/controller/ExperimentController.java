@@ -57,7 +57,7 @@ public class ExperimentController {
                 experimentDesc=null;
             }
             //创建实验
-            Experiment experiment=experimentService.createExperiment(fkWorkflowId,name,experimentDesc,paramJsonString);
+            Experiment experiment=experimentService.createExperiment(fkWorkflowId,name,userId,experimentDesc,paramJsonString);
             Map<String,Object> data=new HashMap<>(1);
             data.put("experimentId",experiment.getId());
             ResponseResult responseResult = new ResponseResult(true,"001","实验创建成功");
@@ -144,6 +144,7 @@ public class ExperimentController {
     @RequestMapping(value = "/experiment/deleteExperiment", method = RequestMethod.POST)
     public  ResponseResult deleteExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
                                             HttpSession httpSession) throws Exception{
+        System.out.println("-----------------------------------------"+experimentId);
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         //service中有个删除服务
         Map<String,Object> isSuccess=experimentService.deleteExperiment(experimentId);
@@ -208,8 +209,24 @@ public class ExperimentController {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean isSuccess = experimentService.restoreExperiment(experimentId);
         if(isSuccess){
-            return new ResponseResult(true,"001","还原实验成功");
+
         }
         return new ResponseResult(false,"002","还原实验失败");
     }
+
+    @ResponseBody
+    @ApiOperation("获取最近创建的实验")
+    @RequestMapping(value = "/experiment/getExperiment", method = RequestMethod.GET)
+    public ResponseResult getExperiment(@RequestParam @ApiParam(value = "实验条数") Integer experimentNum,
+                                        HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+
+        ResponseResult responseResult = new ResponseResult();
+        responseResult.setData(experimentService.getExperiment(userId,experimentNum));
+        responseResult.setMeta(new MetaData(true,"001","成功获取最近创建实验列表"));
+        return  responseResult;
+    }
+
+
+
 }

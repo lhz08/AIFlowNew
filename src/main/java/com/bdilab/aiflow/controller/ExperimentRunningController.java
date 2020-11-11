@@ -105,4 +105,17 @@ public class ExperimentRunningController {
         return responseResult;
     }
 
+    @ResponseBody
+    @ApiOperation("获取最近创建的运行")
+    @RequestMapping(value = "/experimentRunning/getExperimentRunning", method = RequestMethod.GET)
+    public ResponseResult getExperiment(@RequestParam @ApiParam(value = "实验运行条数") Integer experimentRunningNum,
+                                        HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+
+        ResponseResult responseResult = new ResponseResult();
+        responseResult.setData(experimentRunningService.getExperimentRunning(userId,experimentRunningNum));
+        responseResult.setMeta(new MetaData(true,"001","成功获取最近创建实验运行列表"));
+        return  responseResult;
+    }
+
 }

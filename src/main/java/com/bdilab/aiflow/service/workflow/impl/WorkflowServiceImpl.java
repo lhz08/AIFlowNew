@@ -134,7 +134,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         workflow.setGeneratePipelineAddr(data.get("generatePipelineAddr"));
 
         //在kubeflow上创建新的pipeline，并和克隆生成的workflow绑定
-        File file = new File(originWorkflow.getGeneratePipelineAddr());
+        File file = new File(originWorkflow.getPipelineYamlAddr());
         String pipelineId = pipelineService.uploadPipeline(workflowName,workflowDesc,file);
         workflow.setPipelineId(pipelineId);
 

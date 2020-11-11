@@ -354,13 +354,13 @@ public class XmlUtils {
         //parseVariables("C:\\Users\\dell\\Desktop\\03c7c6c7-f38c-4520-8160-33c25a53b570.xml");
         Gson gson = new Gson();
         Map<String,ProcessNode> map = parseProcessNodes("C:\\Users\\cuishaohui\\Desktop\\fde8116f-cce0-4e7f-847e-6b2722e0a753.xml");
-        Map<String,PythonParameters> map1 = getPythonParametersMap("C:\\Users\\cuishaohui\\Desktop\\fde8116f-cce0-4e7f-847e-6b2722e0a753.xml");
+        Map<String,PythonParameters> map1 = getPythonParametersMap("E:\\home\\workflowXml\\20200926\\3ef66732-b3c1-4dd9-b095-79524361a3ae.xml");
         System.out.println(gson.toJson(map1));
-        JSONObject jsonObject = JSONObject.parseObject(gson.toJson(map1), Feature.OrderedField);
-        for (String key:jsonObject.keySet()
-             ) {
-            String priorIds = jsonObject.getJSONObject(key).getString("priorIds");
-            System.out.println(key+"_"+priorIds);
-        }
+//        JSONObject jsonObject = JSONObject.parseObject(gson.toJson(map1), Feature.OrderedField);
+//        for (String key:jsonObject.keySet()
+//             ) {
+//            String priorIds = jsonObject.getJSONObject(key).getString("priorIds");
+//            System.out.println(key+"_"+priorIds);
+//        }
     }
 }

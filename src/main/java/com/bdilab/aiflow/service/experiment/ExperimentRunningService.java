@@ -1,6 +1,8 @@
 package com.bdilab.aiflow.service.experiment;
 
+import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.ExperimentRunning;
+import com.bdilab.aiflow.vo.ExperimentRunningVO;
 import io.swagger.models.auth.In;
 
 import java.util.List;
@@ -57,4 +59,9 @@ public interface ExperimentRunningService {
      * @param runningId
      */
     Map<String, Object> getRunningLog(Integer runningId);
+    /**
+     * 获取最近创建的实验运行
+     *
+     */
+    List<ExperimentRunningVO>  getExperimentRunning(Integer userId, Integer experimentRunningNum);
 }

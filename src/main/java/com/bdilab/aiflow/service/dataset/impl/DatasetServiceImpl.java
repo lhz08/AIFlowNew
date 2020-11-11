@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -28,11 +29,13 @@ import java.util.*;
 @Service
 public class DatasetServiceImpl implements DatasetService {
 
-    @Autowired
+    @Resource
     DatasetMapper datasetMapper;
 
     @Autowired
     FilePathConfig filePathConfig;
+
+
 
     @Value("${minio.host}")
     private String host;
@@ -117,8 +120,10 @@ public class DatasetServiceImpl implements DatasetService {
     @Override
     public boolean deleteDatasetCompletelyById(Integer datasetId)  {
         Dataset dataset = datasetMapper.selectDatasetById(datasetId);
-        File file = new File(dataset.getDatasetAddr());
-        file.delete();
+        MinioFileUtils minioFileUtils = new MinioFileUtils(host,username,password,false);
+        minioFileUtils.deleteFile("user"+dataset.getFkUserId(),dataset.getDatasetAddr());
+//        File file = new File(dataset.getDatasetAddr());
+//        file.delete();
         return datasetMapper.deleteDatasetCompletelyById(datasetId);
     }
 /*    @Override
@@ -215,9 +220,10 @@ public class DatasetServiceImpl implements DatasetService {
     @Override
     public Map<String, Object> getPreviewList(Integer datasetId) {
         Dataset dataset = datasetMapper.selectDatasetById(datasetId);
-        String filePath=filePathConfig.getDatasetPath()+"user"+dataset.getFkUserId()+File.separatorChar+dataset.getDatasetAddr();
+//        String filePath=filePathConfig.getDatasetPath()+"user"+dataset.getFkUserId()+File.separatorChar+dataset.getDatasetAddr();
+        String filePath = dataset.getDatasetAddr();
         Map<String, Object> data = new HashMap<>();
-        List<String[]> csvContent = FileUtils.csvContentPreview(filePath);
+        List<String[]> csvContent = FileUtils.csvContentPreview1(filePath);
         data.put("content",csvContent);
         data.put("total",csvContent == null?0:csvContent.size());
         data.put("desc",dataset.getDatasetDesc());

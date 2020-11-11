@@ -1,6 +1,7 @@
 package com.bdilab.aiflow.service.run.impl;
 
 import com.bdilab.aiflow.common.config.FilePathConfig;
+import com.bdilab.aiflow.common.enums.RunningStatus;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.common.sse.ProcessSseEmitters;
 import com.bdilab.aiflow.common.utils.JsonUtils;
@@ -94,7 +95,8 @@ public class RunServiceImpl implements RunService {
         ProcessSseEmitters.removeSseEmitterByKey(conversationId);
         ExperimentRunning experimentRunning = new ExperimentRunning();
         experimentRunning.setId(Integer.parseInt(runningId));
-        experimentRunning.setRunningStatus(1);
+        experimentRunning.setRunningStatus(RunningStatus.RUNNINGSUCCESS.getValue());
+        experimentRunning.setEndTime(new Date());
         experimentRunningMapper.updateExperimentRunning(experimentRunning);
         return true;
 
@@ -198,4 +200,6 @@ public class RunServiceImpl implements RunService {
         restTemplate.delete(url);
         return true;
     }
+
+
 }

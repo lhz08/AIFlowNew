@@ -4,8 +4,8 @@
 
    <!--useGeneratedKeys设置为 true 时，表示如果插入的表id以自增列为主键，则允许 JDBC 支持自动生成主键，并可将自动生成的主键id返回-->
     <insert id="insertExperiment" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.Experiment">
-        INSERT INTO experiment(name, fk_workflow_id, is_deleted, param_json_string, is_mark_template, experiment_desc, create_time)
-        VALUES (#{name}, #{fkWorkflowId}, #{isDeleted}, #{paramJsonString}, #{isMarkTemplate},#{experimentDesc},#{createTime});
+        INSERT INTO experiment(name,fk_user_id, fk_workflow_id, is_deleted, param_json_string, is_mark_template, experiment_desc, create_time)
+        VALUES (#{name},#{fkUserId}, #{fkWorkflowId}, #{isDeleted}, #{paramJsonString}, #{isMarkTemplate},#{experimentDesc},#{createTime});
     </insert>
 
     <!--更新Experiment信息-->
@@ -34,6 +34,7 @@
     <select id="selectExperimentById" parameterType="Integer" resultType="com.bdilab.aiflow.model.Experiment">
          select experiment.id as id,
                 experiment.name as name,
+                experiment.fk_user_id as fkUserId,
                 experiment.fk_workflow_id as fkWorkflowId,
                 experiment.is_deleted as isDeleted,
                 experiment.param_json_string as paramJsonString,
@@ -47,6 +48,7 @@
     <select id="getAllExperimentByWorkflowIdAndIsDeleted"  parameterType="com.bdilab.aiflow.model.Experiment" resultType="com.bdilab.aiflow.model.Experiment">
          select experiment.id as id,
                 experiment.name as name,
+                experiment.fk_user_id as fkUserId,
                 experiment.fk_workflow_id as fkWorkflowId,
                 experiment.is_deleted as isDeleted,
                 experiment.param_json_string as paramJsonString,
@@ -62,6 +64,7 @@
     <select id="selectAllExperimentByisDeleted"  parameterType="Integer" resultType="com.bdilab.aiflow.model.Experiment">
          select experiment.id as id,
                 experiment.name as name,
+                experiment.fk_user_id as fkUserId,
                 experiment.fk_workflow_id as fkWorkflowId,
                 experiment.is_deleted as isDeleted,
                 experiment.param_json_string as paramJsonString,
@@ -70,6 +73,20 @@
                 experiment.create_time as createTime
          from experiment
          where experiment.is_deleted = #{isDeleted}
+    </select>
+
+    <select id="selectRecentExperiment"  resultType="com.bdilab.aiflow.model.Experiment">
+         select experiment.id as id,
+                experiment.name as name,
+                experiment.fk_workflow_id as fkWorkflowId,
+                experiment.is_deleted as isDeleted,
+                experiment.fk_user_id as fkUserId,
+                experiment.param_json_string as paramJsonString,
+                experiment.is_mark_template as isMarkTemplate,
+                experiment.experiment_desc as experimentDesc,
+                experiment.create_time as createTime
+         from experiment
+         where experiment.fk_user_id = #{userId} order by experiment.create_time desc  limit #{experimentNum}
     </select>
 
 

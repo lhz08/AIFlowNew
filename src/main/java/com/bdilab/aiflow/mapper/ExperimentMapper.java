@@ -1,6 +1,7 @@
 package com.bdilab.aiflow.mapper;
 
 import com.bdilab.aiflow.model.Experiment;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -55,4 +56,9 @@ public interface ExperimentMapper {
      * @param isDeleted
      */
     List<Experiment> selectAllExperimentByisDeleted(Integer isDeleted);
+    /**
+     * 获取指定数量的近期创建的实验
+     *
+     */
+    List<Experiment> selectRecentExperiment(@Param("userId") Integer userId, @Param("experimentNum") Integer experimentNum);
 }

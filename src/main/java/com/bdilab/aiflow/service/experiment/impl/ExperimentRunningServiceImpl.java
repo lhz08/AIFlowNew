@@ -10,8 +10,10 @@ import com.bdilab.aiflow.service.component.ComponentOutputStubService;
 import com.bdilab.aiflow.service.experiment.ExperimentRunningService;
 import com.bdilab.aiflow.service.model.ModelService;
 import com.bdilab.aiflow.service.run.RunService;
+import com.bdilab.aiflow.vo.ExperimentRunningVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -229,5 +231,23 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
         logMap.put("运行进度","待开发中");
         return logMap;
     }
-
+    @Override
+    public List<ExperimentRunningVO> getExperimentRunning(Integer userId, Integer experimentRunningNum){
+        List<ExperimentRunningVO> list = new ArrayList<>();
+        List<ExperimentRunning> experimentRunnings = experimentRunningMapper.selectRecentExperimentRunning(userId, experimentRunningNum);
+        for (ExperimentRunning experimentRunning:
+           experimentRunnings ) {
+            ExperimentRunningVO experimentRunningVO = new ExperimentRunningVO();
+            experimentRunningVO.setId(experimentRunning.getId());
+            experimentRunningVO.setFkUserId(experimentRunning.getFkUserId());
+            experimentRunningVO.setRunningStatus(experimentRunning.getRunningStatus());
+            experimentRunningVO.setIsDeleted(experimentRunning.getIsDeleted());
+            experimentRunningVO.setFkExperimentId(experimentRunning.getFkExperimentId());
+            experimentRunningVO.setStartTime(experimentRunning.getStartTime());
+            experimentRunningVO.setEndTime(experimentRunning.getEndTime());
+            experimentRunningVO.setGgeditorObjectString(workflowMapper.selectWorkflowById(experimentMapper.selectExperimentById(experimentRunning.getFkExperimentId()).getFkWorkflowId()).getGgeditorObjectString());
+            list.add(experimentRunningVO);
+        }
+        return list;
+    }
 }

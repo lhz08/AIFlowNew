@@ -69,7 +69,7 @@
     <select id="fuzzySelectUserDatasetByName" resultMap="ResultMap">
         select *
         from dataset
-        where type=1 and is_deleted=0 and fk_user_id=#{userId}
+        where dataset.type=1 and dataset.is_deleted=0 and dataset.fk_user_id=#{userId}
         <if test="datasetName!=null">and dataset.name like '%${datasetName}%'</if>
         order by create_time desc
     </select>
