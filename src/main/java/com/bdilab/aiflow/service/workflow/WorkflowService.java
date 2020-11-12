@@ -53,14 +53,24 @@ public interface WorkflowService {
     Map<String,Object> selectAllWorkflowByUserIdAndIsDeleted(Workflow searchWorkflow, int pageNum, int pageSize);
 
     /**
-     * 精准搜索流程
-     * @param workflow
-     * @param experimentName
+     * 根据名称搜索流程
+     * @param workflowName
      * @param pageNum
      * @param pageSize
+     * @param userId
      * @return
      */
-    Map<String,Object> searchWorkflow(Workflow workflow, String experimentName, int pageNum, int pageSize);
+    Map<String,Object> searchWorkflowByName(String workflowName, int pageNum, int pageSize,Integer userId);
+
+    /**
+     * 根据标签搜索流程
+     * @param workflowTags
+     * @param pageNum
+     * @param pageSize
+     * @param userId
+     * @return
+     */
+    Map<String,Object> searchWorkflowByTags(String workflowTags, int pageNum, int pageSize,Integer userId);
 
     /**
      * 根据userId和isDeleted，组装workflowVO List，包括每个流程的单独信息

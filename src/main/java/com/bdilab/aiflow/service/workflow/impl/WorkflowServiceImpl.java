@@ -259,23 +259,34 @@ public class WorkflowServiceImpl implements WorkflowService {
         return data;
     }
 
-    /**
-     * 带检索，通过userId(必有),workflowName(可选),tagstring(可选)检索流程
-     * 通过experimentName(可选)检索流程下实验
-     * @param searchWorkflow
-     * @param experimentName
-     * @param pageNum
-     * @param pageSize
-     * @return
-     */
     @Override
-    public Map<String,Object> searchWorkflow(Workflow searchWorkflow, String experimentName, int pageNum, int pageSize){
+    public Map<String,Object> searchWorkflowByName(String workflowName,int pageNum, int pageSize, Integer userId){
         PageHelper.startPage(pageNum,pageSize);
         //PageHelper将令后续第一个select分页，每页存pageSize数量内容
-        List<Workflow> workflowList = workflowMapper.selectAllWorkflow(searchWorkflow);
+        List<Workflow> workflowList = null;
+        workflowList= workflowMapper.fuzzySelectWorkflowByName(userId,workflowName);
         List<WorkflowVO> workflowVOList =new ArrayList<>();
         for(Workflow workflow:workflowList){
-            workflowVOList.add(buildWorkflowVO(workflow, (int) searchWorkflow.getIsDeleted(),true, experimentName));
+            workflowVOList.add(buildWorkflowVO(workflow, 0,true, null));
+        }
+        PageInfo pageInfo = new PageInfo<>(workflowList);
+
+        Map<String,Object> data = new HashMap<>(3);
+        data.put("WorkflowVOList",workflowVOList);
+        data.put("TotalPageNum",pageInfo.getPages());
+        data.put("Total",pageInfo.getTotal());
+        return data;
+    }
+
+    @Override
+    public Map<String,Object> searchWorkflowByTags(String workflowTags,int pageNum, int pageSize, Integer userId){
+        PageHelper.startPage(pageNum,pageSize);
+        //PageHelper将令后续第一个select分页，每页存pageSize数量内容
+        List<Workflow> workflowList = null;
+        workflowList= workflowMapper.fuzzySelectWorkflowByTags(userId,workflowTags);
+        List<WorkflowVO> workflowVOList =new ArrayList<>();
+        for(Workflow workflow:workflowList){
+            workflowVOList.add(buildWorkflowVO(workflow, 0,true, null));
         }
         PageInfo pageInfo = new PageInfo<>(workflowList);
 

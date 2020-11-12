@@ -174,33 +174,46 @@ public class WorkflowController {
     }
 
     /**
-     * 搜索栏，根据流程名称、流程标签、实验名称搜索，得到workflowVO
+     * 搜索栏，根据流程名称搜索，得到workflowVO
      * @param pageNum
      * @param pageSize
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/workflow/searchWorkflow", method = RequestMethod.POST)
-    public ResponseResult searchWorkflow(@RequestParam(required = false) String workflowName,
-                                         @RequestParam(required = false) String tagString,
-                                         @RequestParam(required = false) String experimentName,
+    @RequestMapping(value = "/workflow/searchWorkflowByName", method = RequestMethod.POST)
+    public ResponseResult searchWorkflowByName(@RequestParam(required = false) String workflowName,
                                          @RequestParam(defaultValue = "1") int pageNum,
                                          @RequestParam(defaultValue = "10") int pageSize,
                                          HttpSession httpSession
                                          ){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
 
-        Workflow workflow=new Workflow();
-        workflow.setFkUserId(userId);
-        workflow.setIsDeleted(Byte.parseByte("0"));
-        if(workflowName!=null) { workflow.setName(workflowName); }
-        if(tagString!=null){workflow.setTags(tagString);}
-        Map<String,Object> data = workflowService.searchWorkflow(workflow,experimentName,pageNum,pageSize);
+        Map<String,Object> data = workflowService.searchWorkflowByName(workflowName,pageNum,pageSize,userId);
         ResponseResult responseResult = new ResponseResult(true,"001", "流程条件搜索成功");
         responseResult.setData(data);
         return responseResult;
     }
 
+    /**
+     * 搜索栏，根据流程标签搜索，得到workflowVO
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/workflow/searchWorkflowByTags", method = RequestMethod.POST)
+    public ResponseResult searchWorkflowByTags(@RequestParam(required = false) String workflowTags,
+                                         @RequestParam(defaultValue = "1") int pageNum,
+                                         @RequestParam(defaultValue = "10") int pageSize,
+                                         HttpSession httpSession
+    ){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+
+        Map<String,Object> data = workflowService.searchWorkflowByTags(workflowTags,pageNum,pageSize,userId);
+        ResponseResult responseResult = new ResponseResult(true,"001", "流程条件搜索成功");
+        responseResult.setData(data);
+        return responseResult;
+    }
 
     /**
      * 展示所有已经删除的流程，不含实验信息
