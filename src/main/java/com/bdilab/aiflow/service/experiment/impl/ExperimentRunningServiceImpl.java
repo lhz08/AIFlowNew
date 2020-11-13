@@ -88,7 +88,7 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
                 //彻底删除该实验运行记录
                 boolean isSuccess_Running=experimentRunningMapper.deleteRunningByRunningId(runningId)==1;
                 // TODO: 2020/9/25 0025  从kubeflow上删除运行，运行表中应该加kubeflow的运行id字段。
-                //runService.deleteRunById(experimentRunning.getId().toString());
+                runService.deleteRunById(experimentRunning.getId().toString());
 
                 if(isSuccess_Output&&isSuccess_Running){
                     messageMap.put("isSuccess",true);

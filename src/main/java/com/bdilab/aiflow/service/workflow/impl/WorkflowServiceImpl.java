@@ -300,11 +300,12 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     /**
      * 放入回收站。将isDeleted=0的模板、实验、流程改为1
-     * @param workflow
+     * @param workflowId
      * @return
      */
     @Override
-    public boolean deleteWorkflow(Workflow workflow) {
+    public boolean deleteWorkflow(Integer workflowId) {
+        Workflow workflow = workflowMapper.selectWorkflowById(workflowId);
         //未删除，流程、模板、实验、实验运行都置1；顺序是模板、运行、实验、流程
         Template searchTemplate = new Template();
         searchTemplate.setFkWorkflowId(workflow.getId());
@@ -342,11 +343,12 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     /**
      * 彻底删除流程
-     * @param workflow
+     * @param workflowId
      * @return
      */
     @Override
-    public boolean deleteWorkflowTotal(Workflow workflow){
+    public boolean deleteWorkflowTotal(Integer workflowId){
+        Workflow workflow = workflowMapper.selectWorkflowById(workflowId);
         //清空顺序是模板、运行、实验、流程
         Template searchTemplate = new Template();
         searchTemplate.setFkWorkflowId(workflow.getId());

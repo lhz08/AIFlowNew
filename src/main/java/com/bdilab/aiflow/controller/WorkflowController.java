@@ -4,6 +4,7 @@ import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.service.workflow.WorkflowService;
 
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,7 @@ public class WorkflowController {
      * @return
      */
     @ResponseBody
+    @ApiOperation(value = "保存流程")
     @RequestMapping(value = "/workflow/createAndSaveWorkflow", method = RequestMethod.POST)
     public ResponseResult createAndSaveWorkflow(@RequestParam String workflowName,
                                                 @RequestParam String tagString,
@@ -69,6 +71,7 @@ public class WorkflowController {
      * @return
      */
     @ResponseBody
+    @ApiOperation(value = "修改流程")
     @RequestMapping(value = "/workflow/updateWorkflow", method = RequestMethod.POST)
     public ResponseResult updateWorkflow(@RequestParam Integer workflowId,
                                          @RequestParam String workflowXml,
@@ -89,6 +92,7 @@ public class WorkflowController {
      * @return
      */
     @ResponseBody
+    @ApiOperation(value = "根据流程id下载其pipeline文件")
     @RequestMapping(value = "/workflow/downloadWorkflow", method = RequestMethod.POST)
     public ResponseResult downloadWorkflow(@RequestParam Integer workflowId,
                                    HttpServletRequest request,
@@ -128,6 +132,7 @@ public class WorkflowController {
     }
 
     @ResponseBody
+    @ApiOperation(value = "根据id查找流程")
     @RequestMapping(value = "/workflow/selectWorkflowById", method = RequestMethod.POST)
     public ResponseResult selectWorkflowById(@RequestParam Integer workflowId,
                                              HttpSession httpSession){
@@ -157,6 +162,7 @@ public class WorkflowController {
      * @return WorkflowVOList
      */
     @ResponseBody
+    @ApiOperation(value = "展示所有未删除的流程和下属实验")
     @RequestMapping(value = "/workflow/selectAllWorkflowByUserId", method = RequestMethod.POST)
     public ResponseResult selectAllWorkflowByUserId(@RequestParam(defaultValue = "1") int pageNum,
                                                     @RequestParam(defaultValue = "10") int pageSize,
@@ -180,6 +186,7 @@ public class WorkflowController {
      * @return
      */
     @ResponseBody
+    @ApiOperation(value = "根据名称搜索流程")
     @RequestMapping(value = "/workflow/searchWorkflowByName", method = RequestMethod.POST)
     public ResponseResult searchWorkflowByName(@RequestParam(required = false) String workflowName,
                                          @RequestParam(defaultValue = "1") int pageNum,
@@ -201,6 +208,7 @@ public class WorkflowController {
      * @return
      */
     @ResponseBody
+    @ApiOperation(value = "根据标签搜索流程")
     @RequestMapping(value = "/workflow/searchWorkflowByTags", method = RequestMethod.POST)
     public ResponseResult searchWorkflowByTags(@RequestParam(required = false) String workflowTags,
                                          @RequestParam(defaultValue = "1") int pageNum,
@@ -222,6 +230,7 @@ public class WorkflowController {
      * @return WorkflowList
      */
     @ResponseBody
+    @ApiOperation(value = "分页展示回收站内的流程")
     @RequestMapping(value = "/workflow/selectDeletedWorkflow", method = RequestMethod.POST)
     public ResponseResult selectDeletedWorkflow(@RequestParam(defaultValue = "1") int pageNum,
                                                 @RequestParam(defaultValue = "10") int pageSize,
@@ -248,6 +257,7 @@ public class WorkflowController {
      * @return
      */
     @ResponseBody
+    @ApiOperation(value = "克隆流程")
     @RequestMapping(value = "/workflow/cloneWorkflow", method = RequestMethod.POST)
     public ResponseResult cloneWorkflow(@RequestParam Integer workflowId,
                                         @RequestParam String workflowName,
@@ -273,20 +283,21 @@ public class WorkflowController {
      * @return
      */
     @ResponseBody
+    @ApiOperation(value = "删除流程")
     @RequestMapping(value = "/workflow/deleteWorkflow", method = RequestMethod.POST)
     public ResponseResult deleteWorkflow(@RequestParam Integer workflowId,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Workflow workflow= workflowService.selectWorkflowById(workflowId);
         if(workflow.getIsDeleted()==0) {
-            boolean isSuccess=workflowService.deleteWorkflow(workflow);
+            boolean isSuccess=workflowService.deleteWorkflow(workflowId);
             if(isSuccess){
                 return new ResponseResult(true,"001","流程删除成功");
             }
             return new ResponseResult(false,"002","流程删除失败");
         }
         else if(workflow.getIsDeleted()==1){
-            boolean isSuccess=workflowService.deleteWorkflowTotal(workflow);
+            boolean isSuccess=workflowService.deleteWorkflowTotal(workflowId);
             if(isSuccess){
                 return new ResponseResult(true,"001","流程彻底删除成功");
             }
@@ -296,16 +307,39 @@ public class WorkflowController {
         return responseResult;
     }
 
+    /*从回收站单个或批量恢复流程*/
     @ResponseBody
+    @ApiOperation(value = "从回收站单个或批量恢复流程")
     @RequestMapping(value = "/workflow/restoreWorkflow", method = RequestMethod.POST)
-    public ResponseResult restoreWorkflow(@RequestParam Integer workflowId,
-                                          HttpSession httpSession
-                                        ){
+    public ResponseResult restoreWorkflow(@RequestParam String workflowIds,
+                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        boolean isSuccess=workflowService.restoreWorkflow(workflowId);
-        if(isSuccess){
-            return new ResponseResult(true,"001","流程还原成功");
+        String[] ids = workflowIds.split(",");
+        boolean isSuccess;
+        for (int i=0;i<ids.length;i++){
+            isSuccess = workflowService.restoreWorkflow(Integer.parseInt(ids[i]));
+            if (!isSuccess){
+                return new ResponseResult(false,"002","流程还原失败");
+            }
         }
-        return new ResponseResult(true,"002","流程还原失败");
+        return new ResponseResult(true,"001","流程还原成功");
+    }
+
+    /*从回收站单个或批量彻底删除流程*/
+    @ResponseBody
+    @ApiOperation(value = "从回收站单个或批量彻底删除流程")
+    @RequestMapping(value = "/workflow/deleteWorkflowCompletely", method = RequestMethod.POST)
+    public ResponseResult deleteWorkflowCompletely(@RequestParam String workflowIds,
+                                          HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        String[] ids = workflowIds.split(",");
+        boolean isSuccess;
+        for (int i=0;i<ids.length;i++){
+            isSuccess = workflowService.deleteWorkflowTotal(Integer.parseInt(ids[i]));
+            if (!isSuccess){
+                return new ResponseResult(false,"002","流程彻底删除失败");
+            }
+        }
+        return new ResponseResult(true,"001","流程彻底删除成功");
     }
 }

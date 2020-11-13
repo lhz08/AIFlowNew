@@ -84,17 +84,17 @@ public interface WorkflowService {
 
     /**
      * 放入流程回收站
-     * @param workflow
+     * @param workflowId
      * @return
      */
-    boolean deleteWorkflow(Workflow workflow);
+    boolean deleteWorkflow(Integer workflowId);
 
     /**
      * 彻底删除流程
-     * @param workflow
+     * @param workflowId
      * @return
      */
-    boolean deleteWorkflowTotal(Workflow workflow);
+    boolean deleteWorkflowTotal(Integer workflowId);
 
     /**
      * 还原流程
