@@ -78,7 +78,7 @@
         select *
         from dataset
         where type=0 and is_deleted=0
-        <if test="datasetTags!=null">and name like '%${datasetTags}%'</if>
+        <if test="datasetTags!=null">and dataset.tags like '%${datasetTags}%'</if>
         order by create_time desc
     </select>
 
@@ -86,7 +86,7 @@
         select *
         from dataset
         where type=1 and is_deleted=0 and fk_user_id=#{userId}
-        <if test="datasetTags!=null">and name like '%${datasetTags}%'</if>
+        <if test="datasetTags!=null">and dataset.tags like '%${datasetTags}%'</if>
         order by create_time desc
     </select>
 </mapper>

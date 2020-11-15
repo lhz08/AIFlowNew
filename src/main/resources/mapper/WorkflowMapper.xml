@@ -98,4 +98,20 @@
         delete from workflow
         where workflow.id = #{workflowId}
     </delete>
+
+    <select id="fuzzySelectWorkflowByName" resultType="com.bdilab.aiflow.model.Workflow">
+        select *
+        from workflow
+        where workflow.is_deleted=0 and workflow.fk_user_id=#{userId}
+        <if test="workflowName!=null">and workflow.name like '%${workflowName}%'</if>
+        order by create_time desc
+    </select>
+
+    <select id="fuzzySelectWorkflowByTags" resultType="com.bdilab.aiflow.model.Workflow">
+        select *
+        from workflow
+        where workflow.is_deleted=0 and workflow.fk_user_id=#{userId}
+        <if test="workflowTags!=null">and workflow.tags like '%${workflowTags}%'</if>
+        order by create_time desc
+    </select>
 </mapper>

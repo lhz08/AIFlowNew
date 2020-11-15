@@ -140,18 +140,21 @@ public class ExperimentController {
     }
 
     @ResponseBody
-    @ApiOperation("删除实验")
+    @ApiOperation("删除实验（初步删除或彻底删除，单个删除或批量删除）")
     @RequestMapping(value = "/experiment/deleteExperiment", method = RequestMethod.POST)
-    public  ResponseResult deleteExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
+    public  ResponseResult deleteExperiment(@RequestParam @ApiParam(value = "实验id") String experimentIds,
                                             HttpSession httpSession) throws Exception{
-        System.out.println("-----------------------------------------"+experimentId);
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         //service中有个删除服务
-        Map<String,Object> isSuccess=experimentService.deleteExperiment(experimentId);
-        if(isSuccess.get("isSuccess").equals(true)){
-            return new ResponseResult(true,"001",isSuccess.get("message").toString());
+        String[] ids = experimentIds.split(",");
+        Map<String,Object> isSuccess;
+        for (int i=0;i<ids.length;i++){
+            isSuccess = experimentService.deleteExperiment(Integer.parseInt(ids[i]));
+            if (!isSuccess.get("isSuccess").equals(true)){
+                return new ResponseResult(false,"002",isSuccess.get("message").toString());
+            }
         }
-        return new ResponseResult(false,"002",isSuccess.get("message").toString());
+        return new ResponseResult(true,"001","删除实验成功");
     }
 
     @ResponseBody
@@ -204,14 +207,18 @@ public class ExperimentController {
     @ResponseBody
     @ApiOperation("还原实验")
     @RequestMapping(value = "/experiment/restoreExperiment", method = RequestMethod.POST)
-    public  ResponseResult restoreExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
+    public  ResponseResult restoreExperiment(@RequestParam @ApiParam(value = "实验id") String experimentIds,
                                              HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        boolean isSuccess = experimentService.restoreExperiment(experimentId);
-        if(isSuccess){
-
+        String[] ids = experimentIds.split(",");
+        boolean isSuccess;
+        for (int i=0;i<ids.length;i++){
+            isSuccess = experimentService.restoreExperiment(Integer.parseInt(ids[i]));
+            if (!isSuccess){
+                return new ResponseResult(false,"002","还原实验失败");
+            }
         }
-        return new ResponseResult(false,"002","还原实验失败");
+        return new ResponseResult(true,"001","还原实验成功");
     }
 
     @ResponseBody

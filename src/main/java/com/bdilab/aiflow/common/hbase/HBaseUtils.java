@@ -224,19 +224,13 @@ public class HBaseUtils {
     public static TreeMap read(String tablename, LinkedHashMap hashMap, Set set, LinkedList coulmn, Connection connection) {
         TreeMap<Integer, List<Object>> map = new TreeMap<>();
 
-
         try {
             Table table = connection.getTable(TableName.valueOf(tablename));
-
             Scan scan = new Scan();
-
             ResultScanner rss = table.getScanner(scan);
-
             Boolean count = true;
             for (Result result : rss) {
                 if (count == true) {
-
-
                     for (Cell cell : result.listCells()) {
                         String Qualifier = Bytes.toString(CellUtil.cloneQualifier(cell));
                         String QualifiernewArray[] = Qualifier.split("_");
@@ -250,11 +244,8 @@ public class HBaseUtils {
                                 else {
                                     Qualifiernew.append(QualifiernewArray[i]).append("_");
                                 }
-
                             }
                         }
-
-
                         coulmn.add(Qualifiernew.toString());
 
                         String[] maxmin = new String[2];
@@ -264,12 +255,8 @@ public class HBaseUtils {
                         maxmin[1] = String.valueOf(Float.MAX_VALUE);
 
                         hashMap.put(Bytes.toString(CellUtil.cloneQualifier(cell)), maxmin);
-
                     }
-
-
                 }
-
                 String rowkeynew = Bytes.toString(result.getRow());
                 int rowkey = Integer.valueOf(rowkeynew);
 
@@ -281,7 +268,6 @@ public class HBaseUtils {
                         if (str.endsWith("_str")) {
                             set.add(cellvalue);
                             list.add(cellvalue);
-
                         } else {
                             set.add(Float.valueOf(cellvalue));
                             list.add(Float.valueOf(cellvalue));
@@ -299,23 +285,15 @@ public class HBaseUtils {
                             } else if (Float.valueOf(value[1]) > Float.valueOf(cellvalue)) {
                                 value[1] = String.valueOf(cellvalue);
                             }
-
                         }
-
                     }
-
-
                 }
-
                 map.put(rowkey, list);
                 count = false;
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
         return map;
     }
-
-
 }

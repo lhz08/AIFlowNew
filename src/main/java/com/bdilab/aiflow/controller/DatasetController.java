@@ -38,14 +38,12 @@ public class DatasetController {
     * 分页获得公开数据集信息列表
     */
     @ResponseBody
+    @ApiOperation(value = "分页获得公开数据集列表")
     @RequestMapping(value = "/dataset/getPublicDataset",method = RequestMethod.GET)
     public ResponseResult getPublicDataset(@RequestParam(defaultValue = "1") int pageNum,
                                            @RequestParam(defaultValue = "10") int pageSize,
                                            HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
         Map<String,Object> data = datasetService.getPublicDataset(pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -62,9 +60,6 @@ public class DatasetController {
                                          @RequestParam(defaultValue = "10") int pageSize,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
         Map<String,Object> data = datasetService.getUserDataset(userId,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -118,9 +113,6 @@ public class DatasetController {
                                         @RequestParam String datasetDesc,
                                         HttpSession httpSession) {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
         if(datasetService.uploadDatasetToMinio(file,datasetName,tags,datasetDesc,userId)) {
             return new ResponseResult(true, "001", "上传数据集成功");
         }
@@ -138,9 +130,6 @@ public class DatasetController {
                                         HttpSession httpSession){
 
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
         //获取上传文件的原始名
         String filename = file.getOriginalFilename();
         //获取文件的后缀名
@@ -192,13 +181,11 @@ public class DatasetController {
     }
     /*删除数据集--移入回收站*/
     @ResponseBody
+    @ApiOperation(value = "删除数据集--移入回收站")
     @RequestMapping(value = "/dataset/deleteDataset",method = RequestMethod.POST)
     public ResponseResult deleteDatasetById(@RequestParam Integer datasetId,
                                             HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
         boolean isSuccess = datasetService.deleteDatasetById(datasetId);
         if (isSuccess){
             return new ResponseResult(true,"001","数据集移入回收站成功");
@@ -206,32 +193,32 @@ public class DatasetController {
         return new ResponseResult(false,"002","数据集删除失败");
     }
 
-    /*删除数据集--彻底删除*/
+    /*从回收站单个或批量彻底删除数据集*/
     @ResponseBody
-    @RequestMapping(value = "/dataset/deleteDatasetPermanently",method = RequestMethod.POST)
-    public ResponseResult deleteDatasetCompletelyById(@RequestParam Integer datasetId,
+    @ApiOperation(value = "从回收站单个或批量彻底删除数据集")
+    @RequestMapping(value = "/dataset/deleteDatasetCompletelyById",method = RequestMethod.POST)
+    public ResponseResult deleteDatasetCompletelyById(@RequestParam String datasetIds,
                                                       HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
+        String[] ids = datasetIds.split(",");
+        boolean isSuccess;
+        for (int i=0;i<ids.length;i++){
+            isSuccess = datasetService.deleteDatasetCompletelyById(Integer.parseInt(ids[i]));
+            if (!isSuccess){
+                return new ResponseResult(false,"002","彻底删除数据集失败");
+            }
         }
-        boolean isSuccess = datasetService.deleteDatasetCompletelyById(datasetId);
-        if (isSuccess){
-            return new ResponseResult(true,"001","彻底删除数据集成功");
-        }
-        return new ResponseResult(false,"002","彻底删除数据集失败");
+        return new ResponseResult(true,"001","彻底删除数据集成功");
     }
 
     /*分页获取回收站中的数据集列表*/
     @ResponseBody
+    @ApiOperation(value = "分页获取回收站中的数据集列表")
     @RequestMapping(value = "/dataset/getDatasetInTrash",method = RequestMethod.POST)
     public ResponseResult getDatasetInTrash(@RequestParam(defaultValue = "1") int pageNum,
                                             @RequestParam(defaultValue = "10") int pageSize,
                                             HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
         Map<String,Object> data = datasetService.getDatasetInTrash(userId,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -239,32 +226,32 @@ public class DatasetController {
         return responseResult;
     }
 
-    /*从回收站恢复数据集*/
+    /*从回收站单个或批量恢复数据集*/
     @ResponseBody
+    @ApiOperation(value = "从回收站单个或批量恢复数据集")
     @RequestMapping(value = "/dataset/restoreDataset",method = RequestMethod.POST)
-    public ResponseResult restoreDataset(@RequestParam Integer datasetId,
+    public ResponseResult restoreDataset(@RequestParam String datasetIds,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
+        String[] ids = datasetIds.split(",");
+        boolean isSuccess;
+        for (int i=0;i<ids.length;i++){
+            isSuccess = datasetService.restoreDataset(Integer.parseInt(ids[i]));
+            if (!isSuccess){
+                return new ResponseResult(false,"002","恢复数据集失败");
+            }
         }
-        boolean  isSuccess= datasetService.restoreDataset(datasetId);
-        if (isSuccess){
-            return new ResponseResult(true,"001","恢复数据集成功");
-        }
-        return new ResponseResult(false,"002","恢复数据集失败");
+        return new ResponseResult(true,"001","恢复数据集成功");
     }
     /*按名称分页搜索公开数据集*/
     @ResponseBody
+    @ApiOperation(value = "按名称分页搜索公开数据集")
     @RequestMapping(value = "/dataset/searchPublicDatasetByName",method = RequestMethod.GET)
     public ResponseResult searchPublicDatasetByName(@RequestParam(defaultValue = "1") int pageNum,
                                                     @RequestParam(defaultValue = "10") int pageSize,
                                                     @RequestParam(defaultValue = "test") String datasetName,
                                                     HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
         Map<String,Object> data = datasetService.searchPublicDatasetByName(datasetName,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -274,15 +261,13 @@ public class DatasetController {
 
     /*按名称分页搜索用户自定义数据集*/
     @ResponseBody
+    @ApiOperation(value = "按名称分页搜索用户自定义数据集")
     @RequestMapping(value = "/dataset/searchUserDatasetByName",method = RequestMethod.GET)
     public ResponseResult searchUserDatasetByName(@RequestParam(defaultValue = "1") int pageNum,
                                                   @RequestParam(defaultValue = "10") int pageSize,
                                                   @RequestParam(defaultValue = "test") String datasetName,
                                                   HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
         Map<String,Object> data = datasetService.searchUserDatasetByName(userId,datasetName,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -292,15 +277,13 @@ public class DatasetController {
 
     /*按tags分页搜索公开数据集*/
     @ResponseBody
+    @ApiOperation(value = "按tags分页搜索公开数据集")
     @RequestMapping(value = "/dataset/searchPublicDatasetByTags",method = RequestMethod.GET)
     public ResponseResult searchPublicDatasetByTags(@RequestParam(defaultValue = "1") int pageNum,
                                                     @RequestParam(defaultValue = "10") int pageSize,
                                                     @RequestParam String datasetTags,
                                                     HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
         Map<String,Object> data = datasetService.searchPublicDatasetByTags(datasetTags,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -310,15 +293,13 @@ public class DatasetController {
 
     /*按tags分页搜索用户自定义数据集*/
     @ResponseBody
+    @ApiOperation(value = "按tags分页搜索用户自定义数据集")
     @RequestMapping(value = "/dataset/searchUserDatasetByTags",method = RequestMethod.GET)
     public ResponseResult searchUserDatasetByTags(@RequestParam(defaultValue = "1") int pageNum,
                                                   @RequestParam(defaultValue = "10") int pageSize,
                                                   @RequestParam(defaultValue = "test") String datasetTags,
                                                   HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
         Map<String,Object> data = datasetService.searchUserDatasetByTags(userId,datasetTags,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
@@ -344,13 +325,11 @@ public class DatasetController {
 
     /*导出数据集*/
     @ResponseBody
+    @ApiOperation(value = "导出数据集")
     @RequestMapping(value = "/dataset/downloadDataset",method = RequestMethod.GET)
     public ResponseResult downloadDataset(@RequestParam Integer datasetId,
                                           HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
         File file = datasetService.downloadDataset(datasetId);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(file);
@@ -360,13 +339,11 @@ public class DatasetController {
 
     /*获取记录用作预览*/
     @ResponseBody
+    @ApiOperation(value = "获取记录用作预览")
     @RequestMapping(value = "/dataset/previewDataset",method = RequestMethod.GET)
     public ResponseResult previewDataset(@RequestParam Integer datasetId,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
         Map<String, Object> data = datasetService.getPreviewList(datasetId);
         if(data.get("content")==null){
             return new ResponseResult(false,"002","获取预览信息失败");

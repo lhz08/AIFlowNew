@@ -127,6 +127,4 @@
         delete from template
         where template.id = #{templateId}
     </delete>
-
-
 </mapper>

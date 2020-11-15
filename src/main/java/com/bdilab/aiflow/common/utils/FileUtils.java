@@ -39,8 +39,6 @@ public class FileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
     public static List<String[]> csvContentPreview(String filePath){
         File file = new File(filePath);
@@ -124,5 +122,4 @@ public class FileUtils {
             }
         }
     }
-
 }

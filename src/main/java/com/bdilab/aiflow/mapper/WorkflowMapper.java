@@ -52,4 +52,19 @@ public interface WorkflowMapper {
 
     List<Workflow> selectWorkflowByUserId(Integer userId);
 
+    /**
+     * 根据流程名称模糊查询流程
+     * @param userId
+     * @param workflowName
+     * @return
+     */
+    List<Workflow> fuzzySelectWorkflowByName(@Param("userId") Integer userId, @Param("workflowName") String workflowName);
+
+    /**
+     * 根据流程标签模糊查询流程
+     * @param userId
+     * @param workflowTags
+     * @return
+     */
+    List<Workflow> fuzzySelectWorkflowByTags(@Param("userId") Integer userId, @Param("workflowTags") String workflowTags);
 }
