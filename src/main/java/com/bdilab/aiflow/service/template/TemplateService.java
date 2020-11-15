@@ -21,12 +21,13 @@ public interface TemplateService {
 
     /**
      * 从模板创建实验
+     * @param userId
      * @param templateId
      * @param experimentName
      * @param experimentDesc
      * @return
      */
-    Experiment createExperimentFromTemplate(Integer templateId, String experimentName, String experimentDesc);
+    Experiment createExperimentFromTemplate(Integer userId,Integer templateId, String experimentName, String experimentDesc);
 
     /**
      * 修改模板的名称、描述和标签

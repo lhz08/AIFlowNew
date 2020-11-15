@@ -42,7 +42,7 @@ public interface ExperimentService {
      * 克隆实验
      * @param experimentId
      */
-    Experiment copyExperiment(Integer experimentId, String name, String experimentDesc);
+    Experiment copyExperiment(Integer userId,Integer experimentId, String name, String experimentDesc);
 
     /**
      * 删除实验

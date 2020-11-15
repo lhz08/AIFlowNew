@@ -2,16 +2,21 @@ package com.bdilab.aiflow.service.model.impl;
 
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.common.sse.ProcessSseEmitters;
+import com.bdilab.aiflow.common.utils.MinioFileUtils;
 import com.bdilab.aiflow.mapper.*;
 import com.bdilab.aiflow.model.*;
 import com.bdilab.aiflow.service.model.ModelService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,19 +35,28 @@ public class ModelServiceImpl implements ModelService {
     WorkflowMapper workflowMapper;
     @Resource
     ComponentInfoMapper componentInfoMapper;
-    @Override
-    public boolean createModel(String modelName, Integer userId, Integer runningId, String modelDesc,String modelAddr) {
+    @Resource
+    CustomComponentMapper customComponentMapper;
+    @Resource
+    ComponentParameterMapper componentParameterMapper;
 
+    @Value("${minio.host}")
+    private String host;
+
+    @Value("${minio.access_key}")
+    private String username;
+
+    @Value("${minio.secret_key}")
+    private String password;
+    @Override
+    public boolean createModel(Integer modelId,String modelName, String modelDesc) {
         Model model=new Model();
+        model.setId(modelId);
         model.setName(modelName);
-        model.setFkUserId(userId);
-        model.setFkRunningId(runningId);
+        model.setIsSaved(1);
         model.setIsDeleted((byte) 0);
-        model.setModelFileAddr(modelAddr);
         model.setModelDesc(modelDesc);
-        Date date = new Date();
-        model.setCreateTime(date);
-        return modelMapper.insertModel(model);
+        return modelMapper.updateModel(model)==1;
     }
 
 
@@ -50,10 +64,10 @@ public class ModelServiceImpl implements ModelService {
     @Override
     public Map<String, Object> getModelByUser(Integer userId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum,pageSize);
-        List<Model> datasetList = modelMapper.getModelByUser(userId);
-        PageInfo pageInfo = new PageInfo<>(datasetList);
+        List<Model> modelList = modelMapper.getModelByUser(userId);
+        PageInfo pageInfo = new PageInfo<>(modelList);
         Map<String,Object> data = new HashMap<>(3);
-        data.put("Model List",datasetList);
+        data.put("Model List",modelList);
         data.put("Total Page Num",pageInfo.getPages());
         data.put("Total",pageInfo.getTotal());
         return data;
@@ -143,34 +157,98 @@ public class ModelServiceImpl implements ModelService {
         boolean isSuccess=modelMapper.updateRunningIdNull(modelId)==1;
         return isSuccess;
     }
+
+    /**
+     * 根据模型查到生成该模型的组件，该组件的镜像包括训练和测试两部分，
+     * 将模型封装成组件实际上用的还是生成该模型的组件的镜像，封装的组件除了id，名称，描述等字段和原组件不同，其他都和原组件相同。
+     * @param modelId
+     * @param userId
+     * @param componentName
+     * @param componentDesc
+     * @return
+     */
     @Override
-    public boolean setModelToComponent(Integer modelId,Integer userId,String componentDesc){
+    public boolean setModelToComponent(Integer modelId,Integer userId,String componentName,String componentDesc){
+        ComponentInfo componentInfo = new ComponentInfo();
+        Model model = modelMapper.selectModelById(modelId);
+        ComponentInfo componentInfo1 = componentInfoMapper.selectComponentInfoById(model.getFkComponentId());
+        CustomComponent customComponent = new CustomComponent();
+        componentInfo.setName(componentName);
+        componentInfo.setComponentDesc(componentDesc);
+        componentInfo.setIsCustom((byte) 1);
+        componentInfo.setComponentYamlAddr(componentInfo1.getComponentYamlAddr());
+        componentInfo.setInputStub(componentInfo1.getInputStub());
+        componentInfo.setOutputStub(componentInfo1.getOutputStub());
+        componentInfoMapper.insertComponentInfo(componentInfo);
+        List<ComponentParameter> componentParameters = componentParameterMapper.selectComponentParameterByComponentId(model.getFkComponentId());
 
-
+        for (ComponentParameter componentParameter:componentParameters
+        ) {
+            componentParameter.setId(null);
+            componentParameter.setFkComponentInfoId(componentInfo.getId());
+        }
+        componentParameterMapper.insertComponentParam(componentParameters);
+        customComponent.setFkUserId(userId);
+        customComponent.setFkComponentInfoId(componentInfo.getId());
+        customComponent.setIsDeleted((byte) 0);
+        customComponent.setType((byte) 2);
+        customComponent.setSourceId(modelId.toString());
+        customComponent.setCreateTime(new Date());
+        customComponentMapper.insertCustomComponent(customComponent);
         return true;
     }
 
     @Override
     public boolean saveModel(String runningId, String componentId, String conversationId,String modelFileAddr) {
-        Integer experimentId = experimentRunningMapper.selectExperimentRunningByRunningId(Integer.parseInt(runningId)).getFkExperimentId();
+        ExperimentRunning experimentRunning = experimentRunningMapper.selectExperimentRunningByRunningId(Integer.parseInt(runningId));
+        Integer experimentId = experimentRunning.getFkExperimentId();
         Experiment experiment = experimentMapper.selectExperimentById(experimentId);
         Workflow workflow = workflowMapper.selectWorkflowById(experiment.getFkWorkflowId());
         ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(Integer.parseInt(componentId));
         Model model = new Model();
-
         model.setFkUserId(workflow.getFkUserId());
-        //方法名，从xml中解析获得
+        model.setFkComponentId(Integer.parseInt(componentId));
         model.setFkRunningId(Integer.parseInt(runningId));
+        model.setIsSaved(0);
         model.setCreateTime(new Date());
         model.setModelFileAddr(modelFileAddr);
         model.setIsDeleted((byte) 0);
         //插入数据库
         modelMapper.insertModel(model);
+        System.out.println(model.getId());
         //推送消息
+        experimentRunning.setFkModelId(model.getId());
+        experimentRunningMapper.updateExperimentRunning(experimentRunning);
         Map<String,String> data = new HashMap<>(2);
         data.put("taskName",componentInfo.getName());
         data.put("status","saving model");
         ProcessSseEmitters.sendEvent(conversationId,new ResponseResult(true,"005","成功保存模型",data));
         return true;
     }
+    @Override
+    public HttpServletResponse downloadModelFromMinio(Integer userId, Integer modelId, HttpServletResponse response){
+        MinioFileUtils minioFileUtils = new MinioFileUtils(host,username,password,false);
+        Model model = modelMapper.selectModelById(modelId);
+        String bucketName = "user"+userId;
+        String filePath = model.getModelFileAddr();
+        try {
+            InputStream inputStream = minioFileUtils.downLoadFile(bucketName, filePath);
+            byte buf[] = new byte[1024];
+            int length = 0;
+            response.reset();
+            response.setHeader("Content-Disposition", "attachment;filename=" + filePath);
+            response.setContentType("application/octet-stream");
+            response.setCharacterEncoding("UTF-8");
+            OutputStream outputStream = response.getOutputStream();
+            while ((length = inputStream.read(buf)) > 0) {
+                outputStream.write(buf, 0, length);
+            }
+            outputStream.close();
+        }catch (Exception e){
+            e.printStackTrace();
+
+        }
+        return response;
+    }
+
 }

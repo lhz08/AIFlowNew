@@ -128,7 +128,7 @@ public class ExperimentController {
             if(experimentDesc!=null&&experimentDesc.length()==0){
                 experimentDesc=null;
             }
-            Experiment experiment=experimentService.copyExperiment(experimentId,name,experimentDesc);
+            Experiment experiment=experimentService.copyExperiment(userId,experimentId,name,experimentDesc);
             Map<String,Object> data=new HashMap<>(1);
             data.put("experimentId",experiment.getId());
             ResponseResult responseResult = new ResponseResult(true,"001","实验克隆成功");

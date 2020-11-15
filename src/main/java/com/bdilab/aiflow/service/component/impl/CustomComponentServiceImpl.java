@@ -44,6 +44,9 @@ public class CustomComponentServiceImpl implements CustomComponentService {
     @Resource
     ComponentParameterMapper componentParamMapper;
 
+    @Resource
+    EnumValueMapper enumValueMapper;
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -267,6 +270,11 @@ public class CustomComponentServiceImpl implements CustomComponentService {
             variable.setVariableName(componentParameter.getName());
             variable.setDefaultValue(componentParameter.getDefaultValue());
             variable.setVariableDes(componentParameter.getParameterDesc());
+            //枚举型,根据enumIdString查询对应enum，将其值加入到集合里
+//            if(componentVariable.getVariableType()==1){
+//                List<EnumValue> enumValueList = enumValueMapper.selectEnumValueByVariableId(componentVariable.getId());
+//                variable.setEnums(enumValueList);
+//            }
             variable.setVariableType(Integer.parseInt(componentParameter.getParameterType()));
             variables.add(variable);
         }

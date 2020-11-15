@@ -65,7 +65,7 @@ public class RunServiceImpl implements RunService {
         Experiment experiment = experimentMapper.selectExperimentById(experimentId);
         Workflow workflow = workflowMapper.selectWorkflowById(experiment.getFkWorkflowId());
         String xmlPath = workflow.getWorkflowXmlAddr();
-        System.out.println(runningId+taskId+resultTable);
+
 
         String json = gson.toJson(XmlUtils.getPythonParametersMap(xmlPath));
         List<String> taskList = JsonUtils.getComponenetByOrder(json);
@@ -153,7 +153,10 @@ public class RunServiceImpl implements RunService {
             componentOutputStub.setOutputFileAddr(map.get("result_path").replace("'",""));
             componentOutputStub.setOutputFileType(map.get("result_type"));
             componentOutputStub.setOutputTableName(map.get("result_path").replace("'",""));
-            componentOutputStub.setGraphType(Integer.parseInt(map.get("graph_type").trim()));
+            if(map.containsKey("graph_type")) {
+                componentOutputStub.setGraphType(Integer.parseInt(map.get("graph_type").trim()));
+            }
+            componentOutputStub.setGraphType(0);
             componentOutputStubMapper.insert(componentOutputStub);
         }
     }

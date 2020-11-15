@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.util.Map;
@@ -323,6 +324,22 @@ public class DatasetController {
         responseResult.setData(data);
         responseResult.setMeta(new MetaData(true,"001","成功获取搜索结果"));
         return responseResult;
+    }
+    @ResponseBody
+    @ApiOperation("从minio服务器下载数据集")
+    @RequestMapping(value = "/dataset/downloadDataset",method = RequestMethod.POST)
+    public ResponseResult downloadDatasetFromMinio(@RequestParam Integer datasetId,
+                                               HttpSession httpSession,
+                                               HttpServletResponse response) {
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
+        response = datasetService.downloadDatasetFromMinio(userId,datasetId,response);
+        if(response.getStatus()==200) {
+            return new ResponseResult(true, "001", "下载数据集成功");
+        }
+        return new ResponseResult(true,"002","下载数据集失败");
     }
 
     /*导出数据集*/

@@ -102,10 +102,11 @@ public class ExperimentServiceImpl implements ExperimentService {
     }
 
     @Override
-    public Experiment copyExperiment(Integer experimentId,String name,String experimentDesc){
+    public Experiment copyExperiment(Integer userId,Integer experimentId,String name,String experimentDesc){
         Experiment experiment=experimentMapper.selectExperimentById(experimentId);
         Experiment newExperiment = new Experiment();
         newExperiment.setName(name);
+        newExperiment.setFkUserId(userId);
         newExperiment.setFkWorkflowId(experiment.getFkWorkflowId());
         newExperiment.setIsDeleted(DeleteStatus.NOTDELETED.getValue());
         newExperiment.setParamJsonString(experiment.getParamJsonString());

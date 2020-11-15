@@ -59,7 +59,7 @@ public class TemplateController {
                                                        @RequestParam(required = false) String experimentDesc,
                                                        HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Experiment data = templateService.createExperimentFromTemplate(templateId, experimentName, experimentDesc);
+        Experiment data = templateService.createExperimentFromTemplate(userId,templateId, experimentName, experimentDesc);
 
         ResponseResult responseResult = new ResponseResult(true,"001","从实验创建模板成功");
         responseResult.setData(data);

@@ -257,6 +257,12 @@
 			<version>5.2.8.RELEASE</version>
 			<scope>compile</scope>
 		</dependency>
+		<!-- http-->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.6</version>
+		</dependency>
 
 	</dependencies>
 

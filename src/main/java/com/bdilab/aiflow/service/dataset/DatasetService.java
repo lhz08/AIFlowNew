@@ -3,6 +3,7 @@ package com.bdilab.aiflow.service.dataset;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.nio.channels.MulticastChannel;
 import java.util.Map;
@@ -51,5 +52,7 @@ public interface DatasetService {
     File downloadDataset(Integer datasetId);
 
     Map<String, Object> getPreviewList(Integer datasetId);
+
+    HttpServletResponse downloadDatasetFromMinio(Integer userId,Integer datasetId,HttpServletResponse response);
 
 }

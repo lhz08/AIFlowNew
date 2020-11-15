@@ -11,21 +11,30 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
         <result column="model_desc" jdbcType="VARCHAR" property="modelDesc" />
     </resultMap>
-    <insert id="insertModel" parameterType="com.bdilab.aiflow.model.Model">
-        INSERT INTO model(name,fk_user_id,fk_running_id,is_deleted,model_file_addr,create_time,model_desc)
-        VALUES (#{name},#{fkUserId},#{fkRunningId},#{isDeleted},#{modelFileAddr},#{createTime},#{modelDesc})
+    <insert id="insertModel" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.Model">
+        INSERT INTO model(name,fk_user_id,fk_running_id,fk_component_id,is_deleted,model_file_addr,create_time,model_desc)
+        VALUES (#{name},#{fkUserId},#{fkRunningId},#{fkComponentId},#{isDeleted},#{modelFileAddr},#{createTime},#{modelDesc})
     </insert>
 
     <select id="getModelByUser" resultMap="ResultMap">
             select *
             from model
-            where fk_user_id=#{userId} and is_deleted=0
+            where fk_user_id=#{userId} and is_deleted=0 and is_saved=1
     </select>
 
-    <select id="selectModelById" resultMap="ResultMap" parameterType="Integer">
-        select *
-        from model
-        where id=#{modelId}
+    <select id="selectModelById" resultType="com.bdilab.aiflow.model.Model" parameterType="Integer">
+           select model.id as id,
+                model.name as name,
+                model.fk_user_id as fkUserId,
+                model.fk_component_id as fkComponentId,
+                model.is_saved as isSaved,
+                model.fk_running_id as fkRunningId,
+                model.is_deleted as isDeleted,
+                model.model_file_addr as modelFileAddr,
+                model.model_desc as modelDesc,
+                model.create_time as createTime
+                from model
+        where model.id=#{modelId}
     </select>
 
     <update id="editModel" parameterType="com.bdilab.aiflow.model.Model">
@@ -92,11 +101,15 @@
     <select id="getAllModelByRunningIdAndIsDeleted"  parameterType="Integer" resultType="com.bdilab.aiflow.model.Model">
          select model.id as id,
                 model.name as name,
+                model.fk_user_id as fkUserId,
+                model.fk_component_id as fkComponentId,
                 model.fk_running_id as fkRunningId,
+                model.is_saved as isSaved,
                 model.is_deleted as isDeleted,
                 model.model_file_addr as modelFileAddr,
                 model.model_desc as modelDesc,
                 model.create_time as createTime
+                from model
          from model
          where model.fk_running_id = #{runningId} and model.is_deleted = ${isDeleted}
     </select>
