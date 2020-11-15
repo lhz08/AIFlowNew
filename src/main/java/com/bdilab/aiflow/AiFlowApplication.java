@@ -13,5 +13,4 @@ public class AiFlowApplication {
 		SpringApplication.
 				run(AiFlowApplication.class, args);
 	}
-
 }

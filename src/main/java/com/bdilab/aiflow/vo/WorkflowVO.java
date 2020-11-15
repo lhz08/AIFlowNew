@@ -52,7 +52,4 @@ public class WorkflowVO {
     public void setWorkflowDesc(String workflowDesc) { this.workflowDesc = workflowDesc; }
 
     public String getWorkflowXml() { return workflowXml; }
-
-
-
 }

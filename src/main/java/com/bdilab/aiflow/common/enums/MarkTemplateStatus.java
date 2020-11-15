@@ -35,5 +35,4 @@ public enum MarkTemplateStatus {
             default:return null;
         }
     }
-
 }

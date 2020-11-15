@@ -101,6 +101,4 @@ public interface WorkflowService {
      * @param fkWorkflowId
      */
     boolean restoreWorkflow(Integer fkWorkflowId);
-
-
 }

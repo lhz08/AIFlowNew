@@ -70,8 +70,4 @@ public interface TemplateMapper {
      * @return
      */
     int deleteTemplateById(Integer templateId);
-
-
-
-
 }

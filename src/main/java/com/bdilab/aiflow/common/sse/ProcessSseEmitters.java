@@ -36,7 +36,5 @@ public class ProcessSseEmitters {
         }catch (IOException | NullPointerException e){
             e.printStackTrace();
         }
-
     }
-
 }

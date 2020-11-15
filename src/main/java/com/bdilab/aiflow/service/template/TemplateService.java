@@ -82,10 +82,4 @@ public interface TemplateService {
      * @return
      */
     boolean restoreTemplate(Integer templateId);
-
-
-
-
-
-
 }

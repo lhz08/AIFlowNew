@@ -122,6 +122,4 @@
         set model.fk_running_id=null
         where model.id=#{modelid}
     </update>
-
-
 </mapper>
