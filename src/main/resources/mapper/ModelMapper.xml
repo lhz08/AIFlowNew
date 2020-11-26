@@ -120,7 +120,9 @@
         <trim prefix="set" suffixOverrides=",">
             <if test="name!=null">name=#{name},</if>
             <if test="fkUserId!=null">fk_user_id=#{fkUserId},</if>
+            <if test="fkComponentId!=null">fk_component_id=#{fkComponentId},</if>
             <if test="fkRunningId!=null">fk_running_id=#{fkRunningId},</if>
+            <if test="isSaved!=null">is_saved=#{isSaved},</if>
             <if test="modelDesc!=null">model_desc=#{modelDesc},</if>
             <if test="modelFileAddr!=null">model_file_addr=#{modelFileAddr},</if>
             <if test="isDeleted!=null">is_deleted=#{isDeleted},</if>

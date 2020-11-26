@@ -81,7 +81,7 @@
     select custom_component.id as id,
            component_info.name as name,
            component_info.tags as tags,
-           component_info.component_desc as des,
+           component_info.component_desc as componentDesc,
            custom_component.create_time as createTime
     from custom_component,component_info where custom_component.fk_component_info_id=component_info.id and custom_component.fk_user_id = #{userId} and custom_component.type=#{type}
   </select>

@@ -155,8 +155,9 @@ public class RunServiceImpl implements RunService {
             componentOutputStub.setOutputTableName(map.get("result_path").replace("'",""));
             if(map.containsKey("graph_type")) {
                 componentOutputStub.setGraphType(Integer.parseInt(map.get("graph_type").trim()));
+            }else {
+                componentOutputStub.setGraphType(0);
             }
-            componentOutputStub.setGraphType(0);
             componentOutputStubMapper.insert(componentOutputStub);
         }
     }

@@ -168,13 +168,14 @@ public class ModelServiceImpl implements ModelService {
      * @return
      */
     @Override
-    public boolean setModelToComponent(Integer modelId,Integer userId,String componentName,String componentDesc){
+    public boolean setModelToComponent(Integer modelId,Integer userId,String componentName,String componentDesc,String tag){
         ComponentInfo componentInfo = new ComponentInfo();
         Model model = modelMapper.selectModelById(modelId);
         ComponentInfo componentInfo1 = componentInfoMapper.selectComponentInfoById(model.getFkComponentId());
         CustomComponent customComponent = new CustomComponent();
         componentInfo.setName(componentName);
         componentInfo.setComponentDesc(componentDesc);
+        componentInfo.setTags(tag);
         componentInfo.setIsCustom((byte) 1);
         componentInfo.setComponentYamlAddr(componentInfo1.getComponentYamlAddr());
         componentInfo.setInputStub(componentInfo1.getInputStub());
@@ -207,6 +208,7 @@ public class ModelServiceImpl implements ModelService {
         ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(Integer.parseInt(componentId));
         Model model = new Model();
         model.setFkUserId(workflow.getFkUserId());
+        model.setIsSaved(0);
         model.setFkComponentId(Integer.parseInt(componentId));
         model.setFkRunningId(Integer.parseInt(runningId));
         model.setIsSaved(0);

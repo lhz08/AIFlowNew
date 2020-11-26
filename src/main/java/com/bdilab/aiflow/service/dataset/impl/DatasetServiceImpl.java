@@ -67,9 +67,9 @@ public class DatasetServiceImpl implements DatasetService {
         //获取文件的后缀名
         String suffixName = filename.substring(filename.lastIndexOf("."));
         //为上传的文件生成一个随机名字
-        filename = "dataset"+"/"+UUID.randomUUID()+suffixName;
+        filename = UUID.randomUUID()+suffixName;
         MinioFileUtils minioFileUtils = new MinioFileUtils(host,username,password,false);
-        String bucketName = "user"+userId;
+        String bucketName = "dataset";
         try {
             minioFileUtils.createBucket(bucketName);
             System.out.println(bucketName+file.getOriginalFilename()+filename);

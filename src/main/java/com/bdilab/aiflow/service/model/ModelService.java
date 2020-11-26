@@ -43,7 +43,7 @@ public interface ModelService {
      * 将模型封装成自定义组件
      *
      */
-    boolean setModelToComponent(Integer modelId,Integer userId,String componentName,String componentDesc);
+    boolean setModelToComponent(Integer modelId,Integer userId,String componentName,String componentDesc,String tag);
 
     /**
      * python端保存模型到本地

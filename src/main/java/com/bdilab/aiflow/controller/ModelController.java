@@ -182,12 +182,14 @@ public class ModelController {
     @ApiOperation("模型封装成组件")
     @RequestMapping(value = "/model/modelToComponent",method = RequestMethod.POST)
     public ResponseResult modelToComponent(@RequestParam @ApiParam(value="模型id")Integer modelId,
+                                           @RequestParam(value = "tag") String tag,
                                            @RequestParam @ApiParam(value="组件名") String componentName,
+
                                            @RequestParam @ApiParam(value = "组件描述") String componentDec,
                                            HttpSession httpSession
      ){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(modelService.setModelToComponent(modelId, userId, componentName, componentDec)) {
+        if(modelService.setModelToComponent(modelId, userId, componentName, componentDec,tag)) {
             return new ResponseResult(true, "001", "成功将模型封装成组件");
         }
         return new ResponseResult(true,"001","模型封装成组件失败");
