@@ -77,13 +77,37 @@
     from custom_component,component_info where custom_component.fk_component_info_id=component_info.id and component_info.tags LIKE '%' #{tag} '%' and custom_component.type=#{type}
   </select>
 
-  <select id="loadCustomComponentByUserIdAndType"  resultType="com.bdilab.aiflow.model.component.CustomComponentInfo">
+  <select id="getCustomComponentByUserIdAndType"  resultType="com.bdilab.aiflow.model.CustomComponent">
     select custom_component.id as id,
-           component_info.name as name,
-           component_info.tags as tags,
-           component_info.component_desc as componentDesc,
+           custom_component.fk_user_id as fkUserId,
+           custom_component.fk_component_info_id as fkComponentInfoId,
+           custom_component.is_deleted as isDeleted,
+           custom_component.type as type,
+           custom_component.source_id as sourceId,
            custom_component.create_time as createTime
-    from custom_component,component_info where custom_component.fk_component_info_id=component_info.id and custom_component.fk_user_id = #{userId} and custom_component.type=#{type}
+    from custom_component where custom_component.fk_user_id = #{userId} and custom_component.type=#{type} and custom_component.is_deleted=#{isDeleted}
   </select>
 
+    <select id="loadCustomComponentByUserIdAndType"  resultType="com.bdilab.aiflow.model.CustomComponent">
+    select custom_component.id as id,
+           custom_component.fk_user_id as fkUserId,
+           custom_component.fk_component_info_id as fkComponentInfoId,
+           custom_component.is_deleted as isDeleted,
+           custom_component.type as type,
+           custom_component.source_id as sourceId,
+           custom_component.create_time as createTime
+    from custom_component where custom_component.fk_user_id = #{userId}
+  </select>
+
+    <select id="selectCustomComponentByFkComponentId" resultType="com.bdilab.aiflow.model.CustomComponent">
+        select custom_component.id as id,
+           custom_component.fk_user_id as fkUserId,
+           custom_component.fk_component_info_id as fkComponentInfoId,
+           custom_component.is_deleted as isDeleted,
+           custom_component.type as type,
+           custom_component.source_id as sourceId,
+           custom_component.create_time as createTime
+    from custom_component where custom_component.fk_component_info_id =#{fkComponentInfoId}
+
+    </select>
 </mapper>

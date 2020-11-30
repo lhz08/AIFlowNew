@@ -3,6 +3,7 @@ package com.bdilab.aiflow.service.model.impl;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.common.sse.ProcessSseEmitters;
 import com.bdilab.aiflow.common.utils.MinioFileUtils;
+import com.bdilab.aiflow.common.utils.RandomNum;
 import com.bdilab.aiflow.mapper.*;
 import com.bdilab.aiflow.model.*;
 import com.bdilab.aiflow.service.model.ModelService;
@@ -17,10 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ModelServiceImpl implements ModelService {
@@ -173,21 +171,22 @@ public class ModelServiceImpl implements ModelService {
         Model model = modelMapper.selectModelById(modelId);
         ComponentInfo componentInfo1 = componentInfoMapper.selectComponentInfoById(model.getFkComponentId());
         CustomComponent customComponent = new CustomComponent();
-        componentInfo.setName(componentName);
-        componentInfo.setComponentDesc(componentDesc);
+        componentInfo.setName(componentInfo1.getName()+ RandomNum.generateRandomNum());
+        componentInfo.setComponentDesc(componentName);
         componentInfo.setTags(tag);
         componentInfo.setIsCustom((byte) 1);
         componentInfo.setComponentYamlAddr(componentInfo1.getComponentYamlAddr());
         componentInfo.setInputStub(componentInfo1.getInputStub());
         componentInfo.setOutputStub(componentInfo1.getOutputStub());
         componentInfoMapper.insertComponentInfo(componentInfo);
-        List<ComponentParameter> componentParameters = componentParameterMapper.selectComponentParameterByComponentId(model.getFkComponentId());
-
-        for (ComponentParameter componentParameter:componentParameters
-        ) {
-            componentParameter.setId(null);
-            componentParameter.setFkComponentInfoId(componentInfo.getId());
-        }
+        ComponentParameter componentParameter = new ComponentParameter();
+        componentParameter.setParameterType("2");
+        componentParameter.setName("modeladdr");
+        componentParameter.setParameterDesc("modeladdr");
+        componentParameter.setDefaultValue(model.getModelFileAddr());
+        componentParameter.setFkComponentInfoId(componentInfo.getId());
+        List<ComponentParameter> componentParameters = new ArrayList<>();
+        componentParameters.add(componentParameter);
         componentParameterMapper.insertComponentParam(componentParameters);
         customComponent.setFkUserId(userId);
         customComponent.setFkComponentInfoId(componentInfo.getId());

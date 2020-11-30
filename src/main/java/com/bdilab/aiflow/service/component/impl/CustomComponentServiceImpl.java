@@ -231,13 +231,39 @@ public class CustomComponentServiceImpl implements CustomComponentService {
     }
 
     @Override
-    public PageInfo<CustomComponentInfo> loadCustomComponentByUserIdAndType(int userId, int pageNum, int pageSize, int type) {
+    public PageInfo<CustomComponentInfo> getCustomComponentByUserIdAndType(int userId, int pageNum, int pageSize, int type,int idDeleted) {
         PageHelper.startPage(pageNum, pageSize);
-        System.out.println(userId);
-        List<CustomComponentInfo> customComponentList = customComponentMapper.loadCustomComponentByUserIdAndType(userId, type);
-        System.out.println(customComponentList);
-        PageInfo<CustomComponentInfo> pageInfo = new PageInfo<>(customComponentList);
+        List<CustomComponent> customComponentList = customComponentMapper.getCustomComponentByUserIdAndType(userId, type,idDeleted);
+        List<CustomComponentInfo> componentInfoList = new ArrayList<>();
+        for (CustomComponent customComponent:customComponentList
+             ) {
+            ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(customComponent.getFkComponentInfoId());
+            CustomComponentInfo customComponentInfo = new CustomComponentInfo();
+            customComponentInfo.setId(customComponent.getId());
+            customComponentInfo.setName(componentInfo.getName());
+            customComponentInfo.setComponentDesc(componentInfo.getComponentDesc());
+            customComponentInfo.setCreateTime(customComponent.getCreateTime());
+            customComponentInfo.setTags(componentInfo.getTags());
+            componentInfoList.add(customComponentInfo);
+        }
+        PageInfo<CustomComponentInfo> pageInfo = new PageInfo<>(componentInfoList);
         return pageInfo;
+    }
+
+    @Override
+    public Map<String,List<ComponentInfoVO>> loadCustomComponentInfo(Integer userId){
+        List<CustomComponent> customComponentList = customComponentMapper.loadCustomComponentByUserIdAndType(userId);
+        List<ComponentInfoVO> componentInfoList = new ArrayList<>();
+        for (CustomComponent customComponent:customComponentList
+        ) {
+            ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(customComponent.getFkComponentInfoId());
+            ComponentInfoVO componentInfoVO = buildComponentInfoVO(componentInfo);
+            componentInfoVO.setComponentType(customComponent.getType().toString());
+            componentInfoList.add(componentInfoVO);
+        }
+        Map<String,List<ComponentInfoVO>> result = new HashMap<>();
+        result.put("Custom Component",componentInfoList);
+        return result;
     }
 
     @Override
