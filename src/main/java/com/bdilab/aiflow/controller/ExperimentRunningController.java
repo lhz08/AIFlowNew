@@ -71,11 +71,11 @@ public class ExperimentRunningController {
     @ResponseBody
     @ApiOperation("回收站查看实验运行")
     @RequestMapping(value = "/experimentRunning/getDeletedExperimentRunning", method = RequestMethod.POST)
-    public  ResponseResult deleteExperimentRunning(@RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,
+    public  ResponseResult getDeletedExperimentRunning(@RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,
                                                    @RequestParam(defaultValue = "10")@ApiParam(value = "每页记录数") int pageSize,
                                                    HttpSession httpSession) throws Exception{
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Map<String,Object> data=experimentRunningService.getDeletedRunning(DeleteStatus.DELETED.getValue(),pageNum,pageSize);
+        Map<String,Object> data=experimentRunningService.getDeletedRunning(userId,DeleteStatus.DELETED.getValue(),pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
         responseResult.setMeta(new MetaData(true,"001","成功获取回收站中的所有实验运行列表"));
@@ -126,6 +126,16 @@ public class ExperimentRunningController {
         return  responseResult;
     }
 
-
-
+    @ResponseBody
+    @ApiOperation("停止实验运行")
+    @RequestMapping(value = "/experimentRunning/stopExperimentRunning", method = RequestMethod.POST)
+    public  ResponseResult stopExperimentRunning(@RequestParam @ApiParam(value = "实验运行id") Integer runningId,
+                                          HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Map<String,Object> isSuccess=experimentRunningService.stopExperimentRunning(runningId);
+        if(isSuccess.get("isSuccess").equals(true)){
+            return new ResponseResult(true,"001",isSuccess.get("message").toString());
+        }
+        return new ResponseResult(false,"002",isSuccess.get("message").toString());
+    }
 }

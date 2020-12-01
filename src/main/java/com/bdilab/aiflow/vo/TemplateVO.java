@@ -1,6 +1,8 @@
 package com.bdilab.aiflow.vo;
 
 
+import com.bdilab.aiflow.model.Workflow;
+
 /**
  * 向前端传递
  */
@@ -14,7 +16,7 @@ public class TemplateVO {
 
     private Integer fkUserId;
 
-    private Integer fkWorkflowId;
+    private Workflow workflow;
 
     private Integer fkExperimentId;
 
@@ -63,12 +65,12 @@ public class TemplateVO {
         this.fkUserId = fkUserId;
     }
 
-    public Integer getFkWorkflowId() {
-        return fkWorkflowId;
+    public Workflow getWorkflow() {
+        return workflow;
     }
 
-    public void setFkWorkflowId(Integer fkWorkflowId) {
-        this.fkWorkflowId = fkWorkflowId;
+    public void setWorkflow(Workflow workflow) {
+        this.workflow = workflow;
     }
 
     public Integer getFkExperimentId() {

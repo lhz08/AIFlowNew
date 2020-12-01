@@ -268,39 +268,6 @@ public class ExperimentServiceImpl implements ExperimentService {
     }
 
     @Override
-    public Map<String,Object> stopExperiment(Integer experimentId){
-        List<ExperimentRunning> experimentRunningList=experimentRunningMapper.selectAllExperimentRunningByExperimentId(experimentId);
-        boolean isRunning=false;
-        Map<String,Object> messageMap=new HashMap<>(2);
-        for(ExperimentRunning experimentRunning:experimentRunningList){
-            if(experimentRunning.getRunningStatus()==RunningStatus.RUNNING.getValue()){
-                isRunning=true;
-                ExperimentRunning experimentRunning1=new ExperimentRunning();
-                experimentRunning1.setId(experimentRunning.getId());
-                experimentRunning1.setRunningStatus(RunningStatus.RUNNINGFAIL.getValue());
-                boolean isSuccess=experimentRunningMapper.updateExperimentRunning(experimentRunning1)==1;
-                //修改完成实验运行表之后，需要通知Kubeflow暂停此次实验运行
-                //...目前完成不了
-
-
-                if(!isSuccess){
-                    messageMap.put("isSuccess",false);
-                    messageMap.put("message","停止实验失败");
-                    return messageMap;
-                }
-            }
-        }
-        if(!isRunning){
-            messageMap.put("isSuccess",false);
-            messageMap.put("message","停止实验失败,该实验未在运行");
-            return messageMap;
-        }
-        messageMap.put("isSuccess",true);
-        messageMap.put("message","停止实验成功,通知kubeflow端停止运行还没实现");
-        return messageMap;
-    }
-
-    @Override
     public boolean restoreExperiment(Integer experimentId){
         //首先要获取流程id
         Experiment experiment=experimentMapper.selectExperimentById(experimentId);

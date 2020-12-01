@@ -42,11 +42,12 @@ public interface ExperimentRunningService {
 
     /**
      * 获取回收站里所有的实验运行
+     * @param userId
      * @param isDeleted
      * @param pageNum
      * @param pageSize
      */
-    Map<String, Object> getDeletedRunning(Integer isDeleted, int pageNum, int pageSize);
+    Map<String, Object> getDeletedRunning(Integer userId, Integer isDeleted, int pageNum, int pageSize);
 
     /**
      * 获取回收站里所有的实验运行
@@ -64,4 +65,10 @@ public interface ExperimentRunningService {
      *
      */
     List<ExperimentRunningVO>  getExperimentRunning(Integer userId, Integer experimentRunningNum);
+
+    /**
+     * 停止实验运行
+     * @param runningId
+     */
+    Map<String,Object> stopExperimentRunning(Integer runningId);
 }

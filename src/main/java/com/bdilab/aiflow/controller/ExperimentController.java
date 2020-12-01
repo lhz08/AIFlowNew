@@ -178,19 +178,6 @@ public class ExperimentController {
     }
 
     @ResponseBody
-    @ApiOperation("停止实验")
-    @RequestMapping(value = "/experiment/stopExperiment", method = RequestMethod.POST)
-    public  ResponseResult stopExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
-                                          HttpSession httpSession){
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Map<String,Object> isSuccess=experimentService.stopExperiment(experimentId);
-        if(isSuccess.get("isSuccess").equals(true)){
-            return new ResponseResult(true,"001",isSuccess.get("message").toString());
-        }
-        return new ResponseResult(false,"002",isSuccess.get("message").toString());
-    }
-
-    @ResponseBody
     @ApiOperation("回收站查看实验")
     @RequestMapping(value = "/experiment/getDeletedExperiment", method = RequestMethod.POST)
     public  ResponseResult deleteExperiment(@RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,

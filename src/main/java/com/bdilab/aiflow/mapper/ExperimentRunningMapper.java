@@ -38,11 +38,11 @@ public interface ExperimentRunningMapper {
     List<ExperimentRunning> selectRunningByExperimentIdAndIsDeleted(@Param("experimentId") Integer experimentId, @Param("isDeleted") Integer isDeleted);
 
     /**
-     * 通过删除状态获取所有的实验运行
+     * 通过删除状态获取该用户的所有的实验运行
      * @param isDeleted
      * @return
      */
-    List<ExperimentRunning> selectAllRunningByisDeleted(Integer isDeleted);
+    List<ExperimentRunning> selectAllRunningByisDeleted(@Param("userId") Integer userId, @Param("isDeleted") Integer isDeleted);
 
     /**
      * 更新实验运行

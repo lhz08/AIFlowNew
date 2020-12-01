@@ -193,6 +193,7 @@ public class TemplateServiceImpl implements TemplateService {
         templateVO.setName(template.getName());
         templateVO.setType(template.getType());
         templateVO.setFkUserId(template.getFkUserId());
+        templateVO.setWorkflow(workflowMapper.selectWorkflowById(template.getFkWorkflowId()));
         templateVO.setFkExperimentId(template.getFkExperimentId());
         templateVO.setTags(template.getTags());
         templateVO.setIsDeleted(template.getIsDeleted());
