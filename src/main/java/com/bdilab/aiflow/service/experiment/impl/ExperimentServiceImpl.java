@@ -7,6 +7,7 @@ import com.bdilab.aiflow.common.utils.JsonUtils;
 import com.bdilab.aiflow.common.utils.XmlUtils;
 import com.bdilab.aiflow.mapper.*;
 import com.bdilab.aiflow.model.*;
+import com.bdilab.aiflow.model.component.CustomComponentInfo;
 import com.bdilab.aiflow.service.experiment.ExperimentRunningService;
 import com.bdilab.aiflow.service.experiment.ExperimentService;
 import com.bdilab.aiflow.service.run.RunService;
@@ -58,6 +59,12 @@ public class ExperimentServiceImpl implements ExperimentService {
     @Autowired
     ComponentInfoMapper componentInfoMapper;
 
+    @Autowired
+    CustomComponentMapper customComponentMapper;
+
+    @Autowired
+    ModelMapper modelMapper;
+
     @Value("${web.address}")
     private String webAddress;
     @Value("${minio.host}")
@@ -102,10 +109,11 @@ public class ExperimentServiceImpl implements ExperimentService {
     }
 
     @Override
-    public Experiment copyExperiment(Integer experimentId,String name,String experimentDesc){
+    public Experiment copyExperiment(Integer userId,Integer experimentId,String name,String experimentDesc){
         Experiment experiment=experimentMapper.selectExperimentById(experimentId);
         Experiment newExperiment = new Experiment();
         newExperiment.setName(name);
+        newExperiment.setFkUserId(userId);
         newExperiment.setFkWorkflowId(experiment.getFkWorkflowId());
         newExperiment.setIsDeleted(DeleteStatus.NOTDELETED.getValue());
         newExperiment.setParamJsonString(experiment.getParamJsonString());
@@ -199,7 +207,6 @@ public class ExperimentServiceImpl implements ExperimentService {
     @Override
     public Map<String,Object> startRunExperment(Integer experimentId,Integer userId,String conversationId){
         Map<String,Object> messageMap=new HashMap<>(2);
-
         //封装ExperimentRunning
         ExperimentRunning experimentRunning=new ExperimentRunning();
         experimentRunning.setRunningStatus(RunningStatus.RUNNING.getValue());
@@ -225,13 +232,21 @@ public class ExperimentServiceImpl implements ExperimentService {
         List<String> taskList = JsonUtils.getComponenetByOrder(json);
         for(int i=0;i<taskList.size();i++){
             ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(Integer.parseInt(runService.getComponentId(taskList.get(i))));
+            if(componentInfo.getIsCustom()==1){
+                CustomComponent customComponent = customComponentMapper.selectCustomComponentByFkComponentId(componentInfo.getId());
+                if(customComponent.getType()==2){
+                    String modelId = customComponent.getSourceId();
+                    Model model = modelMapper.selectModelById(Integer.parseInt(modelId));
+                    String name = componentInfoMapper.selectComponentInfoById(model.getFkComponentId()).getName();
+                    componentInfo.setName(name);
+                }
+            }
             componentIdName.put(componentInfo.getName(),componentInfo.getId().toString());
         }
         System.out.println("componentIdName:"+componentIdName.toString());
-
-
         Gson gson1 = new Gson();
         Map<String,Object> map = gson1.fromJson(experiment.getParamJsonString(),Map.class);
+
         String config = "{\"endpoint\":\""+minioHost.replace("http://", "")+"\",\"access_key\":\""+minioAccessKey+"\",\"secret_key\":\""+minioSecretKey+"\",\"IP_port\":\""+webAddress+"\",\"resultPath\":"+"\"user"+userId+"\",\"processInstanceId\":\""+experimentRunning.getId()+"\",\"conversationId\":\""+conversationId+"\",";
         System.out.println(config);
         System.out.println(gson1.toJson(componentIdName));

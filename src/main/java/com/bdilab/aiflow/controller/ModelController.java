@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.util.Map;
@@ -29,13 +30,11 @@ public class ModelController {
     @ResponseBody
     @ApiOperation("用户调用接口，保存模型，保存之后，用户可以使用该模型")
     @RequestMapping(value = "/model/createModel", method = RequestMethod.POST)
-    public ResponseResult createWorkflow(@RequestParam String modelName,
-                                         @RequestParam String modelDesc,
-                                         @RequestParam Integer runningId,
-                                         @RequestParam String modelAddr,
-                                         HttpSession httpSession){
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        boolean isSuccess = modelService.createModel(modelName,userId,runningId,modelDesc,modelAddr);
+    public ResponseResult createWorkflow(@RequestParam @ApiParam(value = "模型id") Integer modelId,
+                                         @RequestParam @ApiParam(value = "模型名") String modelName,
+                                         @RequestParam @ApiParam(value = "模型描述") String modelDesc
+                                        ){
+        boolean isSuccess = modelService.createModel(modelId,modelName,modelDesc);
         if (isSuccess){
             return new ResponseResult(true,"001","创建模型成功");
         }
@@ -45,11 +44,11 @@ public class ModelController {
     @ResponseBody
     @ApiOperation("python端调用接口，保存模型至系统")
     @RequestMapping(value = "/model/saveModel",method = RequestMethod.POST)
-    public ResponseResult saveModel(@RequestParam @ApiParam(value = "runningId") String runningId,
+    public ResponseResult saveModel(@RequestParam @ApiParam(value = "processInstanceId") String processInstanceId,
                                     @RequestParam @ApiParam(value = "componentId") String componentId,
                                     @RequestParam @ApiParam(value = "conversationId") String conversationId,
                                     @RequestParam @ApiParam(value = "modelFileAddr") String modelFileAddr){
-        modelService.saveModel(runningId,componentId,conversationId,modelFileAddr);
+        modelService.saveModel(processInstanceId,componentId,conversationId,modelFileAddr);
         return new ResponseResult(true,"001","成功保存模型。");
     }
 
@@ -152,7 +151,7 @@ public class ModelController {
 
     /*下载模型*/
     @ResponseBody
-    @RequestMapping(value = "/dataset/downloadModel",method = RequestMethod.GET)
+    @RequestMapping(value = "/model/downloadModel",method = RequestMethod.GET)
     public ResponseResult downloadDataset(@RequestParam Integer modelId,
                                           HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
@@ -162,19 +161,37 @@ public class ModelController {
         responseResult.setMeta(new MetaData(true,"001","成功导出模型"));
         return responseResult;
     }
+    /*下载模型*/
     @ResponseBody
-    @ApiParam("模型封装成组件")
-    @RequestMapping(value = "/model/modelToComponent",method = RequestMethod.GET)
-    public ResponseResult modelToComponent(@RequestParam @ApiParam(value="模型id")Integer modeId,
+    @ApiOperation("下载模型")
+    @RequestMapping(value = "/model/downloadModelFromMinio",method = RequestMethod.GET)
+    public ResponseResult downloadModelFromMinio(@RequestParam Integer modelId,
+                                                 HttpSession httpSession,
+                                                 HttpServletResponse response){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
+        response = modelService.downloadModelFromMinio(userId,modelId,response);
+        if(response.getStatus()==200) {
+            return new ResponseResult(true, "001", "下载模型成功");
+        }
+        return new ResponseResult(true,"002","下载模型失败");
+    }
+    @ResponseBody
+    @ApiOperation("模型封装成组件")
+    @RequestMapping(value = "/model/modelToComponent",method = RequestMethod.POST)
+    public ResponseResult modelToComponent(@RequestParam @ApiParam(value="模型id")Integer modelId,
+                                           @RequestParam(value = "tag") String tag,
                                            @RequestParam @ApiParam(value="组件名") String componentName,
-                                           @RequestParam @ApiParam(value = "组件描述") String dec,
+
+                                           @RequestParam @ApiParam(value = "组件描述") String componentDec,
                                            HttpSession httpSession
      ){
-        Integer userId = Integer.parseInt(httpSession.getAttribute("userId").toString());
-
-
-
-
-        return new ResponseResult();
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(modelService.setModelToComponent(modelId, userId, componentName, componentDec,tag)) {
+            return new ResponseResult(true, "001", "成功将模型封装成组件");
+        }
+        return new ResponseResult(true,"001","模型封装成组件失败");
     }
 }

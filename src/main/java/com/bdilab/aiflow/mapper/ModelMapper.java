@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ModelMapper {
 
-    boolean insertModel(Model model);
+    int insertModel(Model model);
 
     List<Model> getModelByUser(Integer userId);
 

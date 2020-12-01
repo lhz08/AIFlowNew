@@ -57,7 +57,15 @@ public class MinioFileUtils {
             e.printStackTrace();
         }
     }
-//    public void downLoadFile()
+    public InputStream downLoadFile(String buckName,String fileName){
+        InputStream object = null;
+        try {
+             object = minioClient.getObject(buckName, fileName);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return object;
+    }
       public void deleteFile(String buckName,String fileName){
         try {
             minioClient.removeObject(buckName,fileName);

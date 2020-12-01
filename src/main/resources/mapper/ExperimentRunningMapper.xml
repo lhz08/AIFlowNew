@@ -13,6 +13,7 @@
         experiment_running.fk_user_id as fkUserId,
         experiment_running.running_status as runningStatus,
         experiment_running.fk_experiment_id as fkExperimentId,
+        experiment_running.fk_model_id as fkModelId,
         experiment_running.is_deleted as isDeleted,
         experiment_running.start_time as startTime,
         experiment_running.end_time as endTime
@@ -26,6 +27,7 @@
         experiment_running.fk_user_id as fkUserId,
         experiment_running.running_status as runningStatus,
         experiment_running.fk_experiment_id as fkExperimentId,
+        experiment_running.fk_model_id as fkModelId,
         experiment_running.is_deleted as isDeleted,
         experiment_running.start_time as startTime,
         experiment_running.end_time as endTime
@@ -38,6 +40,7 @@
         experiment_running.fk_user_id as fkUserId,
         experiment_running.running_status as runningStatus,
         experiment_running.fk_experiment_id as fkExperimentId,
+        experiment_running.fk_model_id as fkModelId,
         experiment_running.is_deleted as isDeleted,
         experiment_running.start_time as startTime,
         experiment_running.end_time as endTime
@@ -50,6 +53,7 @@
         experiment_running.fk_user_id as fkUserId,
         experiment_running.running_status as runningStatus,
         experiment_running.fk_experiment_id as fkExperimentId,
+        experiment_running.fk_model_id as fkModelId,
         experiment_running.is_deleted as isDeleted,
         experiment_running.start_time as startTime,
         experiment_running.end_time as endTime
@@ -62,6 +66,7 @@
         experiment_running.fk_user_id as fkUserId,
         experiment_running.running_status as runningStatus,
         experiment_running.fk_experiment_id as fkExperimentId,
+        experiment_running.fk_model_id as fkModelId,
         experiment_running.is_deleted as isDeleted,
         experiment_running.start_time as startTime,
         experiment_running.end_time as endTime
@@ -73,6 +78,7 @@
         update experiment_running
         <trim prefix="set" suffixOverrides=",">
             <if test="runningStatus!=null">running_status=#{runningStatus},</if>
+            <if test="fkModelId!=null">fk_model_id = #{fkModelId},</if>
             <if test="isDeleted!=null">is_deleted=#{isDeleted},</if>
             <if test="fkExperimentId!=null">fk_experiment_id=#{fkExperimentId},</if>
             <if test="startTime!=null">start_time=#{startTime},</if>

@@ -12,6 +12,16 @@ public class ExperimentRunning {
     private Integer id;
     private Integer fkUserId;
 
+    public Integer getFkModelId() {
+        return fkModelId;
+    }
+
+    public void setFkModelId(Integer fkModelId) {
+        this.fkModelId = fkModelId;
+    }
+
+    private Integer fkModelId;
+
     public Integer getFkUserId() {
         return fkUserId;
     }

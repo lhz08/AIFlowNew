@@ -16,8 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -66,9 +67,9 @@ public class DatasetServiceImpl implements DatasetService {
         //获取文件的后缀名
         String suffixName = filename.substring(filename.lastIndexOf("."));
         //为上传的文件生成一个随机名字
-        filename = "dataset"+"/"+UUID.randomUUID()+suffixName;
+        filename = UUID.randomUUID()+suffixName;
         MinioFileUtils minioFileUtils = new MinioFileUtils(host,username,password,false);
-        String bucketName = "user"+userId;
+        String bucketName = "dataset";
         try {
             minioFileUtils.createBucket(bucketName);
             System.out.println(bucketName+file.getOriginalFilename()+filename);
@@ -220,8 +221,7 @@ public class DatasetServiceImpl implements DatasetService {
     @Override
     public Map<String, Object> getPreviewList(Integer datasetId) {
         Dataset dataset = datasetMapper.selectDatasetById(datasetId);
-//        String filePath=filePathConfig.getDatasetPath()+"user"+dataset.getFkUserId()+File.separatorChar+dataset.getDatasetAddr();
-        String filePath = dataset.getDatasetAddr();
+        String filePath=filePathConfig.getDatasetPath()+"user"+dataset.getFkUserId()+File.separatorChar+dataset.getDatasetAddr();
         Map<String, Object> data = new HashMap<>();
         List<String[]> csvContent = FileUtils.csvContentPreview1(filePath);
         data.put("content",csvContent);
@@ -240,6 +240,30 @@ public class DatasetServiceImpl implements DatasetService {
         data.put("desc",dataset.getDatasetDesc());
         return data;
     }*/
+  @Override
+  public HttpServletResponse downloadDatasetFromMinio(Integer userId,Integer datasetId,HttpServletResponse response) {
+      MinioFileUtils minioFileUtils = new MinioFileUtils(host,username,password,false);
+      Dataset dataset = datasetMapper.selectDatasetById(datasetId);
+      String bucketName = "user"+userId;
+      String filePath = dataset.getDatasetAddr();
+      try {
+          InputStream inputStream = minioFileUtils.downLoadFile(bucketName, filePath);
+          byte buf[] = new byte[1024];
+          int length = 0;
+          response.reset();
+          response.setHeader("Content-Disposition", "attachment;filename=" + filePath);
+          response.setContentType("application/octet-stream");
+          response.setCharacterEncoding("UTF-8");
+          OutputStream outputStream = response.getOutputStream();
+          while ((length = inputStream.read(buf)) > 0) {
+              outputStream.write(buf, 0, length);
+          }
+          outputStream.close();
+      }catch (Exception e){
+          e.printStackTrace();
 
+      }
+      return response;
+  }
 
 }

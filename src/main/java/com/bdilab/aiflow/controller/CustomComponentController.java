@@ -161,9 +161,9 @@ public class CustomComponentController {
     }
 
     @ResponseBody
-    @ApiOperation("加载用户自定义组件信息")
-    @RequestMapping(value = "/customComponent/loadCustomComponentInfo", method = RequestMethod.POST)
-    public ResponseResult loadCustomComponentInfo(@RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,
+    @ApiOperation("分页展示用户自定义组件信息")
+    @RequestMapping(value = "/customComponent/getCustomComponentInfo", method = RequestMethod.POST)
+    public ResponseResult getCustomComponentInfo(@RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,
                                                   @RequestParam(defaultValue = "10")@ApiParam(value = "每页记录数") int pageSize,
                                                   @RequestParam(value = "type") int type,
                                                   HttpSession httpSession) {
@@ -171,8 +171,38 @@ public class CustomComponentController {
         if(userId == null){
             return new ResponseResult(false,"500","用户未登录");
         }
-        PageInfo<CustomComponentInfo> data = customComponentService.loadCustomComponentByUserIdAndType(userId,pageNum,pageSize,type);
-        return new ResponseResult(true,"001","成功加载用户组件信息",data,(int)data.getTotal());
+        int isDeleted = 0;
+        PageInfo<CustomComponentInfo> data = customComponentService.getCustomComponentByUserIdAndType(userId,pageNum,pageSize,type,isDeleted);
+        return new ResponseResult(true,"001","成功获得用户组件信息",data,(int)data.getTotal());
+    }
+
+    @ResponseBody
+    @ApiOperation("回收站展示用户自定义组件信息")
+    @RequestMapping(value = "/customComponent/getComponentInTrash", method = RequestMethod.POST)
+    public ResponseResult getComponentInTrash(@RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,
+                                                 @RequestParam(defaultValue = "10")@ApiParam(value = "每页记录数") int pageSize,
+                                                 @RequestParam(value = "type") int type,
+                                                 HttpSession httpSession) {
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
+        int isDeleted = 1;
+        PageInfo<CustomComponentInfo> data = customComponentService.getCustomComponentByUserIdAndType(userId,pageNum,pageSize,type,isDeleted);
+        return new ResponseResult(true,"001","成功获得用户组件信息",data,(int)data.getTotal());
+    }
+
+
+    @ResponseBody
+    @ApiOperation("加载用户自定义组件信息")
+    @RequestMapping(value = "/customComponent/loadCustomComponentInfo", method = RequestMethod.POST)
+    public ResponseResult loadCustomComponentInfo(HttpSession httpSession) {
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(userId == null){
+            return new ResponseResult(false,"500","用户未登录");
+        }
+        Map<String,List<ComponentInfoVO>> data = customComponentService.loadCustomComponentInfo(userId);
+        return new ResponseResult(true,"001","成功加载用户自定义组件信息",data);
     }
 
     @ResponseBody

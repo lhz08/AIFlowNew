@@ -2,13 +2,14 @@ package com.bdilab.aiflow.service.model;
 
 import com.bdilab.aiflow.model.Model;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 public interface ModelService {
 
-    boolean createModel(String modelName, Integer userId, Integer runningId, String modelDesc,String model);
+    boolean createModel(Integer modelId,String modelName, String modelDesc);
 
     Map<String, Object> getModelByUser(Integer userId, int pageNum, int pageSize);
 
@@ -42,7 +43,7 @@ public interface ModelService {
      * 将模型封装成自定义组件
      *
      */
-    boolean setModelToComponent(Integer modelId,Integer userId,String componentDesc);
+    boolean setModelToComponent(Integer modelId,Integer userId,String componentName,String componentDesc,String tag);
 
     /**
      * python端保存模型到本地
@@ -53,4 +54,7 @@ public interface ModelService {
      * @return
      */
     boolean saveModel(String runningId,String componentId,String conversationId,String modelFileAddr);
+
+    HttpServletResponse downloadModelFromMinio(Integer userId,Integer modelId,HttpServletResponse response);
+
 }

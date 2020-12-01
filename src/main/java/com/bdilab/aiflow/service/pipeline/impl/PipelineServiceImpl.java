@@ -126,7 +126,7 @@ public class PipelineServiceImpl implements PipelineService {
         ) {
             componentId = getComponentId(s);
             componentName = componentInfoMapper.selectComponentInfoById(componentId).getName();
-            pipeline+=componentName+"_op"+"="+"components.load_component_from_file"+"('"+filePathConfig.getComponentYamlPath()+File.separatorChar+componentName+".yaml')\n";
+            pipeline+=componentName+"_op"+"="+"components.load_component_from_file"+"('"+componentInfoMapper.selectComponentInfoById(componentId).getComponentYamlAddr()+"')\n";
         }
         pipeline+="\n\n@dsl.pipeline(\n" +
                 "    name='test',\n" +

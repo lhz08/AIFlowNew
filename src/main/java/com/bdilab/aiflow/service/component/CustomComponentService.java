@@ -1,5 +1,7 @@
 package com.bdilab.aiflow.service.component;
 
+import com.bdilab.aiflow.model.ComponentInfo;
+import com.bdilab.aiflow.model.CustomComponent;
 import com.bdilab.aiflow.model.component.ComponentCreateInfo;
 import com.bdilab.aiflow.model.component.CustomComponentInfo;
 import com.bdilab.aiflow.vo.ComponentInfoVO;
@@ -53,10 +55,13 @@ public interface CustomComponentService {
      * @return
      */
     PageInfo<CustomComponentInfo> selectComponentByKeyword(String keyword, int type, int pageNum, int pageSize);
-    PageInfo<CustomComponentInfo> loadCustomComponentByUserIdAndType(int userId, int pageNum, int pageSize, int type);
+    PageInfo<CustomComponentInfo> getCustomComponentByUserIdAndType(int userId, int pageNum, int pageSize, int type,int idDeleted);
+    Map<String,List<ComponentInfoVO>> loadCustomComponentInfo(Integer userId);
 
     /*
     加载系统组件
      */
     Map<String,List<ComponentInfoVO>> loadPublicComponentInfo();
+
+
 }

@@ -46,6 +46,7 @@ public interface CustomComponentMapper {
     List<CustomComponentInfo> selectCustomComponentByKeyword(@Param("keyword")String keyword, @Param("type")int type);
 
     List<CustomComponentInfo> selectCustomComponentByTag(@Param("tag")String tag, @Param("type")int type);
-
-    List<CustomComponentInfo> loadCustomComponentByUserIdAndType(@Param("userId")int userId, @Param("type")int type);
+    CustomComponent selectCustomComponentByFkComponentId(int fkComponentInfoId);
+    List<CustomComponent> getCustomComponentByUserIdAndType(@Param("userId")int userId, @Param("type")int type,@Param("isDeleted") int isDeleted);
+    List<CustomComponent> loadCustomComponentByUserIdAndType(@Param("userId")int userId);
 }

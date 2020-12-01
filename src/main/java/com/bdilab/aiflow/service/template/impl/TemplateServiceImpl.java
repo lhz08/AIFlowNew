@@ -86,9 +86,9 @@ public class TemplateServiceImpl implements TemplateService {
      * @return
      */
     @Override
-    public Experiment createExperimentFromTemplate(Integer templateId, String experimentName, String experimentDesc){
+    public Experiment createExperimentFromTemplate(Integer userId,Integer templateId, String experimentName, String experimentDesc){
         Template template = templateMapper.selectTemplateById(templateId);
-        Experiment experiment = experimentService.copyExperiment(template.getFkExperimentId(), experimentName, experimentDesc);
+        Experiment experiment = experimentService.copyExperiment(userId,template.getFkExperimentId(), experimentName, experimentDesc);
         return experiment;
 
     }
