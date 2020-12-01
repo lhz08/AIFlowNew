@@ -1,6 +1,7 @@
 package com.bdilab.aiflow.service.experiment.impl;
 
 import com.bdilab.aiflow.common.enums.DeleteStatus;
+import com.bdilab.aiflow.common.enums.RunningStatus;
 import com.bdilab.aiflow.mapper.*;
 import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.ExperimentRunning;
@@ -87,7 +88,7 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
                 boolean isSuccess_Output=componentOutputStubService.deleteOutputByRunningId(runningId);
                 //彻底删除该实验运行记录
                 boolean isSuccess_Running=experimentRunningMapper.deleteRunningByRunningId(runningId)==1;
-                // TODO: 2020/9/25 0025  从kubeflow上删除运行，运行表中应该加kubeflow的运行id字段。
+                //从kubeflow上删除运行
                 runService.deleteRunById(experimentRunning.getId().toString());
 
                 if(isSuccess_Output&&isSuccess_Running){
@@ -120,9 +121,9 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
     }
 
     @Override
-    public Map<String, Object> getDeletedRunning(Integer isDeleted,int pageNum,int pageSize){
+    public Map<String, Object> getDeletedRunning(Integer userId,Integer isDeleted,int pageNum,int pageSize){
         PageHelper.startPage(pageNum,pageSize);
-        List<ExperimentRunning> experimentRunningList=experimentRunningMapper.selectAllRunningByisDeleted(isDeleted);
+        List<ExperimentRunning> experimentRunningList=experimentRunningMapper.selectAllRunningByisDeleted(userId,isDeleted);
         //获取流程id
         List<Map> list=new ArrayList<>();
         for(ExperimentRunning experimentRunning:experimentRunningList){
@@ -249,5 +250,32 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
             list.add(experimentRunningVO);
         }
         return list;
+    }
+
+    @Override
+    public Map<String,Object> stopExperimentRunning(Integer runningId){
+        boolean isRunning=false;
+        ExperimentRunning experimentRunning = experimentRunningMapper.selectExperimentRunningByRunningId(runningId);
+        Map<String,Object> messageMap=new HashMap<>(2);
+        if(experimentRunning.getRunningStatus()== RunningStatus.RUNNING.getValue()){
+            isRunning=true;
+            ExperimentRunning experimentRunning1=new ExperimentRunning();
+            experimentRunning1.setId(experimentRunning.getId());
+            experimentRunning1.setRunningStatus(RunningStatus.RUNNINGFAIL.getValue());
+            boolean isSuccess=experimentRunningMapper.updateExperimentRunning(experimentRunning1)==1;
+            if(!isSuccess){
+                messageMap.put("isSuccess",false);
+                messageMap.put("message","停止实验失败");
+                return messageMap;
+            }
+        }
+        if(!isRunning){
+            messageMap.put("isSuccess",false);
+            messageMap.put("message","停止实验失败,该实验未在运行");
+            return messageMap;
+        }
+        messageMap.put("isSuccess",true);
+        messageMap.put("message","停止实验成功");
+        return messageMap;
     }
 }

@@ -57,12 +57,6 @@ public interface ExperimentService {
     Map<String,Object> startRunExperment(Integer experimentId,Integer userId,String conversationId);
 
     /**
-     * 停止实验
-     * @param experimentId
-     */
-    Map<String,Object> stopExperiment(Integer experimentId);
-
-    /**
      * 还原实验
      * @param experimentId
      */

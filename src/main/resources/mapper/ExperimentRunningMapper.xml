@@ -54,7 +54,7 @@
         experiment_running.start_time as startTime,
         experiment_running.end_time as endTime
         from experiment_running
-        where experiment_running.is_deleted = #{isDeleted} order by id desc
+        where experiment_running.fk_user_id=#{userId} and experiment_running.is_deleted = #{isDeleted}  order by id desc
     </select>
 
     <select id="selectRecentExperimentRunning" resultType="com.bdilab.aiflow.model.ExperimentRunning">
