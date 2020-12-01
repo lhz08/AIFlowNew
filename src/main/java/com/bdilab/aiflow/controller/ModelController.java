@@ -182,7 +182,7 @@ public class ModelController {
     @ApiOperation("模型封装成组件")
     @RequestMapping(value = "/model/modelToComponent",method = RequestMethod.POST)
     public ResponseResult modelToComponent(@RequestParam @ApiParam(value="模型id")Integer modelId,
-                                           @RequestParam(value = "tag") String tag,
+                                           @RequestParam @ApiParam(value = "tag") String tag,
                                            @RequestParam @ApiParam(value="组件名") String componentName,
 
                                            @RequestParam @ApiParam(value = "组件描述") String componentDec,

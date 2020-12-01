@@ -131,6 +131,17 @@ public class JsonUtils {
         }
         return null;
     }
+
+    public static String getLastToBeExecutedComponent(String json) {
+        Map<String, String> componentPrior = new LinkedHashMap<>();
+        JSONObject jsonObject = JSONObject.parseObject(json, Feature.OrderedField);
+        for (String key:jsonObject.keySet()
+        ) {
+            if(jsonObject.getJSONObject(key).getString("rearIds").equals("[]"))
+                return  key;
+        }
+        return null;
+    }
     //得到组件的执行顺序
     public static  List<String> getComponenetByOrder(String json){
         List<String> queue = new ArrayList<>();
@@ -159,17 +170,51 @@ public class JsonUtils {
 
 
 
+//    /**
+//     * 对于流程里面嵌套的流程组件，将该流程组件的json描述和当前流程的json合并来处理
+//     *
+//     */
+//    public Map<String, PythonParameters> mergeJson(Map<String, PythonParameters> curProcess,String processComponentId,String xmlpath ){
+//        Map<String, PythonParameters> processComponent = XmlUtils.getPythonParametersMap(xmlpath);
+//        Gson gson = new Gson();
+//        String processComponentJson = gson.toJson(processComponent);
+//        JSONObject jsonObject = JSONObject.parseObject(processComponentJson, Feature.OrderedField);
+//        String firstToBeExecutedComponent = getFirstToBeExecutedComponent(gson.toJson(processComponent));
+//        String curProcessJson = gson.toJson(curProcess);
+//        List<String> rearNodeList = getRearNodeList(firstToBeExecutedComponent, processComponentJson);
+//        String lastToBeExecutedComponent = getLastToBeExecutedComponent(curProcessJson);
+//        jsonObject = JSONObject.parseObject(curProcessJson, Feature.OrderedField);
+//        String rearIds = jsonObject.getJSONObject(lastToBeExecutedComponent).getString("rearIds");
+//        if(rearIds.contains(firstToBeExecutedComponent))
+//        {
+//            String replace = rearIds.replace(firstToBeExecutedComponent, rearNodeList.get(0));
+//            curProcess.remove(lastToBeExecutedComponent);
+//        }
+//        processComponent.remove(firstToBeExecutedComponent);
+//    }
+
+
+
+
+
     public static void main(String[] args) {
         Gson gson = new Gson();
-        String xmlPath = "E:\\process\\20200911\\bb422180-ee40-498a-a533-4d7bdf8d7afe.xml";
+        String xmlPath = "E:\\home\\workflowXml\\20201130\\16dccd1a-b30d-4266-9deb-6e73fbf1d83f.xml";
+        String xmlPath1 = "E:\\home\\workflowXml\\20201130\\58ba10d2-428b-44b8-8e93-d731ecfea213.xml";
         PipelineServiceImpl pipelineService = new PipelineServiceImpl();
         Map<String, PythonParameters> pythonParametersMap = XmlUtils.getPythonParametersMap(xmlPath);
+        Map<String, PythonParameters> pythonParametersMap1= XmlUtils.getPythonParametersMap(xmlPath1);
         System.out.println(gson.toJson(pythonParametersMap));
+        System.out.println(gson.toJson(pythonParametersMap1));
+
+
 ////        pipelineService.generatePipeline(gson.toJson(pythonParametersMap));
 //        // System.out.println(JsonUtils.getParamsByComponentName(gson.toJson(pythonParametersMap),"_3_5"));
 //        System.out.println(getFirstToBeExecutedComponent(gson.toJson(pythonParametersMap)));
 //        System.out.println(getPriorNodeList("_2_2",gson.toJson(pythonParametersMap)).get(0));
-        System.out.println(getComponenetByOrder(gson.toJson(pythonParametersMap)));
+        //System.out.println(getComponenetByOrder(gson.toJson(pythonParametersMap)));
+
+
     }
 }
 

@@ -229,11 +229,27 @@ public class ExperimentController {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
 
         ResponseResult responseResult = new ResponseResult();
-        responseResult.setData(experimentService.getExperiment(userId,experimentNum));
-        responseResult.setMeta(new MetaData(true,"001","成功获取最近创建实验列表"));
+        if(experimentService.getExperiment(userId,experimentNum)!=null) {
+            responseResult.setData(experimentService.getExperiment(userId, experimentNum));
+            responseResult.setMeta(new MetaData(true, "001", "成功获取最近创建实验列表"));
+        }
+        else {
+            responseResult.setMeta(new MetaData(false, "002", "获取最近创建实验列表失败"));
+        }
         return  responseResult;
     }
 
+    @ResponseBody
+    @ApiOperation("将实验封装成组件")
+    @RequestMapping(value = "/experiment/saveExperimentToComponent", method = RequestMethod.GET)
+    public ResponseResult saveExperimentToComponent(@RequestParam @ApiParam(value = "实验id")Integer experimentId,
+                                                    @RequestParam @ApiParam(value = "tag") String tag,
+                                                    @RequestParam @ApiParam(value="组件名") String componentName,
+                                                    @RequestParam @ApiParam(value = "组件描述") String componentDec,
+                                                    HttpSession httpSession
+    ){
 
-
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        return new ResponseResult();
+    }
 }

@@ -12,23 +12,18 @@ import com.bdilab.aiflow.mapper.ComponentParameterMapper;
 import com.bdilab.aiflow.mapper.WorkflowMapper;
 import com.bdilab.aiflow.model.ComponentParameter;
 import com.bdilab.aiflow.model.PythonParameters;
-import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.service.pipeline.PipelineService;
 import com.google.gson.Gson;
-import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-
 import javax.annotation.Resource;
 import java.io.*;
 import java.util.*;
@@ -54,9 +49,22 @@ public class PipelineServiceImpl implements PipelineService {
         return Integer.parseInt(string.split("_")[1]);
     }
 
+    /**
+     *生成每个任务的python代码时候，维护两个队列，一个是待执行的任务队列，另一个是执行完成的任务队列。
+     * 每当生成一个任务的代码时，首先判断该任务的前置任务是否已经全部进入执行完成的任务队列，如果是，则为该任务生成代码，并将它的后置任务加入到
+     * 待执行的任务队列，如果不是，则将该任务剔除，由于该任务还存在前置任务，所以该任务一定会被执行到。
+     * @param queue
+     * @param json
+     * @param pipeline
+     * @return
+     */
     //生成每个组件的代码，组件id为xml中的组件id
-    private String executeTask(List<String> queue,String json,String pipeline){
+    private String executeTask(List<String> queue,String json,String pipeline,List<String> completeQueue){
         String id = queue.get(0);
+        if(!priorIdAllcompleted(id,completeQueue,json)){
+            queue.remove(id);
+            return pipeline;
+        }
         //拿到当前结点的后置结点和前置结点list，拼接当前结点的python代码，将它的后置结点数组添加到待执行的队列中，得到它的所有前置节点的输出，作为当前结点的输入。
         List<String> curRearNodeList = JsonUtils.getRearNodeList(id,json);
         List<String> curPriorNodeList = JsonUtils.getPriorNodeList(id,json);
@@ -100,14 +108,11 @@ public class PipelineServiceImpl implements PipelineService {
             pipeline+="        config"+"=config\n    )";
             pipeline+=".set_display_name('"+componentName+"')\n\n";
         }
+        completeQueue.add(id);
         queue.remove(id);
         for(int i = 0;i<curRearNodeList.size();i++){
-            if(!(queue.toString().contains(curRearNodeList.get(i)))){
-                queue.add(curRearNodeList.get(i));
-            }
+            queue.add(curRearNodeList.get(i));
         }
-
-
         if(queue.size()==0)
             pipeline+="    dsl.get_pipeline_conf().set_image_pull_secrets([k8s_client.V1ObjectReference(name=\"aiflow\")])\n\n\n"+"if __name__ == '__main__':\n" +
                     "    kfp.compiler.Compiler().compile(test_pipeline, __file__ + '.yaml')\n";
@@ -153,6 +158,7 @@ public class PipelineServiceImpl implements PipelineService {
     @Override
     public Map generatePipeline(String workflowXmlAddr, Integer userId){
         List<String> queue = new ArrayList<>();
+        List<String> completeQueue = new ArrayList<>();
         Map<String,String> data = new HashMap<>();
         Gson gson = new Gson();
         Map<String, PythonParameters> pythonParametersMap = XmlUtils.getPythonParametersMap(workflowXmlAddr);
@@ -160,7 +166,7 @@ public class PipelineServiceImpl implements PipelineService {
         String pipeline=generateCode(json);
         queue.add(JsonUtils.getFirstToBeExecutedComponent(json));
         while(queue.size()!=0){
-            pipeline = executeTask(queue,json,pipeline);
+            pipeline = executeTask(queue,json,pipeline,completeQueue);
         }
         String filePath = filePathConfig.getPipelineCodePath()+ File.separatorChar+ UUID.randomUUID()+".py";
         File file = new File(filePath);
@@ -178,7 +184,6 @@ public class PipelineServiceImpl implements PipelineService {
                 File file1  =  new File(pipelineYamlAddr);
                 if(!file1.exists())
                     throw new IOException("编译失败");
-
                 data.put("pipelineYamlAddr",pipelineYamlAddr);
                 data.put("generatePipelineAddr",filePath);
             }
@@ -214,8 +219,20 @@ public class PipelineServiceImpl implements PipelineService {
         int stubSize = getStubList(componentInfoMapper.selectComponentInfoById(getComponentId(componentId)).getOutputStub()).size();
         return stubSize;
     }
-
-
+    /**
+     * 判断当前节点的所有前置是否已经全部加入执行完成的任务队列
+     *
+     */
+    private boolean priorIdAllcompleted(String curNode,List<String> completeQueue,String json){
+        List<String> priorNodeList = JsonUtils.getPriorNodeList(curNode, json);
+        for (String node:priorNodeList
+             ) {
+            if(!completeQueue.contains(node)){
+                return false;
+            }
+        }
+        return true;
+    }
     @Override
     public String uploadPipeline(String name, String description, File file) {
 
