@@ -512,5 +512,34 @@ public class WorkflowServiceImpl implements WorkflowService {
         workflow.setIsDeleted(Byte.parseByte(DeleteStatus.NOTDELETED.getValue()+""));
         return workflowMapper.updateWorkflow(workflow)==1;
     }
+
+    @Override
+    public Map<Integer, String> isEdit(Integer workflowId) {
+        //判断一个流程是否可编辑，需要判断是否存在与该流程关联的实验和模板（包括回收站中的实验和模板），如果有,则不能修改。
+        //原因：1、实验是在流程的基础上加了参数，如果流程进行了修改，那么实验的参数就对应不上了。
+        // 2、模板和流程共用一个xml文件（同一文件路径），如果流程修改了，xml文件发生了变化，参数和流程图就对应不上了。
+        Map<Integer,String> result = new HashMap<>();
+
+        //在实验表中查看，是否存在与workflowId关联的实验
+        List<Integer> experimentList = experimentMapper.selectExperimentByWorkflowId(workflowId);
+        //在模板表中查看，是否存在与workflowId关联的模板
+        List<Integer> templateIdList = templateMapper.selectTemplateByWorkflowId(workflowId);
+        int size1 = experimentList.size();
+        int size2 = templateIdList.size();
+
+        if (size1 == 0 && size2 == 0){
+            result.put(0,"该流程不存在与之关联的实验和模板，可以编辑");
+        }
+        if (size1 != 0 && size2 == 0){
+            result.put(1,"该流程存在与之关联的实验，不能编辑");
+        }
+        if (size1 == 0 && size2 != 0){
+            result.put(2,"该流程存在与之关联的模板，不能编辑");
+        }
+        if (size1 != 0 && size2 != 0){
+            result.put(3,"该流程存在与之关联的实验和模板，不能编辑");
+        }
+        return result;
+    }
 }
 

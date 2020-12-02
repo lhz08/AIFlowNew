@@ -94,4 +94,9 @@
         delete from experiment
         where experiment.id=#{experimentId}
     </delete>
+
+    <select id="selectExperimentByWorkflowId" parameterType="Integer" resultType="Integer">
+        select experiment.id from experiment
+        where experiment.fk_workflow_id=#{workflowId}
+    </select>
 </mapper>

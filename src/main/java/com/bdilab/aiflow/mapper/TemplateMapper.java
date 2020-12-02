@@ -70,4 +70,18 @@ public interface TemplateMapper {
      * @return
      */
     int deleteTemplateById(Integer templateId);
+
+    /**
+     * 根据实验id查找模板
+     * @param experimentId
+     * @return
+     */
+    List<Integer> selectTemplateByExperimentId(Integer experimentId);
+
+    /**
+     * 根据流程id查找模板
+     * @param workflowId
+     * @return
+     */
+    List<Integer> selectTemplateByWorkflowId(Integer workflowId);
 }

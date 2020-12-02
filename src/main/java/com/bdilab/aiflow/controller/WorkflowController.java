@@ -1,10 +1,12 @@
 package com.bdilab.aiflow.controller;
 
+import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.service.workflow.WorkflowService;
 
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -341,5 +343,19 @@ public class WorkflowController {
             }
         }
         return new ResponseResult(true,"001","流程彻底删除成功");
+    }
+
+    @ResponseBody
+    @ApiOperation("判断流程是否可编辑")
+    @RequestMapping(value = "/workflow/isEdit", method = RequestMethod.POST)
+    public ResponseResult isEdit(@RequestParam Integer workflowId,
+                                 HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Map<Integer,String> data = workflowService.isEdit(workflowId);
+
+        ResponseResult responseResult = new ResponseResult();
+        responseResult.setData(data);
+        responseResult.setMeta(new MetaData(true,"001","成功返回实验是否可编辑状态"));
+        return  responseResult;
     }
 }

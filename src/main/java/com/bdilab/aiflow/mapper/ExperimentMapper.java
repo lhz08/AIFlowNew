@@ -61,4 +61,11 @@ public interface ExperimentMapper {
      *
      */
     List<Experiment> selectRecentExperiment(@Param("userId") Integer userId, @Param("experimentNum") Integer experimentNum);
+
+    /**
+     * 根据流程id查找模板
+     * @param workflowId
+     * @return
+     */
+    List<Integer> selectExperimentByWorkflowId(Integer workflowId);
 }

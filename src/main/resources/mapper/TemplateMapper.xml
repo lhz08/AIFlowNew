@@ -127,4 +127,14 @@
         delete from template
         where template.id = #{templateId}
     </delete>
+
+    <select id="selectTemplateByExperimentId" parameterType="Integer" resultType="Integer">
+        select template.id from template
+        where template.fk_experiment_id=#{experimentId}
+    </select>
+
+    <select id="selectTemplateByWorkflowId" parameterType="Integer" resultType="Integer">
+        select template.id from template
+        where template.fk_workflow_id=#{workflowId}
+    </select>
 </mapper>

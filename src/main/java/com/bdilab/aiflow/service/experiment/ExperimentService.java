@@ -76,4 +76,10 @@ public interface ExperimentService {
      */
     List<ExperimentVO> getExperiment(Integer userId, Integer experimentNum);
 
+    /**
+     * 判断实验是否可编辑
+     * @param experimentId
+     * @return
+     */
+    Map<Integer,String> isEdit(Integer experimentId);
 }

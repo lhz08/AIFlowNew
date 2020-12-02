@@ -101,4 +101,11 @@ public interface WorkflowService {
      * @param fkWorkflowId
      */
     boolean restoreWorkflow(Integer fkWorkflowId);
+
+    /**
+     * 判断流程是否可编辑
+     * @param workflowId
+     * @return
+     */
+    Map<Integer,String> isEdit(Integer workflowId);
 }

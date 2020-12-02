@@ -10,6 +10,7 @@ import com.bdilab.aiflow.service.experiment.ExperimentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -221,6 +222,17 @@ public class ExperimentController {
         return  responseResult;
     }
 
+    @ResponseBody
+    @ApiOperation("判断实验是否可编辑")
+    @RequestMapping(value = "/experiment/isEdit", method = RequestMethod.POST)
+    public ResponseResult isEdit(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
+                                        HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Map<Integer,String> data = experimentService.isEdit(experimentId);
 
-
+        ResponseResult responseResult = new ResponseResult();
+        responseResult.setData(data);
+        responseResult.setMeta(new MetaData(true,"001","成功返回实验是否可编辑状态"));
+        return  responseResult;
+    }
 }
