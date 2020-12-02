@@ -55,7 +55,7 @@ public class WorkflowController {
         //在点击新建后立即新建一条流程记录
         //Workflow workflow = workflowService.CreateWorkflow(workflowName,tagString,workflowDesc,Integer.parseInt(httpSession.getAttribute("username").toString()));
         Workflow workflow = workflowService.createAndSaveWorkflow(workflowName,tagString,workflowDesc,workflowXml,ggeditorObjectString,userId);
-
+        System.out.println(ggeditorObjectString);
         Map<String,Object> data = new HashMap<>(1);
         data.put("workflowId",workflow.getId());
         ResponseResult responseResult = new ResponseResult(true,"001", "流程新建成功");
