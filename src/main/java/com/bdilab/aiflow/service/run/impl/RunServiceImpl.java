@@ -193,7 +193,11 @@ public class RunServiceImpl implements RunService {
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(url,request,String.class);
         int statusCodeValue = responseEntity.getStatusCodeValue();
         if (statusCodeValue == 200){
-            return responseEntity.getBody();
+            //获取返回结果中的运行id
+            Gson gson1 = new Gson();
+            Map<String,Map<String,String>> map = gson1.fromJson(responseEntity.getBody(), Map.class);
+            Map<String,String> run = map.get("run");
+            return run.get("id");
         }
         return null;
     }

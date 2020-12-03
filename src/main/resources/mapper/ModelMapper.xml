@@ -109,7 +109,6 @@
                 model.model_file_addr as modelFileAddr,
                 model.model_desc as modelDesc,
                 model.create_time as createTime
-                from model
          from model
          where model.fk_running_id = #{runningId} and model.is_deleted = ${isDeleted}
     </select>

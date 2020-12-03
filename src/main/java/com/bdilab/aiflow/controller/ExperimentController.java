@@ -160,7 +160,7 @@ public class ExperimentController {
 
     @ResponseBody
     @ApiOperation("运行实验")
-    @RequestMapping(value = "/experiment/runExperimentRunning", method = RequestMethod.POST)
+    @RequestMapping(value = "/experiment/runExperiment", method = RequestMethod.POST)
     public  ResponseResult runExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());

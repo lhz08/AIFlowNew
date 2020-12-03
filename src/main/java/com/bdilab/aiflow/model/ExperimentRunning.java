@@ -69,6 +69,8 @@ public class ExperimentRunning {
      * @mbggenerated Wed Sep 02 10:16:42 CST 2020
      */
     private Date endTime;
+
+    private String runId;
     private String conversationId;
 
     public String getConversationId() {
@@ -221,5 +223,13 @@ public class ExperimentRunning {
      */
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    public String getRunId() {
+        return runId;
+    }
+
+    public void setRunId(String runId) {
+        this.runId = runId;
     }
 }

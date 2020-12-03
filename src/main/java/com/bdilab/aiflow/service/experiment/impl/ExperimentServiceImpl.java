@@ -7,7 +7,6 @@ import com.bdilab.aiflow.common.utils.JsonUtils;
 import com.bdilab.aiflow.common.utils.XmlUtils;
 import com.bdilab.aiflow.mapper.*;
 import com.bdilab.aiflow.model.*;
-import com.bdilab.aiflow.model.component.CustomComponentInfo;
 import com.bdilab.aiflow.service.experiment.ExperimentRunningService;
 import com.bdilab.aiflow.service.experiment.ExperimentService;
 import com.bdilab.aiflow.service.run.RunService;
@@ -16,8 +15,6 @@ import com.bdilab.aiflow.vo.ExperimentVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -184,10 +181,13 @@ public class ExperimentServiceImpl implements ExperimentService {
                     selectAllExperimentRunningByExperimentId(experimentId);
             //删除实验运行（包括组件输出表和数据存储）
             for(ExperimentRunning experimentRunning:experimentRunningList1){
-                boolean isSuccess=experimentRunningService.deleteExperimentRunning(experimentRunning.getId()).get("isSuccess").equals(true);
+                //删除kubeflow上的运行
+                runService.deleteRunById(experimentRunning.getRunId());
+                //彻底删除运行表中的记录
+                boolean isSuccess= experimentRunningMapper.deleteRunningByRunningId(experimentRunning.getId())==1;
                 if(!isSuccess){
                     messageMap.put("isSuccess",false);
-                    messageMap.put("message","实验彻底删除失败");
+                    messageMap.put("message","实验运行彻底删除失败");
                     return messageMap;
                 }
             }
@@ -213,6 +213,7 @@ public class ExperimentServiceImpl implements ExperimentService {
         experimentRunning.setIsDeleted(DeleteStatus.NOTDELETED.getValue());
         experimentRunning.setStartTime(new Date());
         experimentRunning.setFkUserId(userId);
+        experimentRunning.setRunId("");
         boolean isSuccess=experimentRunningMapper.insertExperimentRunning(experimentRunning)==1;
         if(!isSuccess){
             messageMap.put("isSuccess",false);
@@ -254,11 +255,11 @@ public class ExperimentServiceImpl implements ExperimentService {
         map.put("config",config);
         System.out.println("gson.config=" + map.get("config"));
 
-        //通知Kubeflow端运行实验
-        System.out.println(workflow.getId());
-        System.out.println(workflow.getPipelineId());
-        runService.createRun(workflow.getPipelineId(),workflow.getName(),map);
-
+        //在Kubeflow上创建运行
+        String runId = runService.createRun(workflow.getPipelineId(),workflow.getName(),map);
+        //将kubeflow上的runId更新进数据库表中
+        experimentRunning.setRunId(runId);
+        experimentRunningMapper.updateExperimentRunning(experimentRunning);
 
         messageMap.put("isSuccess",true);
         messageMap.put("message","运行实验成功");

@@ -44,6 +44,9 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
     @Autowired
     RunService runService;
 
+    @Autowired
+    ModelMapper modelMapper;
+
     @Override
     public boolean updateExperimentRunning(ExperimentRunning experimentRunning){
         return experimentRunningMapper.updateExperimentRunning(experimentRunning)==1;
@@ -68,13 +71,12 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
                     return messageMap;
                 }
                 messageMap.put("isSuccess",false);
-                messageMap.put("message","实验删除失败，具体信息：删除实验运行出错");
+                messageMap.put("message","实验运行删除失败，具体信息：删除实验运行出错");
                 return messageMap;
             }else{
                 //彻底删除
                 //查看该实验运行是否有关联的模型
-                List<Model> modellist=modelService.getAllModelByRunningIdAndIsDeleted(runningId,
-                        Byte.parseByte(DeleteStatus.NOTDELETED.getValue()+""));
+                List<Model> modellist = modelMapper.getAllModelByRunningId(runningId);
                 for(Model model:modellist){
                     //将模型的实验运行外键置空
                     boolean isSuccess=modelService.setRunningIdNull(model.getId());
@@ -89,7 +91,7 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
                 //彻底删除该实验运行记录
                 boolean isSuccess_Running=experimentRunningMapper.deleteRunningByRunningId(runningId)==1;
                 //从kubeflow上删除运行
-                runService.deleteRunById(experimentRunning.getId().toString());
+                runService.deleteRunById(experimentRunning.getRunId());
 
                 if(isSuccess_Output&&isSuccess_Running){
                     messageMap.put("isSuccess",true);
