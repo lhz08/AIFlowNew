@@ -10,7 +10,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  * 在访问Session时，直接在Controller中将HttpSession作为一个参数自定注入，Spring会自动从Redis获取Session数据
  */
 @Configuration
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 3600)
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 3600*24)
 public class HttpSessionConfig {
 
     /**
