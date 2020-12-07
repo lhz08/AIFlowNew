@@ -103,7 +103,7 @@
         template.name as name,
         template.type as type,
         template.fk_user_id as fkUserId,
-        template.fk_workflow_id as fkWrokflowId,
+        template.fk_workflow_id as fkWorkflowId,
         template.fk_experiment_id as fkExperimentId,
         template.tags as tags,
         template.is_deleted as isDeleted,
