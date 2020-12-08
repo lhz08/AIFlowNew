@@ -184,7 +184,6 @@ public class ModelController {
     public ResponseResult modelToComponent(@RequestParam @ApiParam(value="模型id")Integer modelId,
                                            @RequestParam @ApiParam(value = "tag") String tag,
                                            @RequestParam @ApiParam(value="组件名") String componentName,
-
                                            @RequestParam @ApiParam(value = "组件描述") String componentDec,
                                            HttpSession httpSession
      ){

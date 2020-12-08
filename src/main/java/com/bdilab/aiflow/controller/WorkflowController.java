@@ -51,7 +51,6 @@ public class WorkflowController {
                                                 HttpSession httpSession
                                               ){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-
         //在点击新建后立即新建一条流程记录
         //Workflow workflow = workflowService.CreateWorkflow(workflowName,tagString,workflowDesc,Integer.parseInt(httpSession.getAttribute("username").toString()));
         Workflow workflow = workflowService.createAndSaveWorkflow(workflowName,tagString,workflowDesc,workflowXml,ggeditorObjectString,userId);
@@ -352,10 +351,26 @@ public class WorkflowController {
                                  HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<Integer,String> data = workflowService.isEdit(workflowId);
-
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
         responseResult.setMeta(new MetaData(true,"001","成功返回实验是否可编辑状态"));
         return  responseResult;
     }
+
+
+    @ResponseBody
+    @ApiOperation("将流程封装成组件")
+    @RequestMapping(value = "/workflow/workflowToComponent",method = RequestMethod.POST)
+    public ResponseResult workflowToComponent(@RequestParam String componentName,
+                                              @RequestParam String tagString,
+                                              @RequestParam String workflowDesc,
+                                              @RequestParam String ggeditorObjectString,
+                                              HttpSession httpSession){
+
+
+
+        return new ResponseResult();
+    }
+
+
 }

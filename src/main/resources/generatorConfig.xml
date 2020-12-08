@@ -91,62 +91,62 @@
         schema:该表对应的实体类名
         -->
 
-        <table tableName="component_info" schema="ComponentInfo"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+<!--        <table tableName="component_info" schema="ComponentInfo"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>-->
 
-        <table tableName="component_output_stub" schema="Component_Output_Stub"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+<!--        <table tableName="component_output_stub" schema="Component_Output_Stub"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>-->
 
-        <table tableName="component_parameter" schema="Component_Parameter"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+<!--        <table tableName="component_parameter" schema="Component_Parameter"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>-->
 
-        <table tableName="custom_component" schema="CustomComponent"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+<!--        <table tableName="custom_component" schema="CustomComponent"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>-->
 
-        <table tableName="dataset" schema="Dataset"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+<!--        <table tableName="dataset" schema="Dataset"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>-->
 
-        <table tableName="experiment" schema="Experiment"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+<!--        <table tableName="experiment" schema="Experiment"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>-->
 
-        <table tableName="experiment_running" schema="ExperimentRunning"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+<!--        <table tableName="experiment_running" schema="ExperimentRunning"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>-->
 
-        <table tableName="graph_type" schema="GraphType"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+<!--        <table tableName="graph_type" schema="GraphType"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>-->
 
-        <table tableName="model" schema="Model"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+<!--        <table tableName="model" schema="Model"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>-->
 
-        <table tableName="system_preset_component" schema="SystemPresetComponent"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+<!--        <table tableName="system_preset_component" schema="SystemPresetComponent"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>-->
 
-        <table tableName="template" schema="Template"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+<!--        <table tableName="template" schema="Template"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>-->
 
-        <table tableName="user" schema="User"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+<!--        <table tableName="user" schema="User"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>-->
 
-        <table tableName="workflow" schema="Workflow" enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
-                <columnOverride column="ggeditor_object_string" javaType="java.lang.String" jdbcType="VARCHAR"/>
-            <columnOverride column="workflow_desc" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        </table>
-
-
-
+<!--        <table tableName="workflow" schema="Workflow" enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">-->
+<!--                <columnOverride column="ggeditor_object_string" javaType="java.lang.String" jdbcType="VARCHAR"/>-->
+<!--            <columnOverride column="workflow_desc" javaType="java.lang.String" jdbcType="VARCHAR"/>-->
+<!--        </table>-->
+        <table tableName="workflow_component" schema="WorkflowComponent"
+        enableCountByExample="false" enableUpdateByExample="false"
+                       enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
 
 
     </context>
