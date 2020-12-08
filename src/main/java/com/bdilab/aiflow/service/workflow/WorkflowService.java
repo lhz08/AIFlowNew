@@ -108,4 +108,15 @@ public interface WorkflowService {
      * @return
      */
     Map<Integer,String> isEdit(Integer workflowId);
+
+    /**
+     * 将流程封装为组件
+     * @param componentName
+     * @param tagString
+     * @param workflowDesc
+     * @param ggeditorObjectString
+     * @param userId
+     * @return
+     */
+    Integer workflowToComponent(String componentName,String tagString,String workflowDesc,String ggeditorObjectString,Integer userId);
 }

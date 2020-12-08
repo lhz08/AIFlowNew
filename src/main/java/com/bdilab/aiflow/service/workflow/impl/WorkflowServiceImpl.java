@@ -6,10 +6,12 @@ import com.bdilab.aiflow.common.utils.DateUtils;
 import com.bdilab.aiflow.common.utils.XmlUtils;
 import com.bdilab.aiflow.mapper.ExperimentMapper;
 import com.bdilab.aiflow.mapper.TemplateMapper;
+import com.bdilab.aiflow.mapper.WorkflowComponentMapper;
 import com.bdilab.aiflow.mapper.WorkflowMapper;
 import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.Template;
 import com.bdilab.aiflow.model.Workflow;
+import com.bdilab.aiflow.model.WorkflowComponent;
 import com.bdilab.aiflow.service.pipeline.PipelineService;
 import com.bdilab.aiflow.service.workflow.WorkflowService;
 import com.bdilab.aiflow.service.experiment.ExperimentService;
@@ -48,6 +50,9 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     @Resource
     private PipelineService pipelineService;
+
+    @Autowired
+    private WorkflowComponentMapper workflowComponentMapper;
 
     @Resource
     FilePathConfig filePathConfig;
@@ -540,6 +545,20 @@ public class WorkflowServiceImpl implements WorkflowService {
             result.put(3,"该流程存在与之关联的实验和模板，不能编辑");
         }
         return result;
+    }
+
+    @Override
+    public Integer workflowToComponent(String componentName, String tagString, String workflowDesc, String ggeditorObjectString, Integer userId) {
+        WorkflowComponent workflowComponent = new WorkflowComponent();
+        workflowComponent.setName(componentName);
+        workflowComponent.setTag(tagString);
+        workflowComponent.setWorkflowComponentDesc(workflowDesc);
+        workflowComponent.setGgeditorObjectString(ggeditorObjectString);
+        workflowComponent.setIsDeleted(Byte.parseByte("0"));
+        workflowComponent.setCreateTime(new Date());
+        workflowComponent.setFkUserId(userId);
+        workflowComponentMapper.insert(workflowComponent);
+        return workflowComponent.getId();
     }
 }
 

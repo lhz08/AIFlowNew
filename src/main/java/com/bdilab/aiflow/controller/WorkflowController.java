@@ -3,6 +3,7 @@ package com.bdilab.aiflow.controller;
 import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.model.Workflow;
+import com.bdilab.aiflow.model.WorkflowComponent;
 import com.bdilab.aiflow.service.workflow.WorkflowService;
 
 import io.swagger.annotations.ApiOperation;
@@ -366,10 +367,12 @@ public class WorkflowController {
                                               @RequestParam String workflowDesc,
                                               @RequestParam String ggeditorObjectString,
                                               HttpSession httpSession){
-
-
-
-        return new ResponseResult();
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Integer workflowComponentId = workflowService.workflowToComponent(componentName,tagString,workflowDesc,ggeditorObjectString,userId);
+        ResponseResult responseResult = new ResponseResult();
+        responseResult.setData(workflowComponentId);
+        responseResult.setMeta(new MetaData(true,"001","将流程封装为组件，成功返回流程组件id"));
+        return  responseResult;
     }
 
 
