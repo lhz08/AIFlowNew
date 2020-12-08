@@ -2,10 +2,7 @@ package com.bdilab.aiflow.service.component.impl;
 
 
 import com.bdilab.aiflow.common.config.FilePathConfig;
-import com.bdilab.aiflow.mapper.ComponentInfoMapper;
-import com.bdilab.aiflow.mapper.ComponentParameterMapper;
-import com.bdilab.aiflow.mapper.CustomComponentMapper;
-import com.bdilab.aiflow.mapper.EnumValueMapper;
+import com.bdilab.aiflow.mapper.*;
 import com.bdilab.aiflow.model.ComponentInfo;
 import com.bdilab.aiflow.model.ComponentParameter;
 import com.bdilab.aiflow.model.CustomComponent;
@@ -46,6 +43,9 @@ public class CustomComponentServiceImpl implements CustomComponentService {
 
     @Resource
     EnumValueMapper enumValueMapper;
+
+    @Resource
+    WorkflowComponentMapper workflowComponentMapper;
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -231,20 +231,26 @@ public class CustomComponentServiceImpl implements CustomComponentService {
     }
 
     @Override
-    public PageInfo<CustomComponentInfo> getCustomComponentByUserIdAndType(int userId, int pageNum, int pageSize, int type,int idDeleted) {
+    public PageInfo<CustomComponentInfo> getCustomComponentByUserIdAndType(int userId, int pageNum, int pageSize, int type,int isDeleted) {
         PageHelper.startPage(pageNum, pageSize);
-        List<CustomComponent> customComponentList = customComponentMapper.getCustomComponentByUserIdAndType(userId, type,idDeleted);
+        List<CustomComponent> customComponentList = null;
         List<CustomComponentInfo> componentInfoList = new ArrayList<>();
-        for (CustomComponent customComponent:customComponentList
-             ) {
-            ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(customComponent.getFkComponentInfoId());
-            CustomComponentInfo customComponentInfo = new CustomComponentInfo();
-            customComponentInfo.setId(customComponent.getId());
-            customComponentInfo.setName(componentInfo.getName());
-            customComponentInfo.setComponentDesc(componentInfo.getComponentDesc());
-            customComponentInfo.setCreateTime(customComponent.getCreateTime());
-            customComponentInfo.setTags(componentInfo.getTags());
-            componentInfoList.add(customComponentInfo);
+        if(type!=1) {
+            customComponentList = customComponentMapper.getCustomComponentByUserIdAndType(userId, type, isDeleted);
+            for (CustomComponent customComponent : customComponentList
+            ) {
+                ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(customComponent.getFkComponentInfoId());
+                CustomComponentInfo customComponentInfo = new CustomComponentInfo();
+                customComponentInfo.setId(customComponent.getId());
+                customComponentInfo.setName(componentInfo.getName());
+                customComponentInfo.setComponentDesc(componentInfo.getComponentDesc());
+                customComponentInfo.setCreateTime(customComponent.getCreateTime());
+                customComponentInfo.setTags(componentInfo.getTags());
+                componentInfoList.add(customComponentInfo);
+            }
+        }
+        else {
+//            workflowComponentMapper.s
         }
         PageInfo<CustomComponentInfo> pageInfo = new PageInfo<>(componentInfoList);
         return pageInfo;
