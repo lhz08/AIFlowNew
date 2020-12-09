@@ -29,8 +29,8 @@
 
 
 
-    <!--将fkRunningId为null-->
-    <update id="updateRunningIdNull"  parameterType="Integer">
+    <!--将fkExperimentId为null-->
+    <update id="updateExperimentIdNull"  parameterType="Integer">
         update template
         set template.fk_experiment_id=null
         where template.fk_experiment_id=#{experimentId}

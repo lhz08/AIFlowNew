@@ -151,9 +151,13 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public boolean setRunningIdNull(Integer experimentId){
-        boolean isSuccess=templateMapper.updateRunningIdNull(experimentId)==1;
-        return isSuccess;
+    public boolean setExperimentIdNull(Integer experimentId){
+        List<Integer> templates = templateMapper.selectTemplateByExperimentId(experimentId);
+        if (templates.size()==0){
+            return true;
+        }else {
+            return templateMapper.updateExperimentIdNull(experimentId)==1;
+        }
     }
 
 

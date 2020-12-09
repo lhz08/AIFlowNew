@@ -94,7 +94,7 @@ public interface WorkflowService {
      * @param workflowId
      * @return
      */
-    boolean deleteWorkflowTotal(Integer workflowId);
+    Map<String,Object> deleteWorkflowTotal(Integer workflowId);
 
     /**
      * 还原流程
