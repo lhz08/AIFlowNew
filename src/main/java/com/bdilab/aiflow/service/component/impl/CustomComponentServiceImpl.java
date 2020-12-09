@@ -3,10 +3,7 @@ package com.bdilab.aiflow.service.component.impl;
 
 import com.bdilab.aiflow.common.config.FilePathConfig;
 import com.bdilab.aiflow.mapper.*;
-import com.bdilab.aiflow.model.ComponentInfo;
-import com.bdilab.aiflow.model.ComponentParameter;
-import com.bdilab.aiflow.model.CustomComponent;
-import com.bdilab.aiflow.model.EnumValue;
+import com.bdilab.aiflow.model.*;
 import com.bdilab.aiflow.model.component.ComponentCreateInfo;
 import com.bdilab.aiflow.model.component.CustomComponentInfo;
 import com.bdilab.aiflow.model.component.InputStubInfo;
@@ -250,7 +247,18 @@ public class CustomComponentServiceImpl implements CustomComponentService {
             }
         }
         else {
-//            workflowComponentMapper.s
+            List<WorkflowComponent> workflowComponents = workflowComponentMapper.selectWorkflowComponentByUserId(userId);
+            for (WorkflowComponent workflowComponent:workflowComponents
+                 ) {
+                CustomComponentInfo customComponentInfo = new CustomComponentInfo();
+                customComponentInfo.setId(workflowComponent.getId());
+                customComponentInfo.setName(workflowComponent.getName());
+                customComponentInfo.setComponentDesc(workflowComponent.getWorkflowComponentDesc());
+                customComponentInfo.setCreateTime(workflowComponent.getCreateTime());
+                customComponentInfo.setTags(workflowComponent.getTag());
+                customComponentInfo.setGgeditorObjectString(workflowComponent.getGgeditorObjectString());
+                componentInfoList.add(customComponentInfo);
+            }
         }
         PageInfo<CustomComponentInfo> pageInfo = new PageInfo<>(componentInfoList);
         return pageInfo;
@@ -259,16 +267,34 @@ public class CustomComponentServiceImpl implements CustomComponentService {
     @Override
     public Map<String,List<ComponentInfoVO>> loadCustomComponentInfo(Integer userId){
         List<CustomComponent> customComponentList = customComponentMapper.loadCustomComponentByUserIdAndType(userId);
-        List<ComponentInfoVO> componentInfoList = new ArrayList<>();
+        List<ComponentInfoVO> modelComponentInfoList = new ArrayList<>();
+        List<ComponentInfoVO> algorithmComponentInfoList = new ArrayList<>();
+        List<ComponentInfoVO> processComponentInfoList = new ArrayList<>();
+        List<WorkflowComponent> workflowComponents = workflowComponentMapper.selectWorkflowComponentByUserId(userId);
+        Map<String,List<ComponentInfoVO>> result = new HashMap<>();
         for (CustomComponent customComponent:customComponentList
         ) {
             ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(customComponent.getFkComponentInfoId());
             ComponentInfoVO componentInfoVO = buildComponentInfoVO(componentInfo);
             componentInfoVO.setComponentType(customComponent.getType().toString());
-            componentInfoList.add(componentInfoVO);
+            if(customComponent.getType()==2)
+                modelComponentInfoList.add(componentInfoVO);
+            if(customComponent.getType()==0)
+                algorithmComponentInfoList.add(componentInfoVO);
         }
-        Map<String,List<ComponentInfoVO>> result = new HashMap<>();
-        result.put("Custom Component",componentInfoList);
+        result.put("CustomModel Component",modelComponentInfoList);
+        result.put("CustomAlgorithm Component",algorithmComponentInfoList);
+        for (WorkflowComponent workflowComponent:
+                workflowComponents) {
+             ComponentInfoVO componentInfoVO = new ComponentInfoVO();
+             componentInfoVO.setComponentType("1");
+             componentInfoVO.setComponentId(workflowComponent.getId());
+             componentInfoVO.setComponentName(workflowComponent.getName());
+             componentInfoVO.setComponentNameChs(workflowComponent.getName());
+             componentInfoVO.setGgeditorObjectString(workflowComponent.getGgeditorObjectString());
+             processComponentInfoList.add(componentInfoVO);
+        }
+        result.put("CustomProcess Component",processComponentInfoList);
         return result;
     }
 
@@ -312,5 +338,13 @@ public class CustomComponentServiceImpl implements CustomComponentService {
         }
         componentInfoVO.setVariables(variables);
         return componentInfoVO;
+    }
+    @Override
+    public boolean deleteWorkflowComponent(Integer workflowComponentId){
+        return workflowComponentMapper.deleteWorkflowComponent(workflowComponentId)==1;
+    }
+    @Override
+    public boolean deleteWorkflowComponentPermanently(List<Integer> componentIds){
+        return workflowComponentMapper.deleteWorkflowComponentPermanently(componentIds)==1;
     }
 }

@@ -14,7 +14,17 @@ public class ComponentInfoVO {
     private String mainType;
     private String componentNameChs;
     private String componentType;
+
+    public String getGgeditorObjectString() {
+        return ggeditorObjectString;
+    }
+
+    public void setGgeditorObjectString(String ggeditorObjectString) {
+        this.ggeditorObjectString = ggeditorObjectString;
+    }
+
     private List<Variable> variables;
+    private String ggeditorObjectString;
 
     public String getMainType() {
         return mainType;

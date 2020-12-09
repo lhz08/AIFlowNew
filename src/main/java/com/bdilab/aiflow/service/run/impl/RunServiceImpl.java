@@ -27,6 +27,7 @@ import org.checkerframework.checker.units.qual.C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -189,8 +190,8 @@ public class RunServiceImpl implements RunService {
         String url = "http://120.27.69.55:31380/pipeline/apis/v1beta1/runs";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<ApiRun> request = new HttpEntity<>(apiRun,headers);
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(url,request,String.class);
+        HttpEntity<ApiRun> request = new HttpEntity(apiRun, (MultiValueMap)headers);
+        ResponseEntity<String> responseEntity = this.restTemplate.postForEntity(url, request, String.class, new Object[0]);
         int statusCodeValue = responseEntity.getStatusCodeValue();
         if (statusCodeValue == 200){
             //获取返回结果中的运行id

@@ -10,7 +10,17 @@ public class CustomComponentInfo {
 
     private Date createTime;
 
+    public String getGgeditorObjectString() {
+        return ggeditorObjectString;
+    }
+
+    public void setGgeditorObjectString(String ggeditorObjectString) {
+        this.ggeditorObjectString = ggeditorObjectString;
+    }
+
     private String name;
+
+    private String ggeditorObjectString;
 
     public String getName() {
         return name;

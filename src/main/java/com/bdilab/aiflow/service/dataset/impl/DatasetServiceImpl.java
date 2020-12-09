@@ -37,7 +37,6 @@ public class DatasetServiceImpl implements DatasetService {
     FilePathConfig filePathConfig;
 
 
-
     @Value("${minio.host}")
     private String host;
 
@@ -244,7 +243,7 @@ public class DatasetServiceImpl implements DatasetService {
   public HttpServletResponse downloadDatasetFromMinio(Integer userId,Integer datasetId,HttpServletResponse response) {
       MinioFileUtils minioFileUtils = new MinioFileUtils(host,username,password,false);
       Dataset dataset = datasetMapper.selectDatasetById(datasetId);
-      String bucketName = "user"+userId;
+      String bucketName = "dataset";
       String filePath = dataset.getDatasetAddr();
       try {
           InputStream inputStream = minioFileUtils.downLoadFile(bucketName, filePath);

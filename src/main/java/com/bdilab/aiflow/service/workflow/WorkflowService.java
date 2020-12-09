@@ -118,5 +118,5 @@ public interface WorkflowService {
      * @param userId
      * @return
      */
-    Integer workflowToComponent(String componentName,String tagString,String workflowDesc,String ggeditorObjectString,Integer userId);
+    boolean workflowToComponent(String componentName,String tagString,String workflowDesc,String ggeditorObjectString,Integer userId);
 }

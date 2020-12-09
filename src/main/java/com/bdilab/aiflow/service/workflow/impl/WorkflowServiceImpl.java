@@ -548,7 +548,7 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public Integer workflowToComponent(String componentName, String tagString, String workflowDesc, String ggeditorObjectString, Integer userId) {
+    public boolean workflowToComponent(String componentName, String tagString, String workflowDesc, String ggeditorObjectString, Integer userId) {
         WorkflowComponent workflowComponent = new WorkflowComponent();
         workflowComponent.setName(componentName);
         workflowComponent.setTag(tagString);
@@ -557,8 +557,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         workflowComponent.setIsDeleted(Byte.parseByte("0"));
         workflowComponent.setCreateTime(new Date());
         workflowComponent.setFkUserId(userId);
-        workflowComponentMapper.insert(workflowComponent);
-        return workflowComponent.getId();
+        return workflowComponentMapper.insert(workflowComponent)==1;
     }
 }
 

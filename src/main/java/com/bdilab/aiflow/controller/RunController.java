@@ -29,18 +29,19 @@ public class RunController {
     @ResponseBody
     @ApiOperation("python调用该接口，报告执行结果以及结果文件地址")
     @RequestMapping(value = "/process/executeTask",method = RequestMethod.POST)
-    public void executeTask(@RequestParam @ApiParam(value = "processInstanceId") String processInstanceId,
+    public ResponseResult executeTask(@RequestParam @ApiParam(value = "processInstanceId") String processInstanceId,
                                       @RequestParam @ApiParam(value = "taskId") String taskId,
                                       @RequestParam @ApiParam(value = "conversationId") String conversationId,
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "IP_port") String IP_port,
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "resultPath")String resultPath,
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "resultTable") String resultTable){
         boolean isInProcess = runService.pushData(processInstanceId,taskId,conversationId,resultTable);
-//        if(isInProcess){
-//            return new ResponseResult(true,"001","已完成id为"+taskId+"的任务");
-//        }
-//        return new ResponseResult(false,"002","执行任务失败，当前流程已被暂停或中止");
         System.out.println(processInstanceId+" "+taskId+" "+conversationId+resultPath);
+        if(isInProcess){
+            return new ResponseResult(true,"001","已完成id为"+taskId+"的任务");
+        }
+        return new ResponseResult(false,"002","执行任务失败，当前流程已被暂停或中止");
+
     }
 
     /*测试使用，不用调用*/

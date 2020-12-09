@@ -64,4 +64,12 @@ public interface CustomComponentService {
     Map<String,List<ComponentInfoVO>> loadPublicComponentInfo();
 
 
+    /**
+     * 删除自定义流程组件到回收站
+     * @param workflowComponentId 要删除的自定义组件id
+     * @return
+     */
+    boolean deleteWorkflowComponent(Integer workflowComponentId);
+
+    boolean deleteWorkflowComponentPermanently(List<Integer> componentIds);
 }

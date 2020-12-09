@@ -368,10 +368,13 @@ public class WorkflowController {
                                               @RequestParam String ggeditorObjectString,
                                               HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Integer workflowComponentId = workflowService.workflowToComponent(componentName,tagString,workflowDesc,ggeditorObjectString,userId);
         ResponseResult responseResult = new ResponseResult();
-        responseResult.setData(workflowComponentId);
-        responseResult.setMeta(new MetaData(true,"001","将流程封装为组件，成功返回流程组件id"));
+        if(workflowService.workflowToComponent(componentName,tagString,workflowDesc,ggeditorObjectString,userId)) {
+            responseResult.setMeta(new MetaData(true, "001", "创建流程组件成功"));
+        }
+        else {
+            responseResult.setMeta(new MetaData(false, "002", "创建流程组件失败"));
+        }
         return  responseResult;
     }
 

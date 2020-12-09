@@ -216,4 +216,36 @@ public class CustomComponentController {
         Map<String,List<ComponentInfoVO>> data = customComponentService.loadPublicComponentInfo();
         return new ResponseResult(true,"001","成功加载系统组件信息",data);
     }
+
+    @ResponseBody
+    @ApiOperation("删除自定义流程组件到回收站")
+    @RequestMapping(value = "/customComponent/deleteWorkflowComponent", method = RequestMethod.POST)
+    public ResponseResult deleteWorkflowComponent(@RequestParam @ApiParam(value = "workflowComponentId") Integer workflowComponentId) {
+        boolean isComponentDelete = customComponentService.deleteWorkflowComponent(workflowComponentId);
+        if (isComponentDelete) {
+            return new ResponseResult(true,"001","Deleted successfully.");
+        } else {
+            return new ResponseResult(false, "002", "Deleted failed.");
+        }
+    }
+
+    /**
+     * 根据组件id列表，彻底删除自定义组件及其yaml文件
+     * @param workflowComponentId 包含组件id的列表
+     * @return
+     */
+    @ResponseBody
+    @ApiOperation("彻底删除自定义流程组件")
+    @RequestMapping(value = "/customComponent/deleteWorkflowComponentPermanently", method = RequestMethod.POST)
+    public ResponseResult deleteWorkflowComponentPermanently(@RequestParam @ApiParam(value = "workflowComponentId") List<Integer> workflowComponentId) {
+
+        boolean isDeletePermanently = customComponentService.deleteWorkflowComponentPermanently(workflowComponentId);
+        if (isDeletePermanently) {
+            return new ResponseResult(true,"001","Deleted forever.");
+        } else {
+            return new ResponseResult(false,"002","Deleted failed.");
+        }
+    }
+
+
 }
