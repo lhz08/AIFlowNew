@@ -299,8 +299,8 @@ public class WorkflowController {
             return new ResponseResult(false,"002","流程删除失败");
         }
         else if(workflow.getIsDeleted()==1){
-            boolean isSuccess=workflowService.deleteWorkflowTotal(workflowId);
-            if(isSuccess){
+            Map<String,Object> isSuccess=workflowService.deleteWorkflowTotal(workflowId);
+            if(isSuccess.get("isSuccess").equals(true)){
                 return new ResponseResult(true,"001","流程彻底删除成功");
             }
             return new ResponseResult(false,"002","流程彻底删除失败");
@@ -335,11 +335,11 @@ public class WorkflowController {
                                           HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         String[] ids = workflowIds.split(",");
-        boolean isSuccess;
+        Map<String,Object> isSuccess;
         for (int i=0;i<ids.length;i++){
             isSuccess = workflowService.deleteWorkflowTotal(Integer.parseInt(ids[i]));
-            if (!isSuccess){
-                return new ResponseResult(false,"002","流程彻底删除失败");
+            if (isSuccess.get("isSuccess").equals(false)){
+                return new ResponseResult(false,"002",isSuccess.get("message").toString());
             }
         }
         return new ResponseResult(true,"001","流程彻底删除成功");

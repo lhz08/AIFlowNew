@@ -169,7 +169,7 @@ public class ExperimentServiceImpl implements ExperimentService {
             //判断该实验是否关联了模板
             if (experiment.getIsMarkTemplate()==MarkTemplateStatus.MARKED.getValue()){
                 //将关联的模板的实验外键置null
-                boolean isSuccess=templateService.setRunningIdNull(experimentId);
+                boolean isSuccess=templateService.setExperimentIdNull(experimentId);
                 if(!isSuccess){
                     messageMap.put("isSuccess",false);
                     messageMap.put("message","实验彻底删除失败,具体信息：在处理该实验关联的模板的时候失败");

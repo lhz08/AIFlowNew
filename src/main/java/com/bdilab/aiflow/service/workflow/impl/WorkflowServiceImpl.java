@@ -352,8 +352,9 @@ public class WorkflowServiceImpl implements WorkflowService {
      * @return
      */
     @Override
-    public boolean deleteWorkflowTotal(Integer workflowId){
+    public Map<String,Object> deleteWorkflowTotal(Integer workflowId){
         Workflow workflow = workflowMapper.selectWorkflowById(workflowId);
+        Map<String,Object> result = new HashMap<>();
         //清空顺序是模板、运行、实验、流程
         Template searchTemplate = new Template();
         searchTemplate.setFkWorkflowId(workflow.getId());
@@ -367,7 +368,9 @@ public class WorkflowServiceImpl implements WorkflowService {
         try {
             for(Template template : tList){
                 if(templateMapper.deleteTemplateById(template.getId())!=1){
-                    return false;
+                    result.put("isSuccess",false);
+                    result.put("message","与该流程关联的模板删除失败");
+                    return result;
                 }
             }
 
@@ -375,7 +378,9 @@ public class WorkflowServiceImpl implements WorkflowService {
             for (Experiment experiment : eList) {
                 Map<String,Object> isSuccess=experimentService.deleteExperiment(experiment.getId());
                 if(isSuccess.get("isSuccess").equals(false)) {
-                    return false;
+                    result.put("isSuccess",false);
+                    result.put("message","与该流程关联的实验删除失败。  "+isSuccess.get("message"));
+                    return result;
                 }
             }
         }
@@ -399,12 +404,19 @@ public class WorkflowServiceImpl implements WorkflowService {
         }
 
         //删除kubeflow上的pipeline
-        pipelineService.deletePipelineById(workflow.getPipelineId());
+        boolean b = pipelineService.deletePipelineById(workflow.getPipelineId());
+        if (!b){
+            result.put("message","pipeline删除失败。");
+        }
 
         if(workflowMapper.deleteWorkflowById(workflow.getId())!=1){
-            return false;
+            result.put("isSuccess",false);
+            result.put("message","流程删除失败");
+            return result;
         }
-        return true;
+        result.put("isSuccess",true);
+        result.put("message","删除成功");
+        return result;
 
 
     }

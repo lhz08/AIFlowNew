@@ -37,11 +37,11 @@ public interface TemplateMapper {
     int updateTemplateParamJsonString(Template template);
 
     /**
-     * 通过实验id将实验运行id置null
+     * 通过实验id将模板的实验id置null
      * @param experimentId
      * @return
      */
-    int updateRunningIdNull(Integer experimentId);
+    int updateExperimentIdNull(Integer experimentId);
 
     /**
      * 单例查找一个模板

@@ -47,10 +47,10 @@ public interface TemplateService {
     Template selectTemplateById(Integer templateId);
 
     /**
-     * 将模板的实验运行外键置NULL
+     * 将模板的实验外键置NULL
      * @param experimentId
      */
-    boolean setRunningIdNull(Integer experimentId);
+    boolean setExperimentIdNull(Integer experimentId);
 
     /**
      * 删除模板
