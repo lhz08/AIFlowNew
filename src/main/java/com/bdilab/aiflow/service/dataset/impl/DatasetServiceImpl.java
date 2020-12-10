@@ -220,7 +220,7 @@ public class DatasetServiceImpl implements DatasetService {
     @Override
     public Map<String, Object> getPreviewList(Integer datasetId) {
         Dataset dataset = datasetMapper.selectDatasetById(datasetId);
-        String filePath=filePathConfig.getDatasetPath()+"user"+dataset.getFkUserId()+File.separatorChar+dataset.getDatasetAddr();
+        String filePath=filePathConfig.getDatasetPath()+File.separatorChar+dataset.getDatasetAddr();
         Map<String, Object> data = new HashMap<>();
         List<String[]> csvContent = FileUtils.csvContentPreview1(filePath);
         data.put("content",csvContent);
