@@ -107,12 +107,13 @@ public class CustomComponentController {
     @ApiOperation("从回收站恢复组件")
     @RequestMapping(value = "/customComponent/restoreComponent", method = RequestMethod.POST)
     public ResponseResult restoreComponent(@RequestParam @ApiParam(value = "componentId") List<Integer> componentIds,
+                                           @RequestParam @ApiParam(value = "type") int type,
                                            HttpSession httpSession) {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         if(userId == null){
             return new ResponseResult(false,"500","用户未登录");
         }
-        boolean isComponentRestore = customComponentService.restoreComponent(componentIds);
+        boolean isComponentRestore = customComponentService.restoreComponent(componentIds,type);
         if (isComponentRestore) {
             return new ResponseResult(true,"001","Restore successfully.");
         } else {

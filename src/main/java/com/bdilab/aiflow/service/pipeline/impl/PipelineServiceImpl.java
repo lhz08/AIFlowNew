@@ -58,7 +58,7 @@ public class PipelineServiceImpl implements PipelineService {
      * @param pipeline
      * @return
      */
-    //生成每个组件的代码，组件id为xml中的组件id
+    //生成每个组件的代码，当前id为xml中的组件id
     private String executeTask(List<String> queue,String json,String pipeline,List<String> completeQueue){
         String id = queue.get(0);
         if(!priorIdAllcompleted(id,completeQueue,json)){
@@ -111,7 +111,9 @@ public class PipelineServiceImpl implements PipelineService {
         completeQueue.add(id);
         queue.remove(id);
         for(int i = 0;i<curRearNodeList.size();i++){
-            queue.add(curRearNodeList.get(i));
+            if(!queue.contains(curRearNodeList.get(i))) {
+                queue.add(curRearNodeList.get(i));
+            }
         }
         if(queue.size()==0)
             pipeline+="    dsl.get_pipeline_conf().set_image_pull_secrets([k8s_client.V1ObjectReference(name=\"aiflow\")])\n\n\n"+"if __name__ == '__main__':\n" +

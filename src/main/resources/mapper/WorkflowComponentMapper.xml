@@ -206,7 +206,7 @@
                  workflow_component.is_deleted as isDeleted,
                  workflow_component.fk_user_id as fkUserId,
                  workflow_component.create_time as createTime
-                 from workflow_component where workflow_component.fk_user_id = #{userId} order by workflow_component.create_time desc
+                 from workflow_component where workflow_component.fk_user_id = #{userId} and workflow_component.is_deleted=#{isDeleted} order by workflow_component.create_time desc
   </select>
 
   <update id="deleteWorkflowComponent" parameterType="java.lang.Integer">
@@ -222,5 +222,14 @@
       #{id}
     </foreach>
   </delete>
+
+  <update id="restoreComponent" parameterType="java.lang.Integer">
+    UPDATE workflow_component
+    SET is_deleted = 0
+    WHERE workflow_component.id in
+    <foreach collection="list" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </update>
 
 </mapper>

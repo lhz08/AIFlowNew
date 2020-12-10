@@ -1,6 +1,7 @@
 package com.bdilab.aiflow.mapper;
 
 import com.bdilab.aiflow.model.WorkflowComponent;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -61,9 +62,11 @@ public interface WorkflowComponentMapper {
      */
     int updateByPrimaryKey(WorkflowComponent record);
 
-    List<WorkflowComponent> selectWorkflowComponentByUserId(Integer userId);
+    List<WorkflowComponent> selectWorkflowComponentByUserId(@Param("userId") Integer userId,@Param("isDeleted") Integer isDeleted);
 
     int deleteWorkflowComponent(Integer workflowComponentId);
 
     int deleteWorkflowComponentPermanently(List<Integer> componentIds);
+
+    int restoreComponent(List<Integer> componentIds);
 }

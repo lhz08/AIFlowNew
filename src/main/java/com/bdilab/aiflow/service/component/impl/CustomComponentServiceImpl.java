@@ -201,14 +201,15 @@ public class CustomComponentServiceImpl implements CustomComponentService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Boolean restoreComponent(List<Integer> componentIds) {
-        int componentAmount = componentIds.size();
-        int isRestoreSuccess = customComponentMapper.restoreComponent(componentIds);
-        if (isRestoreSuccess == componentAmount) {
-            return true;
-        } else {
-            return false;
+    public Boolean restoreComponent(List<Integer> componentIds,int type) {
+        int isSuccess;
+        if(type==1){
+            isSuccess=workflowComponentMapper.restoreComponent(componentIds);
         }
+        else {
+            isSuccess=customComponentMapper.restoreComponent(componentIds);
+        }
+        return isSuccess==1;
     }
 
     @Override
@@ -239,7 +240,7 @@ public class CustomComponentServiceImpl implements CustomComponentService {
                 ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(customComponent.getFkComponentInfoId());
                 CustomComponentInfo customComponentInfo = new CustomComponentInfo();
                 customComponentInfo.setId(customComponent.getId());
-                customComponentInfo.setName(componentInfo.getName());
+                customComponentInfo.setName(componentInfo.getComponentDesc());
                 customComponentInfo.setComponentDesc(componentInfo.getComponentDesc());
                 customComponentInfo.setCreateTime(customComponent.getCreateTime());
                 customComponentInfo.setTags(componentInfo.getTags());
@@ -247,7 +248,7 @@ public class CustomComponentServiceImpl implements CustomComponentService {
             }
         }
         else {
-            List<WorkflowComponent> workflowComponents = workflowComponentMapper.selectWorkflowComponentByUserId(userId);
+            List<WorkflowComponent> workflowComponents = workflowComponentMapper.selectWorkflowComponentByUserId(userId,isDeleted);
             for (WorkflowComponent workflowComponent:workflowComponents
                  ) {
                 CustomComponentInfo customComponentInfo = new CustomComponentInfo();
@@ -270,7 +271,7 @@ public class CustomComponentServiceImpl implements CustomComponentService {
         List<ComponentInfoVO> modelComponentInfoList = new ArrayList<>();
         List<ComponentInfoVO> algorithmComponentInfoList = new ArrayList<>();
         List<ComponentInfoVO> processComponentInfoList = new ArrayList<>();
-        List<WorkflowComponent> workflowComponents = workflowComponentMapper.selectWorkflowComponentByUserId(userId);
+        List<WorkflowComponent> workflowComponents = workflowComponentMapper.selectWorkflowComponentByUserId(userId,0);
         Map<String,List<ComponentInfoVO>> result = new HashMap<>();
         for (CustomComponent customComponent:customComponentList
         ) {
@@ -345,6 +346,6 @@ public class CustomComponentServiceImpl implements CustomComponentService {
     }
     @Override
     public boolean deleteWorkflowComponentPermanently(List<Integer> componentIds){
-        return workflowComponentMapper.deleteWorkflowComponentPermanently(componentIds)==1;
+        return workflowComponentMapper.deleteWorkflowComponentPermanently(componentIds)==2;
     }
 }

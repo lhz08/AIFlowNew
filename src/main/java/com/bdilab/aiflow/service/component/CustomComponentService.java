@@ -41,7 +41,7 @@ public interface CustomComponentService {
      * @param componentIds 要还原的组件id列表
      * @return
      */
-    Boolean restoreComponent(List<Integer> componentIds);
+    Boolean restoreComponent(List<Integer> componentIds,int type);
 
     /**
      * 查询自定义组件
