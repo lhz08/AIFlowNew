@@ -12,8 +12,8 @@
         <result column="model_desc" jdbcType="VARCHAR" property="modelDesc" />
     </resultMap>
     <insert id="insertModel" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.Model">
-        INSERT INTO model(name,fk_user_id,fk_running_id,fk_component_id,is_deleted,model_file_addr,create_time,model_desc)
-        VALUES (#{name},#{fkUserId},#{fkRunningId},#{fkComponentId},#{isDeleted},#{modelFileAddr},#{createTime},#{modelDesc})
+        INSERT INTO model(name,fk_user_id,fk_running_id,is_saved,fk_component_id,is_deleted,model_file_addr,create_time,model_desc)
+        VALUES (#{name},#{fkUserId},#{fkRunningId},#{isSaved},#{fkComponentId},#{isDeleted},#{modelFileAddr},#{createTime},#{modelDesc})
     </insert>
 
     <select id="getModelByUser" resultMap="ResultMap">

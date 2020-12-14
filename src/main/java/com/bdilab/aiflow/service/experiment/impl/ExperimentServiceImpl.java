@@ -293,7 +293,8 @@ public class ExperimentServiceImpl implements ExperimentService {
     public List<ExperimentVO> getExperiment( Integer userId, Integer experimentNum){
         List<Experiment> experiments = experimentMapper.selectRecentExperiment(userId, experimentNum);
         List<ExperimentVO> list = new ArrayList<>();
-        for (Experiment experiment: experiments) {
+        for(int i=0;i<experiments.size();i++){
+            Experiment experiment = experiments.get(i);
             ExperimentVO experimentVO = new ExperimentVO();
             experimentVO.setId(experiment.getId());
             experimentVO.setName(experiment.getName());

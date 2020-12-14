@@ -238,8 +238,8 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
     public List<ExperimentRunningVO> getExperimentRunning(Integer userId, Integer experimentRunningNum){
         List<ExperimentRunningVO> list = new ArrayList<>();
         List<ExperimentRunning> experimentRunnings = experimentRunningMapper.selectRecentExperimentRunning(userId, experimentRunningNum);
-        for (ExperimentRunning experimentRunning:
-           experimentRunnings ) {
+        for(int i =0;i<experimentRunnings.size();i++){
+            ExperimentRunning experimentRunning = experimentRunnings.get(i);
             ExperimentRunningVO experimentRunningVO = new ExperimentRunningVO();
             experimentRunningVO.setId(experimentRunning.getId());
             experimentRunningVO.setFkUserId(experimentRunning.getFkUserId());

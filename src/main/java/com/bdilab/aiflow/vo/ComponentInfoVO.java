@@ -14,6 +14,15 @@ public class ComponentInfoVO {
     private String mainType;
     private String componentNameChs;
     private String componentType;
+    private String componentDesc;
+
+    public String getComponentDesc() {
+        return componentDesc;
+    }
+
+    public void setComponentDesc(String componentDesc) {
+        this.componentDesc = componentDesc;
+    }
 
     public String getGgeditorObjectString() {
         return ggeditorObjectString;

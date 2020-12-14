@@ -320,7 +320,8 @@ public class CustomComponentServiceImpl implements CustomComponentService {
         ComponentInfoVO componentInfoVO = new ComponentInfoVO();
         componentInfoVO.setComponentId(componentInfo.getId());
         componentInfoVO.setComponentName(componentInfo.getName());
-        componentInfoVO.setComponentNameChs(componentInfo.getComponentDesc());
+        componentInfoVO.setComponentNameChs(componentInfo.getComponentNameChs());
+        componentInfoVO.setComponentDesc(componentInfo.getComponentDesc());
         List<Variable> variables = new ArrayList<>();
         //根据componentInfoId检索参数
         List<ComponentParameter> componentVariablesList = componentParamMapper.selectComponentParameterByComponentId(componentInfo.getId());
