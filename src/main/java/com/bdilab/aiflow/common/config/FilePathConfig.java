@@ -80,4 +80,7 @@ public class FilePathConfig {
 
     @Value("${dataset.path}")
     private String datasetPath;
+
+    @Value("${nfs.path}")
+    private String data_dir;
 }

@@ -2,9 +2,11 @@ package com.bdilab.aiflow.mapper;
 
 import com.bdilab.aiflow.model.ComponentInfo;
 import com.bdilab.aiflow.model.component.CustomComponentInfo;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public interface ComponentInfoMapper {
 
     /**

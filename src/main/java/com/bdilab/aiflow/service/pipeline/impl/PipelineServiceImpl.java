@@ -156,7 +156,7 @@ public class PipelineServiceImpl implements PipelineService {
         pipeline+=componentParams+"        config,\n):\n\n";
         return pipeline;
     }
-
+    //生成pipeline代码
     @Override
     public Map generatePipeline(String workflowXmlAddr, Integer userId){
         List<String> queue = new ArrayList<>();

@@ -1,8 +1,12 @@
 package com.bdilab.aiflow.model;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
+@Getter
+@Setter
 public class ComponentInfo {
     /**
      *
@@ -84,6 +88,8 @@ public class ComponentInfo {
      * @mbg.generated Sun Aug 30 16:18:08 CST 2020
      */
     private String componentDesc;
+
+    private String componentImage;
 
     public String getComponentNameChs() {
         return componentNameChs;

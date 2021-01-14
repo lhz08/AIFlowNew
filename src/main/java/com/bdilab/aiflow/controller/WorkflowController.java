@@ -53,7 +53,7 @@ public class WorkflowController {
                                               ){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         //在点击新建后立即新建一条流程记录
-        //Workflow workflow = workflowService.CreateWorkflow(workflowName,tagString,workflowDesc,Integer.parseInt(httpSession.getAttribute("username").toString()));
+        //Workflow workflow = DlWorkflowService.CreateWorkflow(workflowName,tagString,workflowDesc,Integer.parseInt(httpSession.getAttribute("username").toString()));
         Workflow workflow = workflowService.createAndSaveWorkflow(workflowName,tagString,workflowDesc,workflowXml,ggeditorObjectString,userId);
         System.out.println(ggeditorObjectString);
         Map<String,Object> data = new HashMap<>(1);

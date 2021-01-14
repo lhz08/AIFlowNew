@@ -10,10 +10,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +28,13 @@ public class CustomComponentController {
 
     @Autowired
     CustomComponentService customComponentService;
+
+    @Value("${customComponent.file.path}")
+    private String customFilePath;
+    @Value("${customComponent.headFile.path}")
+    private String customHeadFilePath;
+    @Value("/home/customComponent/headfile/init.yaml")
+    private String customHeadFileYaml;
 
     /**
      * 创建自定义组件
@@ -247,6 +256,24 @@ public class CustomComponentController {
             return new ResponseResult(false,"002","Deleted failed.");
         }
     }
+
+    @ResponseBody
+    @ApiOperation("保存自定义算法组件")
+    @RequestMapping(value = "/customComponent/saveCustomAlgorithmComponent",method = RequestMethod.POST)
+    public ResponseResult saveCustomAlgorithmComponent(){
+
+        return new ResponseResult();
+    }
+
+
+    @ResponseBody
+    @ApiOperation("下载自定义算法组件头文件")
+    @RequestMapping(value = "/customComponent/downloadHeaFile",method = RequestMethod.POST)
+    public ResponseResult downloadHeaFile() {
+
+        return new ResponseResult();
+    }
+
 
 
 }
