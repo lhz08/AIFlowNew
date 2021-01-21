@@ -96,12 +96,12 @@ public class DlWorkflowServiceImpl implements DlWorkflowService {
             outputStub = getStubList(componentInfo.getOutputStub());
             curPriorNodeList = JsonUtils.getPriorNodeList(s,workflowJson);
             pipeline+="class "+componentName+"Op(dsl.ContainerOp):\n\n"+"    def __init__(self,data_dir,";
-            for (String input:inputStub
-                 ) {
-                if(curPriorNodeList.size()!=0) {
+            if(inputStub!=null) {
+                for (String input : inputStub
+                ) {
                     pipeline += input + ",";
+                    inputFile += "                '--" + input + "'," + input + ",\n";
                 }
-                inputFile +="                '--"+input+"',"+input+",\n";
             }
             List<ComponentParameter> componentParameters = componentParameterMapper.selectComponentParameterByComponentId(componentId);
             for (ComponentParameter componentParameter:componentParameters
@@ -109,16 +109,18 @@ public class DlWorkflowServiceImpl implements DlWorkflowService {
                 pipeline+=componentParameter.getName()+",";
                 inputParam+="                '--"+componentParameter.getName()+"',"+componentParameter.getName()+",\n";
             }
-            if(curPriorNodeList.size()==0)
-                inputParam="";
             pipeline+="config):\n"+"        super("+componentName+"Op, self).__init__(\n"+
                     "            name='"+componentName+"',\n"+
                     "            image='"+image+"',\n"+
-                    "            arguments=[\n"+inputFile+
-                    inputParam+"\n"+"                '--config', config,\n"+
+                    "            command=[\n" +
+                    "                'python3','"+componentName+".py',\n"+
+                    "                '--data_dir', data_dir,\n"+
+                    inputFile+
+                    inputParam+
+                    "\n"+"                '--config', config,\n"+
                     "            ],\n"+
                     "            file_outputs={\n"+
-                    "                'output':"+ "'/"+componentName+".txt'\n"+
+                    "                '"+outputStub.get(0)+"':"+"data_dir"+ "+'/"+componentName+"/"+outputStub.get(0)+".txt'\n"+
                     "            })\n\n";
             inputParam="";
             inputFile="";
@@ -140,7 +142,7 @@ public class DlWorkflowServiceImpl implements DlWorkflowService {
                 componentParams +="        "+name+"_"+param.getName()+",\n";
             }
         }
-        pipeline+=componentParams+"        config,\n):\n\n";
+        pipeline+=componentParams+"        config,\n):\n\n"+"    data_dir='"+filePathConfig.getData_dir()+"'\n\n";
         return pipeline;
     }
     //生成每个组件的pipeline代码
@@ -153,35 +155,21 @@ public class DlWorkflowServiceImpl implements DlWorkflowService {
         List<String> curRearNodeList = JsonUtils.getRearNodeList(id,workflowXmlJson);
         List<String> curPriorNodeList = JsonUtils.getPriorNodeList(id,workflowXmlJson);
         int componentId = getComponentId(id);
-        String componentName = componentInfoMapper.selectComponentInfoById(componentId).getName();
+        ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(componentId);
+        String componentName = componentInfo.getName();
         pipeline+="    "+componentName+" = "+componentName+"Op(data_dir,";
         Integer curPriorNodeComponentId=null;
         List<String> stubList=null;
         String outputStub=null;
         ComponentInfo curPriorNodeComponent=null;
         List<ComponentParameter> componentParameterList = null;
-        if(curPriorNodeList.size()!=0) {
-            if (curPriorNodeList.size() == 1) {
-                curPriorNodeComponentId = getComponentId(curPriorNodeList.get(0));
-                curPriorNodeComponent = componentInfoMapper.selectComponentInfoById(curPriorNodeComponentId);
-                outputStub = curPriorNodeComponent.getOutputStub();
-                stubList = getStubList(outputStub);
-                pipeline += curPriorNodeComponent.getName() + ".outputs['output'],";
-            }
-            //如果当前节点有多个前置结点
-            else {
-                for (String curPriorNode :
-                        curPriorNodeList) {
-                    curPriorNodeComponentId = getComponentId(curPriorNode);
-                    curPriorNodeComponent = componentInfoMapper.selectComponentInfoById(curPriorNodeComponentId);
-                    outputStub = curPriorNodeComponent.getOutputStub();
-                    stubList = getStubList(outputStub);
-                    pipeline += curPriorNodeComponent.getName() + ".outputs['output'],";
-                }
-            }
-        }
-        else {
-
+        for (String curPriorNode :
+                curPriorNodeList) {
+            curPriorNodeComponentId = getComponentId(curPriorNode);
+            curPriorNodeComponent = componentInfoMapper.selectComponentInfoById(curPriorNodeComponentId);
+            outputStub = curPriorNodeComponent.getOutputStub();
+            stubList = getStubList(outputStub);
+            pipeline += curPriorNodeComponent.getName() + ".outputs['"+stubList.get(0)+"'],";
         }
         //拼接参数
         componentParameterList = componentParameterMapper.selectComponentParameterByComponentId(componentId);
@@ -224,6 +212,8 @@ public class DlWorkflowServiceImpl implements DlWorkflowService {
     }
     //得到输入桩或输出桩的参数列表
     private List<String> getStubList(String inputStub){
+        if(inputStub.equals(""))
+            return null;
         List<String> inputStubList = new ArrayList<>();
         inputStub=inputStub.substring(1,inputStub.length()-1);
         String[] s = inputStub.split(",");

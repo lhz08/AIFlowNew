@@ -53,10 +53,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web-services</artifactId>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-web-services</artifactId>-->
+<!--		</dependency>-->
 		<!--Redis Session外部存储依赖-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -72,17 +72,17 @@
 			<artifactId>jedis</artifactId>
 		</dependency>
 
-		<!--mybatis-->
-		<dependency>
-			<groupId>org.mybatis</groupId>
-			<artifactId>mybatis-spring</artifactId>
-			<version>2.0.5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mybatis</groupId>
-			<artifactId>mybatis</artifactId>
-			<version>3.5.5</version>
-		</dependency>
+<!--		&lt;!&ndash;mybatis&ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.mybatis</groupId>-->
+<!--			<artifactId>mybatis-spring</artifactId>-->
+<!--			<version>2.0.5</version>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.mybatis</groupId>-->
+<!--			<artifactId>mybatis</artifactId>-->
+<!--			<version>3.5.5</version>-->
+<!--		</dependency>-->
 
 		<!-- mybatis 分页插件-->
 		<dependency>
@@ -188,28 +188,28 @@
 			<version>28.0-jre</version>
 		</dependency>
 
-		<!--依赖集合-->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-dependencies</artifactId>
-			<version>2.1.16.RELEASE</version>
-			<type>pom</type>
-			<scope>import</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>slf4j-api</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jul-to-slf4j</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+<!--		&lt;!&ndash;依赖集合&ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-dependencies</artifactId>-->
+<!--			<version>2.1.16.RELEASE</version>-->
+<!--			<type>pom</type>-->
+<!--			<scope>import</scope>-->
+<!--			<exclusions>-->
+<!--				<exclusion>-->
+<!--					<artifactId>slf4j-log4j12</artifactId>-->
+<!--					<groupId>org.slf4j</groupId>-->
+<!--				</exclusion>-->
+<!--				<exclusion>-->
+<!--					<artifactId>slf4j-api</artifactId>-->
+<!--					<groupId>org.slf4j</groupId>-->
+<!--				</exclusion>-->
+<!--				<exclusion>-->
+<!--					<artifactId>jul-to-slf4j</artifactId>-->
+<!--					<groupId>org.slf4j</groupId>-->
+<!--				</exclusion>-->
+<!--			</exclusions>-->
+<!--		</dependency>-->
 
 		<!--lombok插件-->
 		<dependency>

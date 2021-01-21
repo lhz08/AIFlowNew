@@ -28,27 +28,28 @@ public class DlWorkflowController {
     @Autowired
     DlWorkflowService dlWorkflowService;
 
-//    @ResponseBody
-//    @ApiOperation(value = "保存流程")
-//    @RequestMapping(value = "/createAndSaveWorkflow", method = RequestMethod.POST)
-//    public ResponseResult createAndSaveWorkflow(@RequestParam String workflowName,
-//                                                @RequestParam String tagString,
-//                                                @RequestParam String workflowDesc,
-//                                                @RequestParam String workflowXml,
-//                                                @RequestParam String ggeditorObjectString,
-//                                                HttpSession httpSession
-//    ){
-//
-//        return new ResponseResult();
-//    }
+    @ResponseBody
+    @ApiOperation(value = "保存流程")
+    @RequestMapping(value = "/createAndSaveWorkflow", method = RequestMethod.POST)
+    public ResponseResult createAndSaveWorkflow(@RequestParam String workflowName,
+                                                @RequestParam String tagString,
+                                                @RequestParam String workflowDesc,
+                                                @RequestParam String workflowXml,
+                                                @RequestParam String ggeditorObjectString,
+                                                HttpSession httpSession
+    ){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+
+
+        return new ResponseResult();
+    }
 
     @ResponseBody
     @ApiOperation(value = "test")
     @RequestMapping(value = "/createAndSaveWorkflow", method = RequestMethod.GET)
     public ResponseResult test(){
-        dlWorkflowService.generateDLPipeline("E:\\home\\workflowXml\\20210112\\6c8aaba0-529e-44d2-9cdc-053b51b10e9d.xml",6);
+        dlWorkflowService.generateDLPipeline("E:\\home\\workflowXml\\6c8aaba0-529e-44d2-9cdc-053b51b10e9d.xml",6);
         return new ResponseResult();
     }
-
 
 }

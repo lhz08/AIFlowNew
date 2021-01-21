@@ -51,6 +51,7 @@
                  component_info.input_stub as inputStub,
                  component_info.output_stub as outputStub,
                  component_info.component_desc as componentDesc,
+                 component_info.image as componentImage,
                  component_info.component_name_chs as componentNameChs
           from component_info
           where component_info.id = #{id}
@@ -64,6 +65,7 @@
                  component_info.input_stub as inputStub,
                  component_info.output_stub as outputStub,
                  component_info.component_desc as componentDesc,
+                 component_info.image as componentImage,
                  component_info.component_name_chs as componentNameChs
         from component_info
           where component_info.is_custom = 0

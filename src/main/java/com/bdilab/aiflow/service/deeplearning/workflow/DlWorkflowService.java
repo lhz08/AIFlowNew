@@ -1,5 +1,7 @@
 package com.bdilab.aiflow.service.deeplearning.workflow;
 
+import com.bdilab.aiflow.model.workflow.EpochInfo;
+
 import java.util.Map;
 
 /**
@@ -10,6 +12,8 @@ import java.util.Map;
 
 public interface DlWorkflowService {
 
-
     public Map generateDLPipeline(String workflowXmlAddr,Integer userId);
+
+
+
 }

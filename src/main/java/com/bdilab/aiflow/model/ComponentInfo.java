@@ -89,6 +89,14 @@ public class ComponentInfo {
      */
     private String componentDesc;
 
+    public String getComponentImage() {
+        return componentImage;
+    }
+
+    public void setComponentImage(String componentImage) {
+        this.componentImage = componentImage;
+    }
+
     private String componentImage;
 
     public String getComponentNameChs() {

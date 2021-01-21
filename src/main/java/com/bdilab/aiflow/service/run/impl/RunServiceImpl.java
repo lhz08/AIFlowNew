@@ -14,6 +14,7 @@ import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.model.run.ApiParameter;
 import com.bdilab.aiflow.model.run.ApiPipelineSpec;
 import com.bdilab.aiflow.model.run.ApiRun;
+import com.bdilab.aiflow.model.workflow.EpochInfo;
 import com.bdilab.aiflow.service.run.RunService;
 import com.google.gson.Gson;
 import io.swagger.models.auth.In;
@@ -100,6 +101,11 @@ public class RunServiceImpl implements RunService {
         experimentRunning.setEndTime(new Date());
         experimentRunningMapper.updateExperimentRunning(experimentRunning);
         return true;
+
+    }
+
+    public void pushEpochInfo(String processLogId, EpochInfo epochInfo, String modelFilePath, String conversionId){
+
 
     }
     public String getComponentId(String string){

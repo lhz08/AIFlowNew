@@ -53,6 +53,14 @@ public class FilePathConfig {
         this.datasetPath = datasetPath;
     }
 
+    public String getData_dir() {
+        return data_dir;
+    }
+
+    public void setData_dir(String data_dir) {
+        this.data_dir = data_dir;
+    }
+
     /**
      * 上传dataset地址
      */

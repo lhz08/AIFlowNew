@@ -1,5 +1,7 @@
 package com.bdilab.aiflow.service.run;
 
+import com.bdilab.aiflow.model.workflow.EpochInfo;
+
 import java.util.Map;
 
 /**
@@ -19,5 +21,5 @@ public interface RunService {
     String createRun(String pipelineId, String pipelineName, Map<String,Object> parameter);
 
     boolean deleteRunById(String runId);
-
+    void pushEpochInfo(String processLogId, EpochInfo epochInfo, String modelFilePath, String conversionId);
 }
