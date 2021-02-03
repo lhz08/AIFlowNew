@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bdilab.aiflow.mapper.DatasetMapper">
+  <resultMap id="ResultMap" type="com.bdilab.aiflow.model.Dataset">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="fk_user_id" jdbcType="INTEGER" property="fkUserId" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="is_deleted" jdbcType="TINYINT" property="isDeleted" />
+    <result column="dataset_addr" jdbcType="VARCHAR" property="datasetAddr" />
+    <result column="dataset_desc" jdbcType="LONGVARCHAR" property="datasetDesc" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+    <select id="getPublicDataset" resultMap="ResultMap">
+            select *
+            from dataset
+            where type=0 and is_deleted=0
+    </select>
+
+    <select id="getUserDataset" parameterType="Integer" resultMap="ResultMap">
+        select *
+        from dataset
+        where type=1 and is_deleted=0 and fk_user_id=#{userId}
+    </select>
+
+    <insert id="insertDataset" parameterType="com.bdilab.aiflow.model.Dataset">
+        INSERT INTO dataset(name,type,fk_user_id,tags,is_deleted,dataset_addr,dataset_desc,create_time)
+        VALUES (#{name},#{type},#{fkUserId},#{tags},#{isDeleted},#{datasetAddr},#{datasetDesc},#{createTime})
+    </insert>
+
+    <select id="selectDatasetById" resultMap="ResultMap" parameterType="Integer">
+        select *
+        from dataset
+        where id=#{datasetId}
+    </select>
+
+    <update id="deleteDatasetById" parameterType="Integer">
+        update dataset
+        set is_deleted=1
+        where id=#{datasetId}
+    </update>
+
+    <delete id="deleteDatasetCompletelyById" parameterType="Integer">
+        delete from dataset
+        where id=#{datasetId} and is_deleted=1
+     </delete>
+
+    <select id="getDatasetInTrash" parameterType="Integer" resultMap="ResultMap">
+        select *
+        from dataset
+        where type=1 and is_deleted=1 and fk_user_id=#{userId}
+    </select>
+
+    <update id="restoreDataset" parameterType="Integer">
+        update dataset
+        set is_deleted=0
+        where id=#{datasetId}
+    </update>
+
+    <select id="fuzzySelectPublicDatasetByName" parameterType="String" resultMap="ResultMap">
+        select *
+        from dataset
+        where type=0 and is_deleted=0
+        <if test="datasetName!=null">and dataset.name like '%${datasetName}%'</if>
+        order by create_time desc
+    </select>
+
+    <select id="fuzzySelectUserDatasetByName" resultMap="ResultMap">
+        select *
+        from dataset
+        where dataset.type=1 and dataset.is_deleted=0 and dataset.fk_user_id=#{userId}
+        <if test="datasetName!=null">and dataset.name like '%${datasetName}%'</if>
+        order by create_time desc
+    </select>
+
+    <select id="fuzzySelectPublicDatasetByTags" parameterType="String" resultMap="ResultMap">
+        select *
+        from dataset
+        where type=0 and is_deleted=0
+        <if test="datasetTags!=null">and dataset.tags like '%${datasetTags}%'</if>
+        order by create_time desc
+    </select>
+
+    <select id="fuzzySelectUserDatasetByTags" resultMap="ResultMap">
+        select *
+        from dataset
+        where type=1 and is_deleted=0 and fk_user_id=#{userId}
+        <if test="datasetTags!=null">and dataset.tags like '%${datasetTags}%'</if>
+        order by create_time desc
+    </select>
+</mapper>

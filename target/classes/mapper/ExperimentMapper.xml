@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bdilab.aiflow.mapper.ExperimentMapper">
+
+   <!--useGeneratedKeys设置为 true 时，表示如果插入的表id以自增列为主键，则允许 JDBC 支持自动生成主键，并可将自动生成的主键id返回-->
+    <insert id="insertExperiment" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.Experiment">
+        INSERT INTO experiment(name,fk_user_id, fk_workflow_id, is_deleted, param_json_string, is_mark_template, experiment_desc, create_time)
+        VALUES (#{name},#{fkUserId}, #{fkWorkflowId}, #{isDeleted}, #{paramJsonString}, #{isMarkTemplate},#{experimentDesc},#{createTime});
+    </insert>
+
+    <!--更新Experiment信息-->
+    <update id="updateExperiment"  parameterType="com.bdilab.aiflow.model.Experiment">
+        update experiment
+        <trim prefix="set" suffixOverrides=",">
+            <if test="name!=null">name=#{name},</if>
+            <if test="fkWorkflowId!=null">fk_workflow_id=#{fkWorkflowId},</if>
+            <if test="experimentDesc!=null">experiment_desc=#{experimentDesc},</if>
+            <if test="paramJsonString!=null">param_json_string=#{paramJsonString},</if>
+            <if test="isDeleted!=null">is_deleted=#{isDeleted},</if>
+            <if test="isMarkTemplate!=null">is_mark_template=#{isMarkTemplate},</if>
+            <if test="createTime!=null">create_time=#{createTime}</if>
+        </trim>
+        where experiment.id=#{id}
+    </update>
+
+    <update id="updateExperimentIsMarkTemplate" parameterType="com.bdilab.aiflow.model.Experiment">
+        update experiment
+        <set>
+            <if test="isMarkTemplate != null">is_mark_template = #{isMarkTemplate},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectExperimentById" parameterType="Integer" resultType="com.bdilab.aiflow.model.Experiment">
+         select experiment.id as id,
+                experiment.name as name,
+                experiment.fk_user_id as fkUserId,
+                experiment.fk_workflow_id as fkWorkflowId,
+                experiment.is_deleted as isDeleted,
+                experiment.param_json_string as paramJsonString,
+                experiment.is_mark_template as isMarkTemplate,
+                experiment.experiment_desc as experimentDesc,
+                experiment.create_time as createTime
+         from experiment
+         where experiment.id = #{experimentId}
+   </select>
+
+    <select id="getAllExperimentByWorkflowIdAndIsDeleted"  parameterType="com.bdilab.aiflow.model.Experiment" resultType="com.bdilab.aiflow.model.Experiment">
+         select experiment.id as id,
+                experiment.name as name,
+                experiment.fk_user_id as fkUserId,
+                experiment.fk_workflow_id as fkWorkflowId,
+                experiment.is_deleted as isDeleted,
+                experiment.param_json_string as paramJsonString,
+                experiment.is_mark_template as isMarkTemplate,
+                experiment.experiment_desc as experimentDesc,
+                experiment.create_time as createTime
+         from experiment
+         where experiment.fk_workflow_id = #{fkWorkflowId}
+        <if test="name != null"> and experiment.name = #{name}</if>
+        <if test="isDeleted != null"> and experiment.is_deleted = #{isDeleted}</if>
+    </select>
+
+    <select id="selectAllExperimentByisDeleted"  parameterType="Integer" resultType="com.bdilab.aiflow.model.Experiment">
+         select experiment.id as id,
+                experiment.name as name,
+                experiment.fk_user_id as fkUserId,
+                experiment.fk_workflow_id as fkWorkflowId,
+                experiment.is_deleted as isDeleted,
+                experiment.param_json_string as paramJsonString,
+                experiment.is_mark_template as isMarkTemplate,
+                experiment.experiment_desc as experimentDesc,
+                experiment.create_time as createTime
+         from experiment
+         where experiment.is_deleted = #{isDeleted}
+    </select>
+
+    <select id="selectRecentExperiment"  resultType="com.bdilab.aiflow.model.Experiment">
+         select experiment.id as id,
+                experiment.name as name,
+                experiment.fk_workflow_id as fkWorkflowId,
+                experiment.is_deleted as isDeleted,
+                experiment.fk_user_id as fkUserId,
+                experiment.param_json_string as paramJsonString,
+                experiment.is_mark_template as isMarkTemplate,
+                experiment.experiment_desc as experimentDesc,
+                experiment.create_time as createTime
+         from experiment
+         where experiment.fk_user_id = #{userId} order by experiment.create_time desc  limit #{experimentNum}
+    </select>
+
+
+    <delete id="deleteExperimentById" parameterType="Integer">
+        delete from experiment
+        where experiment.id=#{experimentId}
+    </delete>
+
+    <select id="selectExperimentByWorkflowId" parameterType="Integer" resultType="Integer">
+        select experiment.id from experiment
+        where experiment.fk_workflow_id=#{workflowId}
+    </select>
+
+    <select id="selectWorkflowByExperimentId" parameterType="Integer" resultType="Integer">
+        select experiment.fk_workflow_id as fkWorkflowId
+        from experiment
+        where experiment.id = #{experimentId}
+    </select>
+</mapper>
