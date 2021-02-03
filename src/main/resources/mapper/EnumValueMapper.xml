@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.bdilab.aiflow.mapper.EnumValueMapper">
+
+    <select id="selectEnumValueByVariableId" resultType="com.bdilab.aiflow.model.EnumValue">
+        select enum_value.id as id,
+        enum_value.fk_component_variable_id as fkComponentVariableId,
+        enum_value.value as  value,
+        enum_value.enum_des as enumDes
+        from enum_value where enum_value.fk_component_variable_id = #{varaibleId}
+    </select>
+
+    <insert id="insertEnumValue" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.EnumValue">
+        INSERT INTO enum_value(fk_component_variable_id, value, enum_des) VALUES (#{fkComponentVariableId}, #{value}, #{enumDes});
+    </insert>
+
+    <delete id="deleteEnumValues">
+        delete from enum_value where enum_value.id IN
+        <foreach collection="idList" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+</mapper>
