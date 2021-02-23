@@ -99,4 +99,10 @@
         select experiment.id from experiment
         where experiment.fk_workflow_id=#{workflowId}
     </select>
+
+    <select id="selectWorkflowByExperimentId" parameterType="Integer" resultType="Integer">
+        select experiment.fk_workflow_id as fkWorkflowId
+        from experiment
+        where experiment.id = #{experimentId}
+    </select>
 </mapper>

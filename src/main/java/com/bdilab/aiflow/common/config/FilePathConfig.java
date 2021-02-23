@@ -53,12 +53,8 @@ public class FilePathConfig {
         this.datasetPath = datasetPath;
     }
 
-    public String getData_dir() {
-        return data_dir;
-    }
-
-    public void setData_dir(String data_dir) {
-        this.data_dir = data_dir;
+    public void setFileTempPath(String fileTempPath) {
+        this.fileTempPath = fileTempPath;
     }
 
     /**
@@ -67,9 +63,18 @@ public class FilePathConfig {
     @Value("${user.dataset.path}")
     private String datasetUrl;
 
-
     public String getDatasetUrl(){
         return datasetUrl;
+    }
+
+    /**
+     * 存放临时文件路径
+     */
+    @Value("${file.temp.path}")
+    private String fileTempPath;
+
+    public String getFileTempPath() {
+        return fileTempPath;
     }
 
 

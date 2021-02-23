@@ -64,4 +64,11 @@ public interface ExperimentRunningMapper {
      */
     List<ExperimentRunning> selectRecentExperimentRunning(@Param("userId") Integer userId, @Param("experimentRunningNum") Integer experimentRunningNum);
 
+    /**
+     * @Author Lei junting
+     * 根据实验运行id获取实验id
+     * @param runningId
+     * @return
+     */
+    Integer selectExperienceId(Integer runningId);
 }

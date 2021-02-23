@@ -2,6 +2,7 @@ package com.bdilab.aiflow.mapper;
 
 import com.bdilab.aiflow.model.ComponentInfo;
 import com.bdilab.aiflow.model.component.CustomComponentInfo;
+import com.bdilab.aiflow.model.component.CustomComponentInfo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public interface ComponentInfoMapper {
      * @return
      */
     ComponentInfo selectComponentInfoById(Integer id);
+
     int insertComponentInfo(ComponentInfo componentInfo);
 
     List<String> selectComponentYamlAddr(List<Integer> fkComponentInfoIds);

@@ -10,11 +10,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpSession;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
@@ -36,32 +38,70 @@ public class CustomComponentController {
     @Value("/home/customComponent/headfile/init.yaml")
     private String customHeadFileYaml;
 
+
     /**
      * 创建自定义组件
-     * @param componentFile 要保存的yaml文件，流程组件没有yaml文件
-     * @param componentCreateInfo 专门用来保存组件创建信息的对象
+     * 假定用户已经上传至harbor，只需要传入yaml名称，现在存储位置为/home/pipelineYaml/
+     * @param yamlFileName 不带.yaml
+     * @param componentCreateInfo
+     * @param httpSession
      * @return
      */
     @ResponseBody
     @ApiOperation("创建自定义组件")
     @RequestMapping(value = "/customComponent/createComponent", method = RequestMethod.POST)
-    public ResponseResult createComponent(@RequestPart @ApiParam(value = "componentFile") MultipartFile componentFile,
-                                          @RequestPart @ApiParam(value = "component") ComponentCreateInfo componentCreateInfo,
+    public ResponseResult createComponent(@RequestParam @ApiParam("yamlFileName")  String yamlFileName,
+                                          @RequestPart  @ApiParam("componentCreateInfo")ComponentCreateInfo componentCreateInfo,
                                           HttpSession httpSession) {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         if(userId == null){
             return new ResponseResult(false,"500","用户未登录");
         }
-        System.out.println(componentCreateInfo);
-        System.out.println("file:"+componentFile.getOriginalFilename());
 
-        boolean isCreateSuccess = customComponentService.saveComponent(userId, componentFile, componentCreateInfo);
+        System.out.println(componentCreateInfo);
+        System.out.println("yamlFileName:"+yamlFileName);
+
+        boolean isCreateSuccess = customComponentService.saveComponent(userId, yamlFileName, componentCreateInfo);
         if (isCreateSuccess) {
             return new ResponseResult(true, "001", "Created successfully");
         } else {
             return new ResponseResult(false, "002", "Created failed.");
         }
     }
+
+//    /**
+//     * 创建自定义组件
+//     * (实际考虑直接上传文件)
+//     * 前端组装componentCreateInfo信息由用户填入：
+//     * componentInfo:组件name，tags,yaml文件，输入列表(string,string)，输出列表(string,string)，描述，中文名
+//     * componentParameter列表中的每个参数:参数name，参数类型(int)，默认值，描述
+//     * 其余信息：组件类型(0算法,1流程,2模型)，组件源sourceId，
+
+//     * @param componentFile 要保存的yaml文件，流程组件没有yaml文件
+//     *                      getOriginalFilename()：用来得到文件名
+//     * @param componentCreateInfo 专门用来保存组件创建信息的对象
+//     * @return
+//     */
+//    @ResponseBody
+//    @ApiOperation("创建自定义组件")
+//    @RequestMapping(value = "/customComponent/createComponent", method = RequestMethod.POST)
+//    public ResponseResult createComponent(@RequestPart @ApiParam(value = "componentFile") MultipartFile componentFile,
+//                                          @RequestPart @ApiParam(value = "component") ComponentCreateInfo componentCreateInfo,
+//                                          HttpSession httpSession) {
+//        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+//        if(userId == null){
+//            return new ResponseResult(false,"500","用户未登录");
+//        }
+//        System.out.println(componentCreateInfo);
+//        System.out.println("file:"+componentFile.getOriginalFilename());
+//
+//        boolean isCreateSuccess = customComponentService.saveComponent(userId, componentFile, componentCreateInfo);
+//        if (isCreateSuccess) {
+//            return new ResponseResult(true, "001", "Created successfully");
+//        } else {
+//            return new ResponseResult(false, "002", "Created failed.");
+//        }
+//    }
 
     /**
      * 删除自定义组件到回收站
@@ -170,20 +210,20 @@ public class CustomComponentController {
         return new ResponseResult(false, "002","搜索失败",null,0);
     }
 
-    @ResponseBody
-    @ApiOperation("分页展示用户自定义组件信息")
-    @RequestMapping(value = "/customComponent/getCustomComponentInfo", method = RequestMethod.POST)
-    public ResponseResult getCustomComponentInfo(@RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,
-                                                  @RequestParam(defaultValue = "10")@ApiParam(value = "每页记录数") int pageSize,
-                                                  @RequestParam(value = "type") int type,
-                                                  HttpSession httpSession) {
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        if(userId == null){
-            return new ResponseResult(false,"500","用户未登录");
-        }
-        int isDeleted = 0;
-        PageInfo<CustomComponentInfo> data = customComponentService.getCustomComponentByUserIdAndType(userId,pageNum,pageSize,type,isDeleted);
-        return new ResponseResult(true,"001","成功获得用户组件信息",data,(int)data.getTotal());
+        @ResponseBody
+        @ApiOperation("分页展示用户自定义组件信息")
+        @RequestMapping(value = "/customComponent/getCustomComponentInfo", method = RequestMethod.POST)
+        public ResponseResult getCustomComponentInfo(@RequestParam(defaultValue = "1")@ApiParam(value = "页码") int pageNum,
+        @RequestParam(defaultValue = "10")@ApiParam(value = "每页记录数") int pageSize,
+        @RequestParam(value = "type") int type,
+        HttpSession httpSession) {
+            Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+            if(userId == null){
+                return new ResponseResult(false,"500","用户未登录");
+            }
+            int isDeleted = 0;
+            PageInfo<CustomComponentInfo> data = customComponentService.getCustomComponentByUserIdAndType(userId,pageNum,pageSize,type,isDeleted);
+            return new ResponseResult(true,"001","成功获得用户组件信息",data,(int)data.getTotal());
     }
 
     @ResponseBody
@@ -256,24 +296,6 @@ public class CustomComponentController {
             return new ResponseResult(false,"002","Deleted failed.");
         }
     }
-
-    @ResponseBody
-    @ApiOperation("保存自定义算法组件")
-    @RequestMapping(value = "/customComponent/saveCustomAlgorithmComponent",method = RequestMethod.POST)
-    public ResponseResult saveCustomAlgorithmComponent(){
-
-        return new ResponseResult();
-    }
-
-
-    @ResponseBody
-    @ApiOperation("下载自定义算法组件头文件")
-    @RequestMapping(value = "/customComponent/downloadHeaFile",method = RequestMethod.POST)
-    public ResponseResult downloadHeaFile() {
-
-        return new ResponseResult();
-    }
-
 
 
 }

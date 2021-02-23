@@ -13,7 +13,9 @@ import com.bdilab.aiflow.service.component.CustomComponentService;
 import com.bdilab.aiflow.vo.ComponentInfoVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.hadoop.hbase.regionserver.RegionServerRunningException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.ConditionalOnEnabledResourceChain;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,10 +46,21 @@ public class CustomComponentServiceImpl implements CustomComponentService {
     @Resource
     WorkflowComponentMapper workflowComponentMapper;
 
+    @Resource
+    WorkflowMapper workflowMapper;
 
+
+    /**
+     * 一共需要组装三张表信息:compontentInfo,componentParameter,customComponent
+     * 这个接口现在只服务算法组件
+     * @param userId              用户id
+     * @param yamlFileName        要保存的yaml文件名称，不带.yaml
+     * @param componentCreateInfo 专门用来保存组件创建信息的对象
+     * @return
+     */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Boolean saveComponent(Integer userId, MultipartFile componentFile, ComponentCreateInfo componentCreateInfo) {
+    public Boolean saveComponent(Integer userId, String yamlFileName, ComponentCreateInfo componentCreateInfo) {
 
         ComponentInfo componentInfo = componentCreateInfo.getComponentInfo();
         List<ComponentParameter> componentParam = componentCreateInfo.getComponentParamList();
@@ -55,86 +68,206 @@ public class CustomComponentServiceImpl implements CustomComponentService {
         //组装ComponentInfo对象
         componentInfo.setIsCustom((byte) 1);
 
-        //组装、存储组件yaml文件
-        if (!componentFile.isEmpty() && componentCreateInfo.getComponentType()!=2) {
-            String direcrotyPath = "";
-            switch (componentCreateInfo.getComponentType()) {
-                case 1:
-                    direcrotyPath = "algorithm"; break;
-                case 3:
-                    direcrotyPath = "model"; break;
-                default:
-                    direcrotyPath = "";
-            }
+        //组装、存储自定义组件yaml文件目录
+        //0-算法，1-流程(流程没有yaml)，2-模型
+ //       if (componentCreateInfo.getComponentType() != 1) {
 
-            String yamlFilePath = filePathConfig.getComponentYamlPath() + File.separator +
-                    direcrotyPath + File.separator + userId + "_" +componentCreateInfo.getComponentInfo().getName() + ".yaml";
-            File dest = new File(yamlFilePath);
-            try {
-                componentFile.transferTo(dest);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
+            String yamlFilePath = "/home/pipelineYaml/" + yamlFileName + ".yaml";
             componentInfo.setComponentYamlAddr(yamlFilePath);
-        }
+ //       }
 
         //组装inputStub对象
         StringBuilder inputStubBuilder = new StringBuilder();
         List<InputStubInfo> inputList = componentCreateInfo.getInputStubInfoList();
         for (InputStubInfo input : inputList) {
-            inputStubBuilder.append(input.getInputName()+":");
-            inputStubBuilder.append(input.getInputType()+",");
+            inputStubBuilder.append(input.getInputName() + ":");
+            inputStubBuilder.append(input.getInputType() + ",");
         }
-        inputStubBuilder.deleteCharAt(inputStubBuilder.length()-1);
-        componentInfo.setInputStub(inputStubBuilder.toString());
+        inputStubBuilder.deleteCharAt(inputStubBuilder.length() - 1);
+        componentInfo.setInputStub("{"+inputStubBuilder.toString()+"}");
 
         //组装outputStub对象
         StringBuilder outputStubBuilder = new StringBuilder();
         List<OutputStubInfo> outputList = componentCreateInfo.getOutputStubInfoList();
         for (OutputStubInfo output : outputList) {
-            outputStubBuilder.append(output.getOutputName()+":");
-            outputStubBuilder.append(output.getOutputType()+",");
+            outputStubBuilder.append(output.getOutputName() + ":");
+            outputStubBuilder.append(output.getOutputType() + ",");
         }
-        outputStubBuilder.deleteCharAt(outputStubBuilder.length()-1);
-        componentInfo.setOutputStub(outputStubBuilder.toString());
+        outputStubBuilder.deleteCharAt(outputStubBuilder.length() - 1);
+        componentInfo.setOutputStub("{"+outputStubBuilder.toString()+"}");
+        if(componentCreateInfo.getComponentInfo().getComponentNameChs()==null
+                ||componentCreateInfo.getComponentInfo().getComponentNameChs().length()==0){
+            componentInfo.setComponentNameChs(componentInfo.getName());
+        }
 
+        //先置入componentInfo
         int isInfoSuccess = componentInfoMapper.insertComponentInfo(componentInfo);
 
         //组装ComponentParameter对象
-        if (isInfoSuccess > 0) {
+        if (isInfoSuccess <= 0) {
+
+            return false;
+        }
+        //向表中插入所有参数
+        int isParamSuccess;
+        //没有参数的情况
+        if(componentParam==null||componentParam.size()==0){
+            isParamSuccess=1;
+        }
+        else {
+            //对每个参数设置组件id
             for (ComponentParameter param : componentParam) {
                 param.setFkComponentInfoId(componentInfo.getId());
             }
-        } else {
-            return false;
+            isParamSuccess = componentParamMapper.insertComponentParam(componentParam);
         }
 
-        int isParamSuccess = componentParamMapper.insertComponentParam(componentParam);
+        CustomComponent customComponent = new CustomComponent();
         if (isParamSuccess > 0) {
             System.out.println(componentInfo);
             System.out.println(componentCreateInfo.getComponentParamList());
 
             //组装customComponent对象
-            CustomComponent customComponent = new CustomComponent();
+
             customComponent.setFkUserId(userId);
             customComponent.setFkComponentInfoId(componentInfo.getId());
             customComponent.setIsDeleted((byte) 0);
             customComponent.setType(componentCreateInfo.getComponentType());
-            customComponent.setSourceId(componentCreateInfo.getSourceId());
+            customComponent.setSourceId(userId.toString());
             customComponent.setCreateTime(new Date());
+            System.out.println(customComponent);
+        } else {
+            return false;
+        }
 
-            int isCustomSuccess = customComponentMapper.insertCustomComponent(customComponent);
-            if (isCustomSuccess > 0) {
-                System.out.println(customComponent);
-                return true;
-            } else {
-                return false;
-            }
+        int isCustomSuccess = customComponentMapper.insertCustomComponent(customComponent);
+        //流程组件需要额外插入workflowComponent表，不写
+//        WorkflowComponent workflowComponent = new WorkflowComponent();
+        if (isCustomSuccess > 0) {
+            //流程组件继续插入
+//            if(componentCreateInfo.getComponentType() == 1){
+//                Workflow workflow = workflowMapper.selectWorkflowById(Integer.parseInt(componentCreateInfo.getSourceId()));
+//                workflowComponent.setName(componentCreateInfo.getComponentInfo().getName());
+//                workflowComponent.setTag(componentCreateInfo.getComponentInfo().getTags());
+//                workflowComponent.setWorkflowComponentDesc(componentCreateInfo.getComponentInfo().getComponentDesc());
+//                workflowComponent.setGgeditorObjectString(workflow.getGgeditorObjectString());
+//                workflowComponent.setIsDeleted((byte) 0);
+//                workflowComponent.setCreateTime(customComponent.getCreateTime());
+//                workflowComponent.setFkUserId(userId);
+//                System.out.println(workflowComponent);
+//                //流程组件插入也成功，结束
+//                if(workflowComponentMapper.insert(workflowComponent)>0) { return true; }
+//                else{ return false; }
+//            }
+            return true;
         } else {
             return false;
         }
     }
+
+
+//    /**
+//     * 一共需要组装三张表信息:compontentInfo,componentParameter,customComponent
+//     * @param userId 用户id
+//     * @param componentFile 要保存的yaml文件，流程组件没有yaml文件
+//     * @param componentCreateInfo 专门用来保存组件创建信息的对象
+//     * @return
+//     */
+//    @Transactional(rollbackFor = Exception.class)
+//    @Override
+//    public Boolean saveComponent(Integer userId, MultipartFile componentFile, ComponentCreateInfo componentCreateInfo) {
+//
+//        ComponentInfo componentInfo = componentCreateInfo.getComponentInfo();
+//        List<ComponentParameter> componentParam = componentCreateInfo.getComponentParamList();
+//
+//        //组装ComponentInfo对象
+//        componentInfo.setIsCustom((byte) 1);
+//
+//        //组装、存储自定义组件yaml文件目录
+//        //0-算法，1-流程(流程没有yaml)，2-模型
+//        if (!componentFile.isEmpty() && componentCreateInfo.getComponentType()!=1) {
+//            String direcrotyPath = "";
+//            switch (componentCreateInfo.getComponentType()) {
+//                case 0:
+//                    direcrotyPath = "algorithm"; break;
+//                case 2:
+//                    direcrotyPath = "model"; break;
+//                default:
+//                    direcrotyPath = "";
+//            }
+//
+//            String yamlFilePath = filePathConfig.getComponentYamlPath() + File.separator +
+//                    direcrotyPath + File.separator + userId + "_" +
+//                    componentCreateInfo.getComponentInfo().getName() + ".yaml";
+//            File dest = new File(yamlFilePath);
+//            try {
+//                componentFile.transferTo(dest);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                return false;
+//            }
+//            componentInfo.setComponentYamlAddr(yamlFilePath);
+//        }
+//
+//        //组装inputStub对象
+//        StringBuilder inputStubBuilder = new StringBuilder();
+//        List<InputStubInfo> inputList = componentCreateInfo.getInputStubInfoList();
+//        for (InputStubInfo input : inputList) {
+//            inputStubBuilder.append(input.getInputName()+":");
+//            inputStubBuilder.append(input.getInputType()+",");
+//        }
+//        inputStubBuilder.deleteCharAt(inputStubBuilder.length()-1);
+//        componentInfo.setInputStub(inputStubBuilder.toString());
+//
+//        //组装outputStub对象
+//        StringBuilder outputStubBuilder = new StringBuilder();
+//        List<OutputStubInfo> outputList = componentCreateInfo.getOutputStubInfoList();
+//        for (OutputStubInfo output : outputList) {
+//            outputStubBuilder.append(output.getOutputName()+":");
+//            outputStubBuilder.append(output.getOutputType()+",");
+//        }
+//        outputStubBuilder.deleteCharAt(outputStubBuilder.length()-1);
+//        componentInfo.setOutputStub(outputStubBuilder.toString());
+//
+//        //先置入componentInfo
+//        int isInfoSuccess = componentInfoMapper.insertComponentInfo(componentInfo);
+//
+//        //组装ComponentParameter对象
+//        if (isInfoSuccess > 0) {
+//            //对每个参数设置组件id
+//            for (ComponentParameter param : componentParam) {
+//                param.setFkComponentInfoId(componentInfo.getId());
+//            }
+//        } else {
+//            return false;
+//        }
+//
+//        //向表中插入所有参数
+//        int isParamSuccess = componentParamMapper.insertComponentParam(componentParam);
+//        if (isParamSuccess > 0) {
+//            System.out.println(componentInfo);
+//            System.out.println(componentCreateInfo.getComponentParamList());
+//
+//            //组装customComponent对象
+//            CustomComponent customComponent = new CustomComponent();
+//            customComponent.setFkUserId(userId);
+//            customComponent.setFkComponentInfoId(componentInfo.getId());
+//            customComponent.setIsDeleted((byte) 0);
+//            customComponent.setType(componentCreateInfo.getComponentType());
+//            customComponent.setSourceId(componentCreateInfo.getSourceId());
+//            customComponent.setCreateTime(new Date());
+//
+//            int isCustomSuccess = customComponentMapper.insertCustomComponent(customComponent);
+//            if (isCustomSuccess > 0) {
+//                System.out.println(customComponent);
+//                return true;
+//            } else {
+//                return false;
+//            }
+//        } else {
+//            return false;
+//        }
+//    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -165,7 +298,7 @@ public class CustomComponentServiceImpl implements CustomComponentService {
             //删除component_parameter表数据
             int isParamDeleteSuccess = componentParamMapper.deleteComponentPermanently(fkComponentInfoIds);
             System.out.println("param:"+isParamDeleteSuccess);
-            if (isParamDeleteSuccess > 0) {
+            if (isParamDeleteSuccess >= 0) {
 
                 //删除组件对应的yaml文件
                 List<String> yamlFilePath = componentInfoMapper.selectComponentYamlAddr(fkComponentInfoIds);
@@ -209,7 +342,7 @@ public class CustomComponentServiceImpl implements CustomComponentService {
         else {
             isSuccess=customComponentMapper.restoreComponent(componentIds);
         }
-        return isSuccess==1;
+        return isSuccess>=1;
     }
 
     @Override
@@ -240,7 +373,7 @@ public class CustomComponentServiceImpl implements CustomComponentService {
                 ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(customComponent.getFkComponentInfoId());
                 CustomComponentInfo customComponentInfo = new CustomComponentInfo();
                 customComponentInfo.setId(customComponent.getId());
-                customComponentInfo.setName(componentInfo.getComponentDesc());
+                customComponentInfo.setName(componentInfo.getName());
                 customComponentInfo.setComponentDesc(componentInfo.getComponentDesc());
                 customComponentInfo.setCreateTime(customComponent.getCreateTime());
                 customComponentInfo.setTags(componentInfo.getTags());

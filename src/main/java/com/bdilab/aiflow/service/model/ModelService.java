@@ -57,4 +57,11 @@ public interface ModelService {
 
     HttpServletResponse downloadModelFromMinio(Integer userId,Integer modelId,HttpServletResponse response);
 
+    /**
+     * 获取模型对应的实验id
+     * @Author Lei junting
+     * @param modelId
+     * @return
+     */
+    Integer getRunningId(Integer modelId);
 }

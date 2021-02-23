@@ -82,4 +82,20 @@ public interface ExperimentService {
      * @return
      */
     Map<Integer,String> isEdit(Integer experimentId);
+
+    /**
+     * 获取实验对应的流程id
+     * @Author lei junyting
+     * @param experimentId
+     * @return
+     */
+    Integer getWorkflowId(Integer experimentId);
+
+    /**
+     * 获取实验id对应的实验
+     * @Author lei junyting
+     * @param experimentId
+     * @return
+     */
+    Experiment getExperimentInfo(Integer experimentId);
 }

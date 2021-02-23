@@ -136,4 +136,10 @@
         set model.fk_running_id=null
         where model.id=#{modelid}
     </update>
+
+    <select id="getExperienceId" parameterType="Integer" resultType="Integer">
+        select IFNULL(MAX(model.fk_running_id),0) AS fkRunningId
+        from model
+        where model.id = #{id}
+    </select>
 </mapper>

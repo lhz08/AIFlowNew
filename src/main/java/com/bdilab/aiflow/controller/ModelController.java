@@ -2,11 +2,16 @@ package com.bdilab.aiflow.controller;
 
 import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
+import com.bdilab.aiflow.model.Experiment;
+import com.bdilab.aiflow.model.ExperimentRunning;
+import com.bdilab.aiflow.model.Workflow;
+import com.bdilab.aiflow.service.experiment.ExperimentRunningService;
+import com.bdilab.aiflow.service.experiment.ExperimentService;
 import com.bdilab.aiflow.service.model.ModelService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import com.bdilab.aiflow.service.workflow.WorkflowService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,6 +21,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -25,6 +32,15 @@ public class ModelController {
 
     @Autowired
     ModelService modelService;
+
+    @Autowired
+    ExperimentRunningService experimentRunningService;
+
+    @Autowired
+    ExperimentService experimentService;
+
+    @Autowired
+    WorkflowService workflowService;
 
     /*创建模型*/
     @ResponseBody
@@ -192,5 +208,40 @@ public class ModelController {
             return new ResponseResult(true, "001", "成功将模型封装成组件");
         }
         return new ResponseResult(true,"001","模型封装成组件失败");
+    }
+
+    @ResponseBody
+    @ApiOperation("定位模型")
+    @RequestMapping(value = "/model/positioningModel" , method = RequestMethod.POST)
+    public ResponseResult positioningModel(@RequestParam @ApiParam(value = "模型id") Integer modelId,HttpSession httpSession){
+        Integer experimentRunningId = modelService.getRunningId(modelId);
+        ResponseResult responseResult = new ResponseResult();
+        //如果experimentRunningId == 0 表示该模型是用户上传的，没有对应的实验
+        if(experimentRunningId == 0)
+            responseResult.setMeta(new MetaData(false,"002","定位模型实验失败"));
+        else{
+            ExperimentRunning experimentRunning = experimentRunningService.getExperienceRunningInfo(experimentRunningId);
+            Experiment experiment = experimentService.getExperimentInfo(experimentRunning.getFkExperimentId());
+            Workflow workflow = workflowService.selectWorkflowById(experiment.getFkWorkflowId());
+            if(experimentRunning.getIsDeleted() == 1 || experiment.getIsDeleted() == 1 || workflow.getIsDeleted() == 1){
+                responseResult.setMeta(new MetaData(false,"003","模型对应的实验运行或流程被删除"));
+            }
+            else {
+                Integer experimentId = experiment.getId();
+                Integer workflowId = workflow.getId();
+                //Integer experimentId = experimentRunningService.getExperienceId(experimentRunningId);
+                //Integer workflowId = experimentService.getWorkflowId(experimentId);
+                String s = workflow.getGgeditorObjectString();
+                //通过list返回给前端一组数据
+                List<Object> list = new ArrayList<>();
+                list.add(workflowId);
+                list.add(experimentId);
+                list.add(experimentRunningId);
+                list.add(s);
+                responseResult.setData(list);
+                responseResult.setMeta(new MetaData(true, "001", "定位模型实验成功"));
+            }
+        }
+        return responseResult;
     }
 }

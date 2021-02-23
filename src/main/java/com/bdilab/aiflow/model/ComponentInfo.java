@@ -1,10 +1,13 @@
 package com.bdilab.aiflow.model;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Data
+
 @Getter
 @Setter
 public class ComponentInfo {

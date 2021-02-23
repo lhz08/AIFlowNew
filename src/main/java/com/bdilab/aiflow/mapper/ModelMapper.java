@@ -69,4 +69,13 @@ public interface ModelMapper {
      * @return
      */
     int updateRunningIdNull(Integer modelId);
+
+    /**
+     * @Author Lei junting
+     * 获取模型的实验id
+     * @param modelId
+     * @return
+     */
+
+    int getExperienceId(Integer modelId);
 }

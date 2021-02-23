@@ -280,4 +280,13 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
         messageMap.put("message","停止实验成功");
         return messageMap;
     }
+    @Override
+    public ExperimentRunning getExperienceRunningInfo(Integer runningId){
+        return experimentRunningMapper.selectExperimentRunningByRunningId(runningId);
+    }
+
+    @Override
+    public Integer getExperienceId(Integer runningId){
+        return experimentRunningMapper.selectExperienceId(runningId);
+    }
 }

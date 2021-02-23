@@ -9,6 +9,13 @@ import java.util.List;
 public interface CustomComponentMapper {
 
     /**
+     * 根据id查找指定CustomComponent
+     * @param componentId
+     * @return
+     */
+    CustomComponent selectCustomComponentById(Integer componentId);
+
+    /**
      * 在custom_component表中插入自定义组件信息
      * @param customComponent 自定义组件信息
      * @return

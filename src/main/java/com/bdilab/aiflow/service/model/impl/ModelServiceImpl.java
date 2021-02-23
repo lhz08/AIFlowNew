@@ -252,4 +252,14 @@ public class ModelServiceImpl implements ModelService {
         return response;
     }
 
+    /**
+     * @Author Lei junting
+     * 根据模型的运行id获取实验，定位模型
+     * @param modelId
+     * @return
+     */
+    @Override
+    public Integer getRunningId(Integer modelId){
+        return modelMapper.getExperienceId(modelId);
+    }
 }

@@ -98,4 +98,9 @@
         where experiment_running.id=#{runningId}
     </delete>
 
+    <select id="selectExperienceId" parameterType="Integer" resultType="Integer">
+        select experiment_running.fk_experiment_id as fkExperimentId
+        from experiment_running
+        where experiment_running.id=#{runningId}
+    </select>
 </mapper>

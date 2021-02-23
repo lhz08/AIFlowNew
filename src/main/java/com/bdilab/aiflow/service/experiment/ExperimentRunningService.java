@@ -71,4 +71,21 @@ public interface ExperimentRunningService {
      * @param runningId
      */
     Map<String,Object> stopExperimentRunning(Integer runningId);
+
+    /**
+     * 根据实验运行id获取实验id
+     * @Author Lei junting
+     * @param runningId
+     * @return
+     */
+    Integer getExperienceId(Integer runningId);
+
+    /**
+     * @Author Lei junting
+     * 根据实验运行id获取实验运行
+     * @param runningId
+     * @return
+     */
+
+    ExperimentRunning getExperienceRunningInfo(Integer runningId);
 }

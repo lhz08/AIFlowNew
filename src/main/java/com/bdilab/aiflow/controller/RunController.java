@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author smile
@@ -43,8 +46,8 @@ public class RunController {
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "IP_port") String IP_port,
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "resultPath")String resultPath,
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "resultTable") String resultTable){
-        System.out.println("test"+processInstanceId+" "+taskId+" "+conversationId+resultTable);
         boolean isInProcess = runService.pushData(processInstanceId,taskId,conversationId,resultTable);
+        System.out.println(processInstanceId+" "+taskId+" "+conversationId+resultPath);
         if(isInProcess){
             return new ResponseResult(true,"001","已完成id为"+taskId+"的任务");
         }

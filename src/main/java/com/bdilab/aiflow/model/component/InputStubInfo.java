@@ -1,5 +1,6 @@
 package com.bdilab.aiflow.model.component;
 
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 /**

@@ -339,4 +339,13 @@ public class ExperimentServiceImpl implements ExperimentService {
         }
         return result;
     }
+    @Override
+    public Integer getWorkflowId(Integer experimentId){
+        return experimentMapper.selectWorkflowByExperimentId(experimentId);
+    }
+
+    @Override
+    public Experiment getExperimentInfo(Integer experimentId){
+        return  experimentMapper.selectExperimentById(experimentId);
+    }
 }

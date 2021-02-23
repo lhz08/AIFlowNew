@@ -13,14 +13,24 @@ import java.util.Map;
 
 public interface CustomComponentService {
 
+
     /**
      * 保存自定义组件
      * @param userId 用户id
-     * @param componentFile 要保存的yaml文件，流程组件没有yaml文件
+     * @param yamlFileName 要保存的yaml文件名称，不带.yaml
      * @param componentCreateInfo 专门用来保存组件创建信息的对象
      * @return
      */
-    Boolean saveComponent(Integer userId, MultipartFile componentFile, ComponentCreateInfo componentCreateInfo);
+    Boolean saveComponent(Integer userId, String yamlFileName, ComponentCreateInfo componentCreateInfo);
+
+//    /**
+//     * 保存自定义组件
+//     * @param userId 用户id
+//     * @param componentFile 要保存的yaml文件，流程组件没有yaml文件
+//     * @param componentCreateInfo 专门用来保存组件创建信息的对象
+//     * @return
+//     */
+//    Boolean saveComponent(Integer userId, MultipartFile componentFile, ComponentCreateInfo componentCreateInfo);
 
     /**
      * 删除自定义组件到回收站

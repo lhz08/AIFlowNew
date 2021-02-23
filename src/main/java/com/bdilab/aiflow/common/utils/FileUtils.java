@@ -111,6 +111,31 @@ public class FileUtils {
         return file;
     }
 
+    /**
+     * 删除某个目录及目录下的所有子目录和文件
+     * @author liran
+     * @param file 文件或目录
+     * @return 删除结果
+     */
+    public static boolean delFiles(File file){
+        if(!file.exists())return true;
+
+        boolean result = false;
+        //目录
+        if(file.isDirectory()){
+            File[] childrenFiles = file.listFiles();
+            for (File childFile:childrenFiles){
+                result = delFiles(childFile);
+                if(!result){
+                    return result;
+                }
+            }
+        }
+        //删除 文件、空目录
+        result = file.delete();
+        return result;
+    }
+
     public static void main(String[] args) {
         List<String[]> strings = csvContentPreview("C:\\Users\\cuishaohui\\Desktop\\c37164e8-a4ce-4fd2-8c92-385265ebdbd9.csv");
         for (String[] s:strings

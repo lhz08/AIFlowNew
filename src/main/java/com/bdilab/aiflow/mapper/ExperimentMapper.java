@@ -68,4 +68,12 @@ public interface ExperimentMapper {
      * @return
      */
     List<Integer> selectExperimentByWorkflowId(Integer workflowId);
+
+    /**
+     * 根据实验id查找流程
+     * @Author Lei junting
+     * @param experimentId
+     * @return
+     */
+    Integer selectWorkflowByExperimentId(Integer experimentId);
 }

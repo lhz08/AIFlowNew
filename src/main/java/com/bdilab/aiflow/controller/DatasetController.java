@@ -1,6 +1,8 @@
 package com.bdilab.aiflow.controller;
 
 import com.bdilab.aiflow.common.config.FilePathConfig;
+import com.bdilab.aiflow.common.mysql.MysqlConnection;
+import com.bdilab.aiflow.common.mysql.MysqlUtils;
 import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.common.utils.FileUtils;
@@ -18,11 +20,14 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * @author
+ * @author zhangmin
  * @create 2020-08-26 17:39
  */
 @Controller
@@ -48,7 +53,7 @@ public class DatasetController {
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
         responseResult.setMeta(new MetaData(true,"001","成功获取公开数据集列表"));
-        System.out.println(data);
+        System.out.println(responseResult);
         return responseResult;
     }
 
@@ -60,50 +65,16 @@ public class DatasetController {
                                          @RequestParam(defaultValue = "10") int pageSize,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        //Integer userId =6;
         Map<String,Object> data = datasetService.getUserDataset(userId,pageNum,pageSize);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
         responseResult.setMeta(new MetaData(true,"001","成功分页获取用户自定义数据集列表"));
+        System.out.println(responseResult);
         return responseResult;
     }
 
-    /*注册数据集*/
-  /*  @ResponseBody
-    @RequestMapping(value = "/dataset/insertUserDataset",method = RequestMethod.POST)
-    public ResponseResult insertUserDataset(@RequestParam MultipartFile file,
-                                        @RequestParam Integer userId,
-                                        @RequestParam String datasetName,
-                                        @RequestParam String tags,
-                                        @RequestParam String datasetDesc,
-                                        @RequestParam String columnSeparator,
-                                        @RequestParam String[] familyName,
-                                        @RequestParam String[] columnName,
-                                        HttpSession httpSession) throws IOException {
-        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        //获取HBase连接
-        Connection connection=HBaseConnection.getConn();
-        //按照数据集名称建同名hbase表
-        boolean  isCreateSuccess=HBaseUtils.createTable(datasetName,connection,familyName);
-        if (!isCreateSuccess){
-            return new ResponseResult(true,"002","HBase建表失败");}
 
-        //读取文件中的每一行
-        BufferedReader reader = new BufferedReader(new FileReader((File) file));
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            //按照列分隔符将每行数据分开
-            String[] lineDatas=line.split(columnSeparator);
-            System.out.println(columnName);
-            System.out.println(lineDatas);
-            //将数据一行一行插入表中，columnName的格式是--“列族名：列名”，这里columnName和lineDatas的长度应该相等，第一列数据为主键
-            HBaseUtils.putDatas(datasetName,columnName,lineDatas,connection);
-        }
-        boolean isSuccess = datasetService.insertUserDataset(userId,datasetName,tags,datasetDesc);
-        if (isSuccess){
-            return new ResponseResult(true,"001","数据集注册成功");
-        }
-        return new ResponseResult(false,"002","数据集注册失败");
-    }*/
     @ResponseBody
     @ApiOperation("上传数据集到minio服务器")
     @RequestMapping(value = "/dataset/uploadDataset",method = RequestMethod.POST)
@@ -119,7 +90,58 @@ public class DatasetController {
         return new ResponseResult(true,"002","上传数据集失败");
     }
 
+    @ResponseBody
+    @ApiOperation("从用户mysql上传表结构数据集")
+    @RequestMapping(value = "/dataset/uploadUserDatasetFromMysql",method = RequestMethod.POST)
+    public ResponseResult uploadUserDatasetFromMysql(@RequestParam String url,
+                                                     @RequestParam String username,
+                                                     @RequestParam String password,
+                                                     @RequestParam String tableName,
+                                                     @RequestParam String datasetName,
+                                                     @RequestParam String tags,
+                                                     @RequestParam String datasetDesc,
+                                                     HttpSession httpSession) throws SQLException, IOException {
+        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Integer userId=6;
 
+        //设置文件后缀为csv
+        String suffixName=".csv";
+        //为文件随机生成一个名字
+        String filename = UUID.randomUUID()+suffixName;
+        System.out.println(filename);
+        String filePath = filePathConfig.getDatasetUrl()+File.separatorChar+filename;
+        System.out.println(filePath);
+        MysqlConnection mysqlConnection =new MysqlConnection();
+        MysqlUtils mysqlUtils = new MysqlUtils();
+        Connection con =null;
+        //获取用户mysql连接
+        try {
+            mysqlConnection.setDriver("com.mysql.cj.jdbc.Driver");
+            mysqlConnection.setUrl(url);
+            mysqlConnection.setUser(username);
+            mysqlConnection.setPassword(password);
+            con = mysqlConnection.getConn();
+        }catch (Exception e){
+            return new ResponseResult(false,"003","MySQL连接失败");
+        }
+        if (!con.isClosed()){
+            System.out.println("连接数据库成功!");
+            String datasetfilePath = mysqlUtils.readTableToCSV(tableName, con, filePath);
+            File datasetFile=new File(datasetfilePath);
+            if(!datasetFile.exists()){
+                con.close();
+                return new ResponseResult(false,"002","注册数据集失败");
+            }else{
+                boolean isSuccess = datasetService.insertUserDataset(userId,datasetName,tags,filePath,datasetDesc);
+                con.close();
+                if (isSuccess){
+                    return new ResponseResult(true,"001","数据集注册成功");
+                }
+                return new ResponseResult(false,"002","数据集注册失败");
+            }
+        }
+        return new ResponseResult(false,"002","注册数据集失败");
+    }
     @ResponseBody
     @ApiOperation("上传数据集")
     @RequestMapping(value = "/dataset/insertUserDataset",method = RequestMethod.POST)
@@ -130,6 +152,7 @@ public class DatasetController {
                                         HttpSession httpSession){
 
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        //Integer userId =6;
         //获取上传文件的原始名
         String filename = file.getOriginalFilename();
         //获取文件的后缀名
@@ -350,4 +373,42 @@ public class DatasetController {
         }
         return new ResponseResult(true,"001","成功获取预览信息",data);
     }
+
+    /*注册数据集*/
+  /*  @ResponseBody
+    @RequestMapping(value = "/dataset/insertUserDataset",method = RequestMethod.POST)
+    public ResponseResult insertUserDataset(@RequestParam MultipartFile file,
+                                        @RequestParam Integer userId,
+                                        @RequestParam String datasetName,
+                                        @RequestParam String tags,
+                                        @RequestParam String datasetDesc,
+                                        @RequestParam String columnSeparator,
+                                        @RequestParam String[] familyName,
+                                        @RequestParam String[] columnName,
+                                        HttpSession httpSession) throws IOException {
+        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        //获取HBase连接
+        Connection connection=HBaseConnection.getConn();
+        //按照数据集名称建同名hbase表
+        boolean  isCreateSuccess=HBaseUtils.createTable(datasetName,connection,familyName);
+        if (!isCreateSuccess){
+            return new ResponseResult(true,"002","HBase建表失败");}
+
+        //读取文件中的每一行
+        BufferedReader reader = new BufferedReader(new FileReader((File) file));
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            //按照列分隔符将每行数据分开
+            String[] lineDatas=line.split(columnSeparator);
+            System.out.println(columnName);
+            System.out.println(lineDatas);
+            //将数据一行一行插入表中，columnName的格式是--“列族名：列名”，这里columnName和lineDatas的长度应该相等，第一列数据为主键
+            HBaseUtils.putDatas(datasetName,columnName,lineDatas,connection);
+        }
+        boolean isSuccess = datasetService.insertUserDataset(userId,datasetName,tags,datasetDesc);
+        if (isSuccess){
+            return new ResponseResult(true,"001","数据集注册成功");
+        }
+        return new ResponseResult(false,"002","数据集注册失败");
+    }*/
 }
