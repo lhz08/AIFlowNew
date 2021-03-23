@@ -53,9 +53,7 @@ public class FilePathConfig {
         this.datasetPath = datasetPath;
     }
 
-    public void setFileTempPath(String fileTempPath) {
-        this.fileTempPath = fileTempPath;
-    }
+
 
     /**
      * 上传dataset地址
@@ -70,12 +68,18 @@ public class FilePathConfig {
     /**
      * 存放临时文件路径
      */
-    @Value("${file.temp.path}")
-    private String fileTempPath;
+    @Value("${dlDataset.path}")
+    private String dlDatasetPath;
 
-    public String getFileTempPath() {
-        return fileTempPath;
+    public String getDlDatasetPath() {
+        return dlDatasetPath;
     }
+
+    public void setDlDatasetPath(String dlDatasetPath) {
+        this.dlDatasetPath = dlDatasetPath;
+    }
+
+
 
 
     @Value("${component.yaml.path}")
@@ -96,4 +100,5 @@ public class FilePathConfig {
 
     @Value("${nfs.path}")
     private String data_dir;
+
 }

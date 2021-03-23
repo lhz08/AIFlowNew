@@ -71,7 +71,7 @@ public interface CustomComponentService {
     /*
     加载系统组件
      */
-    Map<String,List<ComponentInfoVO>> loadPublicComponentInfo();
+    Map<String,List<ComponentInfoVO>> loadPublicComponentInfo(Integer isMl);
 
 
     /**

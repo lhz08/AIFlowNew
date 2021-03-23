@@ -69,6 +69,35 @@ public class Model {
     private Integer fkComponentId;
     private Integer isSaved;
 
+    public String getBasicConclusion() {
+        return basicConclusion;
+    }
+
+    public void setBasicConclusion(String basicConclusion) {
+        this.basicConclusion = basicConclusion;
+    }
+
+    public Double getTestLoss() {
+        return testLoss;
+    }
+
+    public void setTestLoss(Double testLoss) {
+        this.testLoss = testLoss;
+    }
+
+    public Double getTrainLoss() {
+        return trainLoss;
+    }
+
+    public void setTrainLoss(Double trainLoss) {
+        this.trainLoss = trainLoss;
+    }
+
+    private String basicConclusion;
+    private Double testLoss;
+
+    private Double trainLoss;
+
     public Integer getIsSaved() {
         return isSaved;
     }

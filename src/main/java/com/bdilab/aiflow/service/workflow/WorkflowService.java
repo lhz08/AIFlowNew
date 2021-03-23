@@ -12,9 +12,10 @@ public interface WorkflowService {
      * @param tagString tag字符串
      * @param workflowDesc 流程描述
      * @param userId 用户id
+     * @param isMl 是否机器学习流程
      * @return 流程模型
      */
-    Workflow createAndSaveWorkflow(String workflowName, String tagString, String workflowDesc, String workflowXml, String ggeditorObjectString, Integer userId);
+    Workflow createAndSaveWorkflow(String workflowName, String tagString, String workflowDesc, String workflowXml, String ggeditorObjectString, Integer userId,Integer isMl);
 
     /**
      * 克隆流程

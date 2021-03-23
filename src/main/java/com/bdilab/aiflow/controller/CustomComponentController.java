@@ -258,12 +258,13 @@ public class CustomComponentController {
     @ResponseBody
     @ApiOperation("加载系统组件信息")
     @RequestMapping(value = "/publicComponent/loadPublicComponentInfo", method = RequestMethod.POST)
-    public ResponseResult loadPublicComponentInfo(HttpSession httpSession) {
+    public ResponseResult loadPublicComponentInfo(@RequestParam @ApiParam(value = "isMl",required = false) Integer isMl,
+            HttpSession httpSession) {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         if(userId == null){
             return new ResponseResult(false,"500","用户未登录");
         }
-        Map<String,List<ComponentInfoVO>> data = customComponentService.loadPublicComponentInfo();
+        Map<String,List<ComponentInfoVO>> data = customComponentService.loadPublicComponentInfo(isMl);
         return new ResponseResult(true,"001","成功加载系统组件信息",data);
     }
 

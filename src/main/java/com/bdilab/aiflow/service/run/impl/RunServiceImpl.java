@@ -2,15 +2,14 @@ package com.bdilab.aiflow.service.run.impl;
 
 import com.bdilab.aiflow.common.config.FilePathConfig;
 import com.bdilab.aiflow.common.enums.RunningStatus;
+import com.bdilab.aiflow.common.hbase.HBaseConnection;
+import com.bdilab.aiflow.common.hbase.HBaseUtils;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.common.sse.ProcessSseEmitters;
 import com.bdilab.aiflow.common.utils.JsonUtils;
 import com.bdilab.aiflow.common.utils.XmlUtils;
 import com.bdilab.aiflow.mapper.*;
-import com.bdilab.aiflow.model.ComponentOutputStub;
-import com.bdilab.aiflow.model.Experiment;
-import com.bdilab.aiflow.model.ExperimentRunning;
-import com.bdilab.aiflow.model.Workflow;
+import com.bdilab.aiflow.model.*;
 import com.bdilab.aiflow.model.run.ApiParameter;
 import com.bdilab.aiflow.model.run.ApiPipelineSpec;
 import com.bdilab.aiflow.model.run.ApiRun;
@@ -19,6 +18,8 @@ import com.bdilab.aiflow.service.run.RunService;
 import com.google.gson.Gson;
 import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -35,6 +36,8 @@ import java.util.*;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author smile
@@ -55,10 +58,24 @@ public class RunServiceImpl implements RunService {
     ComponentOutputStubMapper componentOutputStubMapper;
     @Resource
     FilePathConfig filePathConfig;
+    @Resource
+    ModelMapper modelMapper;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     RestTemplate restTemplate;
+
+    @Value("${basic.file.path}")
+    private String filePath;
+
+    @Value("${server.port}")
+    private String serverPort;
+
+    @Value("${server.ip}")
+    private String serverIp;
 
     @Override
     public boolean pushData(String runningId,String taskId,String conversationId,String resultTable) {
@@ -104,10 +121,83 @@ public class RunServiceImpl implements RunService {
 
     }
 
-    public void pushEpochInfo(String processLogId, EpochInfo epochInfo, String modelFilePath, String conversionId){
+    public void pushEpochInfo(Integer experimentRunningId, EpochInfo epochInfo, String modelFilePath){
+        ExperimentRunning experimentRunning = experimentRunningMapper.selectExperimentRunningByRunningId(experimentRunningId);
+        String conversationId = experimentRunning.getConversationId();
 
+        Gson gson = new Gson();
+        logger.info("Get EpochInfo:"+gson.toJson(epochInfo));
+        for(String string:epochInfo.getResult().keySet()){
+            logger.info("value size: "+epochInfo.getResult().get(string).length());
+            if(epochInfo.getResult().get(string).length()>0){
+                String strings[] = epochInfo.getResult().get(string).split(", ");
+                String newUrl = "";
+                for(String str:strings){
+                    logger.info("change file path to url");
+                    newUrl = newUrl+","+str.replace(filePath,serverIp+":"+serverPort+"/dataset_file/");
+                }
+                epochInfo.getResult().replace(string,newUrl);
+            }
+        }
+        //将数据点写入redis
+        String key = conversationId+"_"+experimentRunningId;
+        stringRedisTemplate.opsForList().leftPush(key,gson.toJson(epochInfo));
+        //设置缓存数据过期时间为3天
+        stringRedisTemplate.expire(key,3, TimeUnit.DAYS);
+        //推送消息
+        ProcessSseEmitters.sendEvent(conversationId,epochInfo);
+        logger.info("Get EpochInfo:"+gson.toJson(epochInfo));
+        if(epochInfo.getEnd()) {
+//            //结束sse会话
+//            try {
+//                ProcessSseEmitters.getSseEmitterByKey(conversationId).complete();
+//            } catch (NullPointerException npe) {
+//                npe.printStackTrace();
+//            }
 
+            //清除sse对象
+            ProcessSseEmitters.removeSseEmitterByKey(conversationId);
+            //将redis中数据点输入至HBase
+            List<String> epochInfoStrings = stringRedisTemplate.opsForList().range(key, 0, stringRedisTemplate.opsForList().size(key) - 1);
+            List<EpochInfo> epochInfos = epochInfoStrings.stream().map(a -> gson.fromJson(a, EpochInfo.class)).collect(Collectors.toList());
+            String tableName = HBaseUtils.insetEpochInfo(experimentRunningId, epochInfos, HBaseConnection.getConn());
+            logger.info("tableName: "+tableName);
+            System.out.println("tableName: "+tableName);
+            Model model = modelMapper.selectModelByExperimentRunningId(experimentRunningId);
+            if(model==null){
+                //创建模型
+                createModel(experimentRunningId,modelFilePath);
+                model = modelMapper.selectModelByExperimentRunningId(experimentRunningId);
+            }
+
+            model.setBasicConclusion(epochInfo.getBasic_conclusion());
+            model.setCreateTime(new Date());
+            model.setTestLoss(epochInfo.getTest_loss());
+            model.setTrainLoss(epochInfo.getTrain_loss());
+            modelMapper.updateModel(model);
+
+            //更新运行信息
+            experimentRunning.setEndTime(new Date());
+
+            experimentRunning.setFkDlResultTableName(tableName);
+            experimentRunning.setFkModelId(model.getId());
+            experimentRunning.setRunningStatus(RunningStatus.RUNNINGSUCCESS.getValue());
+            experimentRunningMapper.updateExperimentRunning(experimentRunning);
+        }
     }
+    @Override
+    public void createModel(Integer experimentRunningId, String modelFilePath) {
+        Model model = new Model();
+        Experiment experiment = experimentMapper.selectExperimentById(experimentRunningMapper.selectExperimentRunningByRunningId(experimentRunningId).getFkExperimentId());
+        model.setFkRunningId(experimentRunningId);
+        model.setFkUserId(experiment.getFkUserId());
+        model.setModelFileAddr(modelFilePath);
+        model.setIsSaved(0);
+        model.setCreateTime(new Date());
+        model.setIsDeleted((byte) 0);
+        modelMapper.insertModel(model);
+    }
+
     public String getComponentId(String string){
         return string.split("_")[1];
     }
@@ -216,5 +306,20 @@ public class RunServiceImpl implements RunService {
         return true;
     }
 
+    @Override
+    public void reportFailure(Integer experimentRunningId,String errorMessage,String conversationId){
+        ExperimentRunning experimentRunning =experimentRunningMapper.selectExperimentRunningByRunningId(experimentRunningId);
+        experimentRunning.setEndTime(new Date());
+        experimentRunning.setRunningStatus(RunningStatus.RUNNINGFAIL.getValue());
+        experimentRunningMapper.updateExperimentRunning(experimentRunning);
+        Map<String,Object> pushData = new HashMap<>();
+        pushData.put("status","failed");
+        pushData.put("message",errorMessage);
+        ProcessSseEmitters.sendEvent(conversationId,pushData);
 
+        //结束sse会话
+        ProcessSseEmitters.getSseEmitterByKey(conversationId).complete();
+        //清除sse对象
+        ProcessSseEmitters.removeSseEmitterByKey(conversationId);
+    }
 }

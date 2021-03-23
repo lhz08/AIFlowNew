@@ -1,5 +1,6 @@
 package com.bdilab.aiflow.common.hbase;
 
+import com.bdilab.aiflow.model.workflow.EpochInfo;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.Filter;
@@ -296,4 +297,59 @@ public class HBaseUtils {
         }
         return map;
     }
+
+    public static String insetEpochInfo(int processId, List<EpochInfo> epochInfos, Connection connection){
+        String[] family = {"f"};
+        String tableName ="dl_process_log_"+String.valueOf(processId);
+        if(createTable(tableName,family,connection)){
+            for(int i=1;i<epochInfos.size()+1;i++){
+                putEpochInfo(String.valueOf(i),tableName,epochInfos.get(i-1),connection);
+            }
+            return tableName;
+        }
+        return null;
+    }
+
+    public static boolean putEpochInfo(String rowKey,String tableName,EpochInfo epochInfo,Connection connection){
+        try {
+            // 设置rowkey
+            Put put = new Put(Bytes.toBytes(rowKey));
+            // 获取表
+            Table table = connection.getTable(TableName.valueOf(tableName));
+            put.addColumn(Bytes.toBytes("f"),Bytes.toBytes("epoch"), Bytes.toBytes(String.valueOf(epochInfo.getEpoch())));
+            put.addColumn(Bytes.toBytes("f"),Bytes.toBytes("train_loss"), Bytes.toBytes(String.valueOf(epochInfo.getTrain_loss())));
+            put.addColumn(Bytes.toBytes("f"),Bytes.toBytes("test_loss"), Bytes.toBytes(String.valueOf(epochInfo.getTest_loss())));
+            put.addColumn(Bytes.toBytes("f"),Bytes.toBytes("learning_rate"), Bytes.toBytes(String.valueOf(epochInfo.getLearning_rate())));
+            put.addColumn(Bytes.toBytes("f"),Bytes.toBytes("summary"), Bytes.toBytes(epochInfo.getSummary()));
+            put.addColumn(Bytes.toBytes("f"),Bytes.toBytes("result_image"), Bytes.toBytes(epochInfo.getResult().getOrDefault("image","")));
+            put.addColumn(Bytes.toBytes("f"),Bytes.toBytes("result_text"), Bytes.toBytes(epochInfo.getResult().getOrDefault("text","")));
+            put.addColumn(Bytes.toBytes("f"),Bytes.toBytes("result_audio"), Bytes.toBytes(epochInfo.getResult().getOrDefault("audio","")));
+            table.put(put);
+            return true;
+        }catch (IOException ioe){
+            ioe.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean createTable(String tableName, String[] family,Connection connection){
+        try{
+            Admin admin = connection.getAdmin();
+            HTableDescriptor desc = new HTableDescriptor(TableName.valueOf(tableName));
+            for (int i = 0; i < family.length; i++) {
+                desc.addFamily(new HColumnDescriptor(family[i]));
+            }
+            if (admin.tableExists(TableName.valueOf(tableName))) {
+                return false;
+            } else {
+                admin.createTable(desc);
+                return true;
+            }
+        }catch (IOException ioe){
+            ioe.printStackTrace();
+            return false;
+        }
+
+    }
+
 }

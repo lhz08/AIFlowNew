@@ -11,7 +11,7 @@ import java.util.Map;
 public interface RunService {
 
 
-    boolean pushData(String processInstanceId,String taskId,String conversationId,String resultTable);
+    boolean pushData(String runningId,String taskId,String conversationId,String resultTable);
 
     public String getComponentId(String string);
 
@@ -21,6 +21,7 @@ public interface RunService {
     String createRun(String pipelineId, String pipelineName, Map<String,Object> parameter);
 
     boolean deleteRunById(String runId);
-    void pushEpochInfo(String processLogId, EpochInfo epochInfo, String modelFilePath, String conversionId);
-
+    void pushEpochInfo(Integer experimentRunningId, EpochInfo epochInfo, String modelFilePath);
+    void createModel(Integer processLogId,String modelFilePath);
+    void reportFailure(Integer experimentRunningId,String errorMessage,String conversationId);
 }

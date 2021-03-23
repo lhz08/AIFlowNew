@@ -57,17 +57,15 @@ public class RunController {
     @ResponseBody
     @ApiOperation("python端报告深度学习流程每次迭代信息")
     @RequestMapping(value = "/dlProcess/python/reportEpochInfo",method = RequestMethod.POST)
-    public ResponseResult reportEpochInfo(@RequestParam @ApiParam(value = "processLogId") String processLogId,
+    public ResponseResult reportEpochInfo(@RequestParam @ApiParam(value = "processLogId") Integer processLogId,
                                           @RequestParam @ApiParam(value = "epochInfoJsonString") String epochInfoJsonString,
                                           @RequestParam @ApiParam(value = "modelFilePath") String modelFilePath,
-                                          @RequestParam @ApiParam(value = "conversationId") String conversationId
+                                          @RequestParam(required = false,defaultValue = "")  @ApiParam(value = "conversationId") String conversationId
                                           ){
-        System.out.println("----------");
-        System.out.println("epoch: "+processLogId+" "+epochInfoJsonString+" "+modelFilePath+" "+conversationId);
         Gson gson = new Gson();
         logger.info(epochInfoJsonString);
         EpochInfo epochInfo = gson.fromJson(epochInfoJsonString,EpochInfo.class);
-        runService.pushEpochInfo(processLogId,epochInfo,modelFilePath,conversationId);
+        runService.pushEpochInfo(processLogId,epochInfo,modelFilePath);
         return new ResponseResult(true,"001","成功报告迭代信息");
     }
 
@@ -102,5 +100,15 @@ public class RunController {
             responseResult.setMeta(new MetaData(true,"001","删除运行失败"));
         }
         return responseResult;
+    }
+
+    @ResponseBody
+    @ApiOperation("当Python端执行任务出错，调用该接口")
+    @RequestMapping(value = "/dlProcess/python/reportFailure",method = RequestMethod.POST)
+    public ResponseResult reportFailure(@RequestParam @ApiParam(value = "流程日志id") Integer processLogId,
+                                        @RequestParam @ApiParam(value = "errorMessage") String errorMessage,
+                                        @RequestParam @ApiParam(value = "conversationId") String conversationId){
+        runService.reportFailure(processLogId,errorMessage,conversationId);
+        return new ResponseResult(true,"001","成功报告错误");
     }
 }

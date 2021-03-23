@@ -207,7 +207,6 @@ public class ModelServiceImpl implements ModelService {
         ComponentInfo componentInfo = componentInfoMapper.selectComponentInfoById(Integer.parseInt(componentId));
         Model model = new Model();
         model.setFkUserId(workflow.getFkUserId());
-        model.setIsSaved(0);
         model.setFkComponentId(Integer.parseInt(componentId));
         model.setFkRunningId(Integer.parseInt(runningId));
         model.setIsSaved(0);

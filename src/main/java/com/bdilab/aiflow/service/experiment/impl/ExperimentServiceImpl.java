@@ -15,6 +15,8 @@ import com.bdilab.aiflow.vo.ExperimentVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -69,7 +71,7 @@ public class ExperimentServiceImpl implements ExperimentService {
     private String minioAccessKey;
     @Value("${minio.secret_key}")
     private String minioSecretKey;
-
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
     public Experiment createExperiment(Integer fkWorkflowId, String name, Integer userId,String experimentDesc, String paramJsonString){
         //组装实验
@@ -246,15 +248,17 @@ public class ExperimentServiceImpl implements ExperimentService {
         System.out.println("componentIdName:"+componentIdName.toString());
         Gson gson1 = new Gson();
         Map<String,Object> map = gson1.fromJson(experiment.getParamJsonString(),Map.class);
-
-        String config = "{\"endpoint\":\""+minioHost.replace("http://", "")+"\",\"access_key\":\""+minioAccessKey+"\",\"secret_key\":\""+minioSecretKey+"\",\"IP_port\":\""+webAddress+"\",\"resultPath\":"+"\"user"+userId+"\",\"processInstanceId\":\""+experimentRunning.getId()+"\",\"conversationId\":\""+conversationId+"\",";
-        System.out.println(config);
-        System.out.println(gson1.toJson(componentIdName));
+        String config="";
+        if(workflow.getIsMl()==1) {
+            config = "{\"endpoint\":\"" + minioHost.replace("http://", "") + "\",\"access_key\":\"" + minioAccessKey + "\",\"secret_key\":\"" + minioSecretKey + "\",\"IP_port\":\"" + webAddress + "\",\"resultPath\":" + "\"user" + userId + "\",\"processInstanceId\":\"" + experimentRunning.getId() + "\",\"conversationId\":\"" + conversationId + "\",";
+        }else {
+            config = "{\"processInstanceId\":\"" + experiment.getId()+ "\",\"conversationId\":\"" + conversationId + "\",";
+        }
         config = config + "\"component\":" +gson1.toJson(componentIdName) +"}";
         //"component":{"mutualInfo":3,"knn":4,"split_data":1,"data_import":5,"classification_test":6}
         map.put("config",config);
-        System.out.println("gson.config=" + map.get("config"));
-
+        logger.info("gson.config=" + map.get("config"));
+        logger.info("paramMap="+map);
         //在Kubeflow上创建运行
         String runId = runService.createRun(workflow.getPipelineId(),workflow.getName(),map);
         //将kubeflow上的runId更新进数据库表中

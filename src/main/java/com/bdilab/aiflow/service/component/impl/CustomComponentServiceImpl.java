@@ -433,8 +433,8 @@ public class CustomComponentServiceImpl implements CustomComponentService {
     }
 
     @Override
-    public Map<String,List<ComponentInfoVO>> loadPublicComponentInfo(){
-        List<ComponentInfo> systemComponentInfos = componentInfoMapper.loadPublicComponentInfo();
+    public Map<String,List<ComponentInfoVO>> loadPublicComponentInfo(Integer isMl){
+        List<ComponentInfo> systemComponentInfos = componentInfoMapper.loadPublicComponentInfo(isMl);
         List<ComponentInfoVO> systemComponentVOs = new ArrayList<>();
         for(ComponentInfo componentInfo:systemComponentInfos){
             systemComponentVOs.add(buildComponentInfoVO(componentInfo));
@@ -455,6 +455,7 @@ public class CustomComponentServiceImpl implements CustomComponentService {
         componentInfoVO.setComponentName(componentInfo.getName());
         componentInfoVO.setComponentNameChs(componentInfo.getComponentNameChs());
         componentInfoVO.setComponentDesc(componentInfo.getComponentDesc());
+        componentInfoVO.setIsMl(componentInfo.getIsMl());
         List<Variable> variables = new ArrayList<>();
         //根据componentInfoId检索参数
         List<ComponentParameter> componentVariablesList = componentParamMapper.selectComponentParameterByComponentId(componentInfo.getId());

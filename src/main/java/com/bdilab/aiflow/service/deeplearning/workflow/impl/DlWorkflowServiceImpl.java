@@ -31,6 +31,8 @@ public class DlWorkflowServiceImpl implements DlWorkflowService {
     @Autowired
     FilePathConfig filePathConfig;
 
+
+    //编译生成yaml
     @Override
     public Map generateDLPipeline(String workflowXmlAddr,Integer userId){
         List<String> toBeExecutedQueue = new ArrayList<>();
@@ -81,6 +83,7 @@ public class DlWorkflowServiceImpl implements DlWorkflowService {
         String outputParam = null;
         Integer componentId;
         ComponentInfo componentInfo=null;
+
         List<String> componentIdList = JsonUtils.getToBeExecutedComponentQueue(workflowJson);
         String pipeline="import kfp\n" +
                 "from kfp import components\n" +
@@ -96,6 +99,9 @@ public class DlWorkflowServiceImpl implements DlWorkflowService {
             outputStub = getStubList(componentInfo.getOutputStub());
             curPriorNodeList = JsonUtils.getPriorNodeList(s,workflowJson);
             pipeline+="class "+componentName+"Op(dsl.ContainerOp):\n\n"+"    def __init__(self,data_dir,";
+            if(curPriorNodeList.size()==0){
+                inputStub=null;
+            }
             if(inputStub!=null) {
                 for (String input : inputStub
                 ) {
@@ -120,7 +126,8 @@ public class DlWorkflowServiceImpl implements DlWorkflowService {
                     "\n"+"                '--config', config,\n"+
                     "            ],\n"+
                     "            file_outputs={\n"+
-                    "                '"+outputStub.get(0)+"':"+"data_dir"+ "+'/"+componentName+"/"+outputStub.get(0)+".txt'\n"+
+//                    "                '"+outputStub.get(0)+"':"+"data_dir"+ "+'/"+componentName+"/"+outputStub.get(0)+".txt'\n"+
+                    "                '"+outputStub.get(0)+"':"+"'/workspace/"+outputStub.get(0)+".txt'\n"+
                     "            })\n\n";
             inputParam="";
             inputFile="";
@@ -195,7 +202,7 @@ public class DlWorkflowServiceImpl implements DlWorkflowService {
         }
         return pipeline;
     }
-
+    //判断前置节点是否已经生成过代码
     private boolean priorIdAllcompleted(String curNode,List<String> completeQueue,String json){
         List<String> priorNodeList = JsonUtils.getPriorNodeList(curNode, json);
         for (String node:priorNodeList

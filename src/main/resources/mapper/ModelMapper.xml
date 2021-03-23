@@ -36,6 +36,21 @@
                 from model
         where model.id=#{modelId}
     </select>
+    <select id="selectModelByExperimentRunningId" resultType="com.bdilab.aiflow.model.Model" parameterType="Integer">
+           select model.id as id,
+                model.name as name,
+                model.fk_user_id as fkUserId,
+                model.fk_component_id as fkComponentId,
+                model.is_saved as isSaved,
+                model.fk_running_id as fkRunningId,
+                model.is_deleted as isDeleted,
+                model.model_file_addr as modelFileAddr,
+                model.model_desc as modelDesc,
+                model.create_time as createTime
+                from model
+        where model.fk_running_id=#{experimentRunningId}
+    </select>
+
 
     <update id="editModel" parameterType="com.bdilab.aiflow.model.Model">
         update model
@@ -125,7 +140,10 @@
             <if test="modelDesc!=null">model_desc=#{modelDesc},</if>
             <if test="modelFileAddr!=null">model_file_addr=#{modelFileAddr},</if>
             <if test="isDeleted!=null">is_deleted=#{isDeleted},</if>
-            <if test="createTime!=null">create_time=#{createTime}</if>
+            <if test="createTime!=null">create_time=#{createTime},</if>
+            <if test="basicConclusion!=null">basic_conclusion=#{basicConclusion},</if>
+            <if test="testLoss!=null">test_loss=#{testLoss},</if>
+            <if test="trainLoss!=null">train_loss=#{trainLoss}</if>
         </trim>
         where model.id=#{id}
     </update>

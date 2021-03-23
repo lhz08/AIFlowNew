@@ -11,6 +11,16 @@ public class ExperimentRunning {
      */
     private Integer id;
     private Integer fkUserId;
+    private String fkDlResultTableName;
+    private String conversationId;
+
+    public String getFkDlResultTableName() {
+        return fkDlResultTableName;
+    }
+
+    public void setFkDlResultTableName(String fkDlResultTableName) {
+        this.fkDlResultTableName = fkDlResultTableName;
+    }
 
     public Integer getFkModelId() {
         return fkModelId;
@@ -71,7 +81,6 @@ public class ExperimentRunning {
     private Date endTime;
 
     private String runId;
-    private String conversationId;
 
     public String getConversationId() {
         return conversationId;

@@ -13,11 +13,6 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author smile
- * @data 2021/1/6 10:24
- **/
-
 @Controller
 @CrossOrigin
 @Api(value="深度学习WorkflowController")

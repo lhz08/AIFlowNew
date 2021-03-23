@@ -12,6 +12,28 @@ public class EpochInfo {
     private String basic_conclusion;
     Map<String,String> result;
 
+    public String getNum_correct() {
+        return num_correct;
+    }
+
+    public void setNum_correct(String num_correct) {
+        this.num_correct = num_correct;
+    }
+
+    //新加属性
+    private String test_sample_num;
+
+    public String getTest_sample_num() {
+        return test_sample_num;
+    }
+
+    public void setTest_sample_num(String test_sample_num) {
+        this.test_sample_num = test_sample_num;
+    }
+
+    private String num_correct;
+
+
     public Boolean getEnd() {
         return isEnd;
     }

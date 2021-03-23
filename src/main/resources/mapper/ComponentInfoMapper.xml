@@ -21,9 +21,9 @@
   <insert id="insertComponentInfo" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.ComponentInfo">
     INSERT INTO component_info
         (id, name, tags, is_custom, component_yaml_addr,
-        input_stub, output_stub, graph_type_ids, component_desc,component_name_chs)
+        input_stub, output_stub, graph_type_ids, component_desc,is_ml,component_name_chs)
     VALUE (#{id}, #{name}, #{tags}, #{isCustom}, #{componentYamlAddr},
-        #{inputStub}, #{outputStub}, #{graphTypeIds}, #{componentDesc},#{componentNameChs})
+        #{inputStub}, #{outputStub}, #{graphTypeIds}, #{componentDesc},#{isMl},#{componentNameChs})
   </insert>
 
   <select id="selectComponentYamlAddr" parameterType="java.util.List" resultType="java.lang.String">
@@ -52,6 +52,7 @@
                  component_info.output_stub as outputStub,
                  component_info.component_desc as componentDesc,
                  component_info.image as componentImage,
+                 component_info.is_ml as isMl,
                  component_info.component_name_chs as componentNameChs
           from component_info
           where component_info.id = #{id}
@@ -66,9 +67,10 @@
                  component_info.output_stub as outputStub,
                  component_info.component_desc as componentDesc,
                  component_info.image as componentImage,
+                 component_info.is_ml as isMl,
                  component_info.component_name_chs as componentNameChs
         from component_info
-          where component_info.is_custom = 0
+          where component_info.is_custom = 0 and component_info.is_ml=#{isMl}
     </select>
 
 </mapper>

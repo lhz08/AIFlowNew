@@ -12,6 +12,7 @@ import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.Template;
 import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.model.WorkflowComponent;
+import com.bdilab.aiflow.service.deeplearning.workflow.DlWorkflowService;
 import com.bdilab.aiflow.service.pipeline.PipelineService;
 import com.bdilab.aiflow.service.workflow.WorkflowService;
 import com.bdilab.aiflow.service.experiment.ExperimentService;
@@ -54,6 +55,9 @@ public class WorkflowServiceImpl implements WorkflowService {
     @Autowired
     private WorkflowComponentMapper workflowComponentMapper;
 
+    @Autowired
+    private DlWorkflowService dlWorkflowService;
+
     @Resource
     FilePathConfig filePathConfig;
 
@@ -67,7 +71,7 @@ public class WorkflowServiceImpl implements WorkflowService {
      * @return
      */
     @Override
-    public Workflow createAndSaveWorkflow(String workflowName, String tagString, String workflowDesc, String workflowXml,String ggeditorObjectString,Integer userId){
+    public Workflow createAndSaveWorkflow(String workflowName, String tagString, String workflowDesc, String workflowXml,String ggeditorObjectString,Integer userId,Integer isMl){
         Workflow workflow=new Workflow();
 
         workflow.setName(workflowName);
@@ -82,14 +86,19 @@ public class WorkflowServiceImpl implements WorkflowService {
         workflow.setGeneratePipelineAddr("");
         workflow.setPipelineYamlAddr("");
         workflow.setPipelineId("");
-
+        workflow.setIsMl(isMl);
         //将workflowXml存到文件里，将文件地址存入workflowXmlAddr字段
         String fileName = UUID.randomUUID()+".xml";
         String workflowXmlAddr = filePathConfig.getWorkflowXmlFilePath() + File.separatorChar + DateUtils.getCurrentDate()+File.separatorChar+fileName;
         workflow.setWorkflowXmlAddr(XmlUtils.generateXmlFile(workflowXml,workflowXmlAddr));
-
-        //生成pipeline的py文件和yaml文件，存入相应的字段
-        Map<String,String> data = pipelineService.generatePipeline(workflowXmlAddr,userId);
+        System.out.println("xml："+workflow.getWorkflowXmlAddr());
+        Map<String, String> data=null;
+        if(isMl==1) {
+            //生成pipeline的py文件和yaml文件，存入相应的字段
+            data = pipelineService.generatePipeline(workflowXmlAddr, userId);
+        }else {
+            data = dlWorkflowService.generateDLPipeline(workflowXmlAddr,userId);
+        }
         System.out.println(data.get("pipelineYamlAddr"));
         workflow.setPipelineYamlAddr(data.get("pipelineYamlAddr"));
         workflow.setGeneratePipelineAddr(data.get("generatePipelineAddr"));
@@ -167,6 +176,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         }
         String fileName = UUID.randomUUID()+".xml";
         String workflowXmlAddrNew = filePathConfig.getWorkflowXmlFilePath() + File.separatorChar + DateUtils.getCurrentDate()+File.separatorChar+fileName;
+        System.out.println("new:"+workflowXmlAddrNew);
         workflow.setWorkflowXmlAddr(XmlUtils.generateXmlFile(workflowXml,workflowXmlAddrNew));
 
         workflow.setGgeditorObjectString(ggeditorObjectString);
@@ -188,8 +198,13 @@ public class WorkflowServiceImpl implements WorkflowService {
         }
 
         //生成pipeline的py文件和yaml文件，存入相应的字段
-        Map<String,String> data = pipelineService.generatePipeline(workflowXmlAddrNew,userId);
-        System.out.println(data.get("pipelineYamlAddr"));
+        Map<String, String> data=null;
+        if(workflow.getIsMl()==1) {
+            //生成pipeline的py文件和yaml文件，存入相应的字段
+            data = pipelineService.generatePipeline(workflowXmlAddrNew, userId);
+        }else {
+            data = dlWorkflowService.generateDLPipeline(workflowXmlAddrNew,userId);
+        }
         workflow.setPipelineYamlAddr(data.get("pipelineYamlAddr"));
         workflow.setGeneratePipelineAddr(data.get("generatePipelineAddr"));
 
@@ -437,6 +452,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         workflowVO.setGgeditorObejectString(workflow.getGgeditorObjectString());
         workflowVO.setCreateTime(workflow.getCreateTime());
         workflowVO.setWorkflowDesc(workflow.getWorkflowDesc());
+        workflowVO.setIsMl(workflow.getIsMl());
         //xml内容和自定义组件内容需要解析后传递
         if(workflow.getWorkflowXmlAddr()!=null){
             if(!workflow.getWorkflowXmlAddr().equals("")) {
@@ -504,10 +520,10 @@ public class WorkflowServiceImpl implements WorkflowService {
      */
     private String createXmlFile(String workflowXml){
 
-            String xmlFilePath = System.getProperty("user.dir")+File.separatorChar
-                    +"xmlfile"+File.separatorChar
-                    +new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime())+File.separatorChar
-                    +UUID.randomUUID()+".xml";
+        String xmlFilePath = System.getProperty("user.dir")+File.separatorChar
+                +"xmlfile"+File.separatorChar
+                +new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime())+File.separatorChar
+                +UUID.randomUUID()+".xml";
 
         try {
             File newFile = new File(xmlFilePath);

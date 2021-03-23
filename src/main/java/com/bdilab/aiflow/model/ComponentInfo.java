@@ -92,6 +92,16 @@ public class ComponentInfo {
      */
     private String componentDesc;
 
+    public Integer getIsMl() {
+        return isMl;
+    }
+
+    public void setIsMl(Integer isMl) {
+        this.isMl = isMl;
+    }
+
+    private Integer isMl;
+
     public String getComponentImage() {
         return componentImage;
     }

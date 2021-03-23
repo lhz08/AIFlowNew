@@ -4,10 +4,13 @@ import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.model.WorkflowComponent;
+import com.bdilab.aiflow.service.deeplearning.workflow.DlWorkflowService;
 import com.bdilab.aiflow.service.workflow.WorkflowService;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.Builder;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +33,8 @@ public class WorkflowController {
 
     @Autowired
     private WorkflowService workflowService;
+    @Autowired
+    DlWorkflowService dlworkflowService;
 
     /**
      * 保存流程
@@ -49,12 +54,13 @@ public class WorkflowController {
                                                 @RequestParam String workflowDesc,
                                                 @RequestParam String workflowXml,
                                                 @RequestParam String ggeditorObjectString,
+                                                @RequestParam (defaultValue = "0") Integer isMl,
                                                 HttpSession httpSession
-                                              ){
+    ){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         //在点击新建后立即新建一条流程记录
         //Workflow workflow = DlWorkflowService.CreateWorkflow(workflowName,tagString,workflowDesc,Integer.parseInt(httpSession.getAttribute("username").toString()));
-        Workflow workflow = workflowService.createAndSaveWorkflow(workflowName,tagString,workflowDesc,workflowXml,ggeditorObjectString,userId);
+        Workflow workflow = workflowService.createAndSaveWorkflow(workflowName,tagString,workflowDesc,workflowXml,ggeditorObjectString,userId,isMl);
         System.out.println(ggeditorObjectString);
         Map<String,Object> data = new HashMap<>(1);
         data.put("workflowId",workflow.getId());
@@ -79,7 +85,7 @@ public class WorkflowController {
                                          @RequestParam String workflowXml,
                                          @RequestParam String ggeditorObjectString,
                                          HttpSession httpSession
-                                      ){
+    ){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         boolean isSuccess = workflowService.updateWorkflow(workflowId,workflowXml,ggeditorObjectString,userId);
         if(isSuccess){
@@ -97,9 +103,9 @@ public class WorkflowController {
     @ApiOperation(value = "根据流程id下载其pipeline文件")
     @RequestMapping(value = "/workflow/downloadWorkflow", method = RequestMethod.POST)
     public ResponseResult downloadWorkflow(@RequestParam Integer workflowId,
-                                   HttpServletRequest request,
-                                   HttpServletResponse response,
-                                   HttpSession httpSession){
+                                           HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Workflow workflow = workflowService.selectWorkflowById(workflowId);
         String pipelineFilePath = workflow.getGeneratePipelineAddr();
@@ -169,7 +175,7 @@ public class WorkflowController {
     public ResponseResult selectAllWorkflowByUserId(@RequestParam(defaultValue = "1") int pageNum,
                                                     @RequestParam(defaultValue = "10") int pageSize,
                                                     HttpSession httpSession
-                                                    ){
+    ){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Workflow workflow = new Workflow();
         workflow.setFkUserId(userId);
@@ -191,10 +197,10 @@ public class WorkflowController {
     @ApiOperation(value = "根据名称搜索流程")
     @RequestMapping(value = "/workflow/searchWorkflowByName", method = RequestMethod.POST)
     public ResponseResult searchWorkflowByName(@RequestParam(required = false) String workflowName,
-                                         @RequestParam(defaultValue = "1") int pageNum,
-                                         @RequestParam(defaultValue = "10") int pageSize,
-                                         HttpSession httpSession
-                                         ){
+                                               @RequestParam(defaultValue = "1") int pageNum,
+                                               @RequestParam(defaultValue = "10") int pageSize,
+                                               HttpSession httpSession
+    ){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
 
         Map<String,Object> data = workflowService.searchWorkflowByName(workflowName,pageNum,pageSize,userId);
@@ -213,9 +219,9 @@ public class WorkflowController {
     @ApiOperation(value = "根据标签搜索流程")
     @RequestMapping(value = "/workflow/searchWorkflowByTags", method = RequestMethod.POST)
     public ResponseResult searchWorkflowByTags(@RequestParam(required = false) String workflowTags,
-                                         @RequestParam(defaultValue = "1") int pageNum,
-                                         @RequestParam(defaultValue = "10") int pageSize,
-                                         HttpSession httpSession
+                                               @RequestParam(defaultValue = "1") int pageNum,
+                                               @RequestParam(defaultValue = "10") int pageSize,
+                                               HttpSession httpSession
     ){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
 
@@ -237,7 +243,7 @@ public class WorkflowController {
     public ResponseResult selectDeletedWorkflow(@RequestParam(defaultValue = "1") int pageNum,
                                                 @RequestParam(defaultValue = "10") int pageSize,
                                                 HttpSession httpSession
-                                             ){
+    ){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Workflow workflow = new Workflow();
         workflow.setFkUserId(userId);
@@ -266,7 +272,7 @@ public class WorkflowController {
                                         @RequestParam String tagString,
                                         @RequestParam String workflowDesc,
                                         HttpSession httpSession
-                                        ){
+    ){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Workflow newWorkflow=workflowService.cloneWorkflow(workflowId,workflowName,tagString,workflowDesc,userId);
 
@@ -332,7 +338,7 @@ public class WorkflowController {
     @ApiOperation(value = "从回收站单个或批量彻底删除流程")
     @RequestMapping(value = "/workflow/deleteWorkflowCompletely", method = RequestMethod.POST)
     public ResponseResult deleteWorkflowCompletely(@RequestParam String workflowIds,
-                                          HttpSession httpSession){
+                                                   HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         String[] ids = workflowIds.split(",");
         Map<String,Object> isSuccess;

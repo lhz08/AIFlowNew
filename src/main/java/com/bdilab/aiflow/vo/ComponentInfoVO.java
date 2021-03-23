@@ -16,6 +16,16 @@ public class ComponentInfoVO {
     private String componentType;
     private String componentDesc;
 
+    public Integer getIsMl() {
+        return isMl;
+    }
+
+    public void setIsMl(Integer isMl) {
+        this.isMl = isMl;
+    }
+
+    private Integer isMl;
+
     public String getComponentDesc() {
         return componentDesc;
     }

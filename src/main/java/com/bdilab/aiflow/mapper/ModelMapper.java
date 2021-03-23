@@ -17,7 +17,7 @@ public interface ModelMapper {
 
     boolean deleteModelById(Integer modelId);
 
-
+    Model selectModelByExperimentRunningId(Integer experimentRunningId);
     boolean deleteModelCompletelyById(Integer modelId);
 
     List<Model> getModelInTrash(Integer userId);

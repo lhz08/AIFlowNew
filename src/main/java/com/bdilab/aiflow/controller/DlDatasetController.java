@@ -9,6 +9,7 @@ import com.bdilab.aiflow.model.DlDataset;
 import com.bdilab.aiflow.service.dataset.DlDatasetService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -62,7 +63,7 @@ public class DlDatasetController {
         File outputDirectory = new File(outputDir);
         //为上传的压缩包生成一个随机名字
         filename = UUID.randomUUID()+suffixName;
-        String filePath = filePathConfig.getFileTempPath()+File.separatorChar+filename;
+        String filePath = filePathConfig.getDlDatasetPath()+File.separatorChar+filename;
         File datasetFile = new File(filePath);
         try {
             file.transferTo(datasetFile);
@@ -293,7 +294,7 @@ public class DlDatasetController {
     @ApiOperation(value = "返回图片数据集中所有的图片相对地址")
     @RequestMapping(value = "/dlDataset/getImagePaths",method = RequestMethod.POST)
     public ResponseResult getDlDatasetImagePaths(@RequestParam Integer datasetId,
-                                                    HttpSession httpSession){
+         HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         //Integer userId=6;
         DlDataset dlDataset = dlDatasetService.getDlDatasetByPrimaryId(datasetId);
@@ -309,31 +310,32 @@ public class DlDatasetController {
         return responseResult;
     }
 
-    /*restful风格访问图片资源*/
-    @ResponseBody
-    @ApiOperation(value = "图片访问接口")
-    @RequestMapping(value = "/dlDataset/imagePreview/{datasetId}/{relativePath}", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
-    public byte[] getDlDatasetImage(@PathVariable(value = "datasetId") Integer datasetId,
-                           @PathVariable(value = "relativePath") String relativePath,
-                           HttpSession httpSession) {
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        //Integer userId=6;
-        DlDataset dlDataset = dlDatasetService.getDlDatasetByPrimaryId(datasetId);
-        if(dlDataset==null)return null;
-        if(dlDataset.getType() == 1 && !dlDataset.getFkUserId().equals(userId)) return null;
-
-        String absolutePath = dlDataset.getDatasetAddr() + File.separator + relativePath;
-        File file = new File(absolutePath);
-        byte[] bytes = null;
-        try{
-            FileInputStream inputStream = new FileInputStream(file);
-            bytes = new byte[inputStream.available()];
-            inputStream.read(bytes, 0, inputStream.available());
-        }catch (IOException e){
-            e.printStackTrace();
-            return null;
-        }
-        return bytes;
-    }
+//    /*restful风格访问图片资源*/
+//    @ResponseBody
+//    @ApiOperation(value = "图片访问接口")
+//    @RequestMapping(value = "/dlDataset/imagePreview", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+//    public byte[] getDlDatasetImage(@RequestParam(value = "datasetId") Integer datasetId,
+//                           @RequestParam(value = "relativePath") String relativePath,
+//                           HttpSession httpSession) {
+//        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+//        //Integer userId=6;
+//        DlDataset dlDataset = dlDatasetService.getDlDatasetByPrimaryId(datasetId);
+//        if(dlDataset==null)return null;
+//        if(dlDataset.getType() == 1 && !dlDataset.getFkUserId().equals(userId)) return null;
+//
+//        String absolutePath = dlDataset.getDatasetAddr() + File.separator + relativePath;
+////        absolutePath.replace(filePath,serverIp+":"+serverPort+"/dataset_file/");
+//        File file = new File(absolutePath);
+//        byte[] bytes = null;
+//        try{
+//            FileInputStream inputStream = new FileInputStream(file);
+//            bytes = new byte[inputStream.available()];
+//            inputStream.read(bytes, 0, inputStream.available());
+//        }catch (IOException e){
+//            e.printStackTrace();
+//            return null;
+//        }
+//        return bytes;
+//    }
 
 }

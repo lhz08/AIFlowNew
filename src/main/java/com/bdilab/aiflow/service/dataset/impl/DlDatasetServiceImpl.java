@@ -8,6 +8,7 @@ import com.bdilab.aiflow.service.dataset.DlDatasetService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -24,6 +25,14 @@ public class DlDatasetServiceImpl implements DlDatasetService {
     @Autowired
     FilePathConfig filePathConfig;
 
+    @Value("${server.port}")
+    private String serverPort;
+
+    @Value("${server.ip}")
+    private String serverIp;
+
+    @Value("${basic.file.path}")
+    private String filePath;
     /*注册深度学习数据集*/
     @Override
     public boolean insertUserDlDataset(Integer userId, String datasetName, String tags, String datasetAddr, String datasetDesc, Integer isAnnotation, Integer originFileType) {
@@ -38,7 +47,7 @@ public class DlDatasetServiceImpl implements DlDatasetService {
         dlDataset.setCreateTime(new Date());
         dlDataset.setOriginFileType(originFileType.byteValue());
         dlDataset.setIsAnnotation(isAnnotation.byteValue());
-        return dlDatasetMapper.insertSelective(dlDataset);
+        return dlDatasetMapper.insert(dlDataset);
     }
 
     /*按名称分页搜索公开深度学习数据集*/
@@ -191,12 +200,18 @@ public class DlDatasetServiceImpl implements DlDatasetService {
     }
 
     private void getImagePaths(File file, String prePath, ArrayList<String> list){
+
         if(file.isDirectory()){
-            for(File subFile : file.listFiles()){
-                getImagePaths(subFile,prePath,list);
+            File[] files = file.listFiles();
+            if(files!=null){
+                for(File subFile : files){
+                    getImagePaths(subFile,prePath,list);
+                }
             }
         }else {
-            String path = file.getAbsolutePath().substring(prePath.length()+1);
+            String path = file.getAbsolutePath();
+            path = path.replace(filePath, serverIp + ":" + serverPort + "/dataset_file/");
+            //String path = file.getAbsolutePath().substring(prePath.length()+1);
             //如果是windows操作系统，将'\'转换为'/'
             if(File.separatorChar == '\\'){path = path.replaceAll("\\\\","/");}
             list.add(path);

@@ -23,5 +23,5 @@ public interface ComponentInfoMapper {
 
     int deleteComponentPermanently(List<Integer> componentIds);
 
-    List<ComponentInfo> loadPublicComponentInfo();
+    List<ComponentInfo> loadPublicComponentInfo(Integer isMl);
 }

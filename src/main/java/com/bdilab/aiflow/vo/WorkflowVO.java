@@ -23,7 +23,33 @@ public class WorkflowVO {
 
     public List<Object> customComponentIdList;
 
+    public List<Object> getCustomComponentIdList() {
+        return customComponentIdList;
+    }
+
+    public void setCustomComponentIdList(List<Object> customComponentIdList) {
+        this.customComponentIdList = customComponentIdList;
+    }
+
+    public List<Object> getExperimentList() {
+        return experimentList;
+    }
+
+    public void setExperimentList(List<Object> experimentList) {
+        this.experimentList = experimentList;
+    }
+
+    public Integer getIsMl() {
+        return isMl;
+    }
+
+    public void setIsMl(Integer isMl) {
+        this.isMl = isMl;
+    }
+
     public List<Object> experimentList;
+
+    private Integer isMl;
 
     public Integer getId() { return id; }
 
