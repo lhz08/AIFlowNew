@@ -68,8 +68,8 @@ public class RunServiceImpl implements RunService {
     @Autowired
     RestTemplate restTemplate;
 
-    @Value("${basic.file.path}")
-    private String filePath;
+    @Value("${nfs.path}")
+    private String nfsPath;
 
     @Value("${server.port}")
     private String serverPort;
@@ -134,7 +134,7 @@ public class RunServiceImpl implements RunService {
                 String newUrl = "";
                 for(String str:strings){
                     logger.info("change file path to url");
-                    newUrl = newUrl+","+str.replace(filePath,serverIp+":"+serverPort+"/dataset_file/");
+                    newUrl = newUrl+","+str.replace(nfsPath,serverIp+":"+serverPort+"/dataset_file/");
                 }
                 epochInfo.getResult().replace(string,newUrl);
             }
@@ -145,7 +145,7 @@ public class RunServiceImpl implements RunService {
         //设置缓存数据过期时间为3天
         stringRedisTemplate.expire(key,3, TimeUnit.DAYS);
         //推送消息
-        ProcessSseEmitters.sendEvent(conversationId,epochInfo);
+//        ProcessSseEmitters.sendEvent(conversationId,epochInfo);
         logger.info("Get EpochInfo:"+gson.toJson(epochInfo));
         if(epochInfo.getEnd()) {
 //            //结束sse会话
@@ -156,7 +156,7 @@ public class RunServiceImpl implements RunService {
 //            }
 
             //清除sse对象
-            ProcessSseEmitters.removeSseEmitterByKey(conversationId);
+//            ProcessSseEmitters.removeSseEmitterByKey(conversationId);
             //将redis中数据点输入至HBase
             List<String> epochInfoStrings = stringRedisTemplate.opsForList().range(key, 0, stringRedisTemplate.opsForList().size(key) - 1);
             List<EpochInfo> epochInfos = epochInfoStrings.stream().map(a -> gson.fromJson(a, EpochInfo.class)).collect(Collectors.toList());
@@ -242,20 +242,24 @@ public class RunServiceImpl implements RunService {
 
     private void setComponentOutputStub(String runningId,String taskId,String resultTable){
         Gson gson = new Gson();
-        List<Map<String,String>> resultTableList = gson.fromJson(resultTable,List.class);
-        for (Map<String,String> map : resultTableList){
-            ComponentOutputStub componentOutputStub = new ComponentOutputStub();
-            componentOutputStub.setFkRunningId(Integer.parseInt(runningId));
-            componentOutputStub.setFkComponentInfoId(Integer.parseInt(taskId));
-            componentOutputStub.setOutputFileAddr(map.get("result_path").replace("'",""));
-            componentOutputStub.setOutputFileType(map.get("result_type"));
-            componentOutputStub.setOutputTableName(map.get("result_path").replace("'",""));
-            if(map.containsKey("graph_type")) {
-                componentOutputStub.setGraphType(Integer.parseInt(map.get("graph_type").trim()));
-            }else {
-                componentOutputStub.setGraphType(0);
+        List<Map<String, String>> resultTableList = null;
+        if(resultTable!="") {
+            resultTableList = gson.fromJson(resultTable, List.class);
+
+            for (Map<String, String> map : resultTableList) {
+                ComponentOutputStub componentOutputStub = new ComponentOutputStub();
+                componentOutputStub.setFkRunningId(Integer.parseInt(runningId));
+                componentOutputStub.setFkComponentInfoId(Integer.parseInt(taskId));
+                componentOutputStub.setOutputFileAddr(map.get("result_path").replace("'", ""));
+                componentOutputStub.setOutputFileType(map.get("result_type"));
+                componentOutputStub.setOutputTableName(map.get("result_path").replace("'", ""));
+                if (map.containsKey("graph_type")) {
+                    componentOutputStub.setGraphType(Integer.parseInt(map.get("graph_type").trim()));
+                } else {
+                    componentOutputStub.setGraphType(0);
+                }
+                componentOutputStubMapper.insert(componentOutputStub);
             }
-            componentOutputStubMapper.insert(componentOutputStub);
         }
     }
     @Override
@@ -307,7 +311,7 @@ public class RunServiceImpl implements RunService {
     }
 
     @Override
-    public void reportFailure(Integer experimentRunningId,String errorMessage,String conversationId){
+    public void reportFailure(Integer experimentRunningId,String errorMessage){
         ExperimentRunning experimentRunning =experimentRunningMapper.selectExperimentRunningByRunningId(experimentRunningId);
         experimentRunning.setEndTime(new Date());
         experimentRunning.setRunningStatus(RunningStatus.RUNNINGFAIL.getValue());
@@ -315,6 +319,7 @@ public class RunServiceImpl implements RunService {
         Map<String,Object> pushData = new HashMap<>();
         pushData.put("status","failed");
         pushData.put("message",errorMessage);
+        String conversationId = experimentRunning.getConversationId();
         ProcessSseEmitters.sendEvent(conversationId,pushData);
 
         //结束sse会话

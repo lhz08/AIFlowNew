@@ -46,11 +46,11 @@ public class RunController {
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "IP_port") String IP_port,
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "resultPath")String resultPath,
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "resultTable") String resultTable){
-        boolean isInProcess = runService.pushData(processInstanceId,taskId,conversationId,resultTable);
-        System.out.println(processInstanceId+" "+taskId+" "+conversationId+resultPath);
-        if(isInProcess){
-            return new ResponseResult(true,"001","已完成id为"+taskId+"的任务");
-        }
+//        boolean isInProcess = runService.pushData(processInstanceId,taskId,conversationId,resultTable);
+//        System.out.println(processInstanceId+" "+taskId+" "+conversationId+resultPath);
+//        if(isInProcess){
+//            return new ResponseResult(true,"001","已完成id为"+taskId+"的任务");
+//        }
         return new ResponseResult(false,"002","执行任务失败，当前流程已被暂停或中止");
 
     }
@@ -106,9 +106,8 @@ public class RunController {
     @ApiOperation("当Python端执行任务出错，调用该接口")
     @RequestMapping(value = "/dlProcess/python/reportFailure",method = RequestMethod.POST)
     public ResponseResult reportFailure(@RequestParam @ApiParam(value = "流程日志id") Integer processLogId,
-                                        @RequestParam @ApiParam(value = "errorMessage") String errorMessage,
-                                        @RequestParam @ApiParam(value = "conversationId") String conversationId){
-        runService.reportFailure(processLogId,errorMessage,conversationId);
+                                        @RequestParam @ApiParam(value = "errorMessage") String errorMessage){
+//        runService.reportFailure(processLogId,errorMessage);
         return new ResponseResult(true,"001","成功报告错误");
     }
 }

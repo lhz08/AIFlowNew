@@ -23,5 +23,5 @@ public interface RunService {
     boolean deleteRunById(String runId);
     void pushEpochInfo(Integer experimentRunningId, EpochInfo epochInfo, String modelFilePath);
     void createModel(Integer processLogId,String modelFilePath);
-    void reportFailure(Integer experimentRunningId,String errorMessage,String conversationId);
+    void reportFailure(Integer experimentRunningId,String errorMessage);
 }

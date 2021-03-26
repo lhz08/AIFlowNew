@@ -216,6 +216,7 @@ public class ExperimentServiceImpl implements ExperimentService {
         experimentRunning.setStartTime(new Date());
         experimentRunning.setFkUserId(userId);
         experimentRunning.setRunId("");
+        experimentRunning.setConversationId(conversationId);
         boolean isSuccess=experimentRunningMapper.insertExperimentRunning(experimentRunning)==1;
         if(!isSuccess){
             messageMap.put("isSuccess",false);

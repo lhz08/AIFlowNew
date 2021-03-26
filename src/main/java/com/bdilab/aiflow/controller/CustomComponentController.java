@@ -258,7 +258,7 @@ public class CustomComponentController {
     @ResponseBody
     @ApiOperation("加载系统组件信息")
     @RequestMapping(value = "/publicComponent/loadPublicComponentInfo", method = RequestMethod.POST)
-    public ResponseResult loadPublicComponentInfo(@RequestParam @ApiParam(value = "isMl",required = false) Integer isMl,
+    public ResponseResult loadPublicComponentInfo(@RequestParam @ApiParam(value = "isMl") Integer isMl,
             HttpSession httpSession) {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         if(userId == null){

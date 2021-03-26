@@ -3,8 +3,8 @@
 <mapper namespace="com.bdilab.aiflow.mapper.ExperimentRunningMapper" >
 
   <insert id="insertExperimentRunning" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.ExperimentRunning">
-        insert into experiment_running (id, fk_user_id,running_status, fk_experiment_id, is_deleted, start_time, end_time, run_id)
-        values (#{id},#{fkUserId}, #{runningStatus}, #{fkExperimentId}, #{isDeleted}, #{startTime}, #{endTime}, #{runId})
+        insert into experiment_running (id, fk_user_id,running_status, fk_experiment_id, is_deleted, start_time, end_time, run_id,conversation_id)
+        values (#{id},#{fkUserId}, #{runningStatus}, #{fkExperimentId}, #{isDeleted}, #{startTime}, #{endTime}, #{runId},#{conversationId})
     </insert>
 
   <!--selectAllExperimentRunningByExperimentId获取的试验运行记录is_Deleted为0或者1的-->
