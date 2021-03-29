@@ -14,8 +14,19 @@ public interface ComponentOutputStubMapper {
 //    int deleteByRunningId(Integer runningId);
 
     /**
-     * 通过运行id和输出类型
+     * 通过运行id组件id和图类型
      * @param runningId
+     * @param fkComponentInfoId
+     * @param graphType
+     * @return
+     */
+    List<ComponentOutputStub> selectByRunningComponentAndType(@Param("runningId") Integer runningId,
+                                                              @Param("fkComponentInfoId") Integer fkComponentInfoId,
+                                                              @Param("graphtype") Integer graphType);
+    /**
+     * 通过运行id和组件id
+     * @param runningId
+     * @param fkComponentInfoId
      * @return
      */
     List<ComponentOutputStub> selectByRunningId(@Param("runningId") Integer runningId, @Param("fkComponentInfoId") Integer fkComponentInfoId);

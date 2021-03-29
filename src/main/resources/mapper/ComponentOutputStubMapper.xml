@@ -7,6 +7,22 @@
     <!--where fk_running_id = #{runningId}-->
   <!--</delete>-->
 
+
+    <select id="selectByRunningComponentAndType" parameterType="com.bdilab.aiflow.model.ComponentOutputStub"  resultType="com.bdilab.aiflow.model.ComponentOutputStub">
+        select component_output_stub.id as id,
+        component_output_stub.fk_component_info_id as fkComponentInfoId ,
+        component_output_stub.fk_running_id as fkRunningId,
+        component_output_stub.output_file_type as outputFileType,
+        component_output_stub.output_table_name as outputTableName,
+        component_output_stub.output_file_addr as outputFileAddr,
+        component_output_stub.graph_type as graphType
+        from component_output_stub
+        where component_output_stub.fk_running_id = #{runningId}
+        and component_output_stub.fk_component_info_id = #{fkComponentInfoId}
+        and component_output_stub.graph_type = #{graphType}
+        order by id desc
+    </select>
+
   <select id="selectByRunningId" parameterType="com.bdilab.aiflow.model.ComponentOutputStub"  resultType="com.bdilab.aiflow.model.ComponentOutputStub">
         select component_output_stub.id as id,
         component_output_stub.fk_component_info_id as fkComponentInfoId ,

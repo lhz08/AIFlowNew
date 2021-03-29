@@ -1,20 +1,70 @@
 package com.bdilab.aiflow.common.utils;
 
-
 import com.csvreader.CsvWriter;
+import com.google.gson.Gson;
 import de.siegmar.fastcsv.reader.CsvContainer;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.CsvRow;
+import io.lettuce.core.ConnectionId;
+import org.jcodings.util.Hash;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class FileUtils {
+
+
+    /**
+     * todo:3/29
+     * @param filePath
+     * @param type
+     * @return
+     */
+    public static Map<String,Object> transResultCsvToJson(String filePath,Integer type){
+        Map<String,Object> messageMap = new HashMap<>(2);
+
+        try{
+            Map<String,Object> jsonMap = new HashMap<>(2);
+            Gson gson=new Gson();
+            File file = new File(filePath);
+            CsvReader csvReader=new CsvReader();
+            //没有表头
+            csvReader.setContainsHeader(false);
+            CsvContainer csv = csvReader.read(file, Charset.forName("UTF-8"));
+
+            //type==null或者type==0，默认转换成热力图
+            if(type==null||type==0||type==12){
+                type=12;
+                //todo
+            }
+            else if(type==13){
+                //todo
+            }
+
+            String jsonString =gson.toJson(jsonMap);
+            messageMap.put("jsonString",jsonString);
+            messageMap.put("isSuccess",true);
+            messageMap.put("message","得到转换result转换图结果成功");
+            return messageMap;
+
+        }
+
+        catch (IOException e) {
+            e.printStackTrace();
+            messageMap.put("isSuccess",false);
+            messageMap.put("message","得到转换result转换图结果失败");
+            return messageMap;
+        }
+
+    }
+
     /**
      * 将txt转成csv格式
      * @param oldFilePath

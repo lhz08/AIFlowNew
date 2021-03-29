@@ -31,6 +31,33 @@ public class ComponentOutputStubServiceImpl implements ComponentOutputStubServic
     @Resource
     GraphTypeMapper graphTypeMapper;
 
+
+    @Override
+    public Map<String,Object> getOutputFileAddr(Integer runningId,Integer fkComponentId,Integer graphType){
+        //type为空或者为0表示没有写入图类型信息，只根据两个id查
+        Map<String,Object> messageMap=new HashMap<>(2);
+        String outputFileAddr;
+        try{
+            if(graphType==null||graphType==0){
+                List<ComponentOutputStub> componentOutputStubList = componentOutputStubMapper.selectByRunningId(runningId, fkComponentId);
+                outputFileAddr=componentOutputStubList.get(0).getOutputFileAddr();
+            }
+            else{
+                List<ComponentOutputStub> componentOutputStubList = componentOutputStubMapper.selectByRunningComponentAndType(runningId, fkComponentId,graphType);
+                outputFileAddr=componentOutputStubList.get(0).getOutputFileAddr();
+            }
+            messageMap.put("outputFileAddr",outputFileAddr);
+            messageMap.put("isSuccess",true);
+            return messageMap;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            messageMap.put("isSuccess",false);
+            return messageMap;
+        }
+
+    }
+
     @Override
     public boolean deleteOutputByRunningId(Integer runningId) throws Exception{
         //删除文件或者hbase表

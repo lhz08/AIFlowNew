@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.bdilab.aiflow.common.utils.FileUtils.transResultCsvToJson;
+
 @Service
 public class ExperimentRunningServiceImpl implements ExperimentRunningService {
 
@@ -46,6 +48,25 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
 
     @Autowired
     ModelMapper modelMapper;
+
+
+    /**
+     * todo:util内转换
+     */
+    @Override
+    public Map<String,Object> getResultJson(Integer runningId,Integer componentId,Integer type){
+        Map<String,Object> messageMap;
+        Map<String,Object> isSuccess=componentOutputStubService.getOutputFileAddr(runningId, componentId, type);
+
+        if(isSuccess.get("isSuccess").equals(false)){
+            messageMap=isSuccess;
+            return messageMap;
+        }
+        messageMap=transResultCsvToJson(isSuccess.get("outputFileAddr").toString(),type);
+        return messageMap;
+
+
+    }
 
     @Override
     public boolean updateExperimentRunning(ExperimentRunning experimentRunning){

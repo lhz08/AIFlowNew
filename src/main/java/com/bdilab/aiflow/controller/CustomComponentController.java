@@ -40,6 +40,7 @@ public class CustomComponentController {
 
 
     /**
+     * todo:component表已经修改，需要修改自定义组件部分
      * 创建自定义组件
      * 假定用户已经上传至harbor，只需要传入yaml名称，现在存储位置为/home/pipelineYaml/
      * @param yamlFileName 不带.yaml
