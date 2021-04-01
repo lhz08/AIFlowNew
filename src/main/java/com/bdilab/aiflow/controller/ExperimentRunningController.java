@@ -147,13 +147,13 @@ public class ExperimentRunningController {
                                          @RequestParam @ApiParam(value = "组件id") Integer componentId,
                                          @RequestParam @ApiParam(value = "图类型,12热力图，13折线图") Integer type,
                                          HttpSession httpSession){
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<String,Object> isSuccess = experimentRunningService.getResultJson(runningId,componentId,type);
         if(isSuccess.get("isSuccess").equals(false)){
             return new ResponseResult(false,"002",isSuccess.get("message").toString());
         }
         ResponseResult responseResult=new ResponseResult(true,"001",isSuccess.get("message").toString());
-        responseResult.setData(isSuccess.get("jsonString"));
+        responseResult.setData(isSuccess.get("lineChart"));
         return responseResult;
     }
 }

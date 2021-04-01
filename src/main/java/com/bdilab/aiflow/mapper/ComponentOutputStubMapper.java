@@ -15,14 +15,14 @@ public interface ComponentOutputStubMapper {
 
     /**
      * 通过运行id组件id和图类型
-     * @param runningId
+     * @param fkRunningId
      * @param fkComponentInfoId
      * @param graphType
      * @return
      */
-    List<ComponentOutputStub> selectByRunningComponentAndType(@Param("runningId") Integer runningId,
+    List<ComponentOutputStub> selectByRunningComponentAndType(@Param("fkRunningId") Integer fkRunningId,
                                                               @Param("fkComponentInfoId") Integer fkComponentInfoId,
-                                                              @Param("graphtype") Integer graphType);
+                                                              @Param("graphType") Integer graphType);
     /**
      * 通过运行id和组件id
      * @param runningId

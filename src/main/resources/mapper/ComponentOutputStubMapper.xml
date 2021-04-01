@@ -17,7 +17,7 @@
         component_output_stub.output_file_addr as outputFileAddr,
         component_output_stub.graph_type as graphType
         from component_output_stub
-        where component_output_stub.fk_running_id = #{runningId}
+        where component_output_stub.fk_running_id = #{fkRunningId}
         and component_output_stub.fk_component_info_id = #{fkComponentInfoId}
         and component_output_stub.graph_type = #{graphType}
         order by id desc

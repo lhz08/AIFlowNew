@@ -1,22 +1,18 @@
 package com.bdilab.aiflow.common.utils;
 
+
+import com.alibaba.fastjson.JSONObject;
+
 import com.csvreader.CsvWriter;
-import com.google.gson.Gson;
 import de.siegmar.fastcsv.reader.CsvContainer;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.CsvRow;
-import io.lettuce.core.ConnectionId;
-import org.jcodings.util.Hash;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 
 public class FileUtils {
 
@@ -29,27 +25,60 @@ public class FileUtils {
      */
     public static Map<String,Object> transResultCsvToJson(String filePath,Integer type){
         Map<String,Object> messageMap = new HashMap<>(2);
-
         try{
-            Map<String,Object> jsonMap = new HashMap<>(2);
-            Gson gson=new Gson();
-            File file = new File(filePath);
-            CsvReader csvReader=new CsvReader();
-            //没有表头
-            csvReader.setContainsHeader(false);
-            CsvContainer csv = csvReader.read(file, Charset.forName("UTF-8"));
+            InputStreamReader isr = new InputStreamReader(new FileInputStream(filePath), "UTF-8");
+            BufferedReader reader = new BufferedReader(isr);
 
+
+            JSONObject lineChart =new JSONObject();
+            JSONObject xAxis=new JSONObject();
+            JSONObject yAxis=new JSONObject();
+            JSONObject series=new JSONObject();
+            String line=null;
             //type==null或者type==0，默认转换成热力图
             if(type==null||type==0||type==12){
-                type=12;
-                //todo
+
+                while((line=reader.readLine())!=null){
+                    String[] data =line.split(",");
+
+                }
             }
             else if(type==13){
-                //todo
+                List sData = new ArrayList<>();
+                int min=65535;
+                int max=-65535;
+                while((line=reader.readLine())!=null){
+                    String[] data =line.split(",");
+
+                    double p1 = Double.parseDouble(data[0]);
+                    double p2 = Double.parseDouble(data[2]);
+                    double p3 = Double.parseDouble(data[4]);
+
+                    double x1=Double.parseDouble(data[1]);
+                    double x2=x1+Double.parseDouble(data[3]);
+                    double x3=x2+x2/2;
+
+                    min=x1<min ? (int)x1 : min;
+                    max=x3>max ? (int)x3+1 : min;
+
+                    double[][] doubles={{x1,p1},{x2,p2},{x3,p3}};
+                    sData.add(doubles);
+                }
+
+                xAxis.put("max",max);
+                xAxis.put("min",min);
+                series.put("data", sData);
+
             }
 
-            String jsonString =gson.toJson(jsonMap);
-            messageMap.put("jsonString",jsonString);
+
+
+            lineChart.put("xAxis",xAxis);
+            lineChart.put("yAxis",yAxis);
+            lineChart.put("series",series);
+
+
+            messageMap.put("lineChart",lineChart);
             messageMap.put("isSuccess",true);
             messageMap.put("message","得到转换result转换图结果成功");
             return messageMap;

@@ -48,11 +48,13 @@ public class ComponentOutputStubServiceImpl implements ComponentOutputStubServic
             }
             messageMap.put("outputFileAddr",outputFileAddr);
             messageMap.put("isSuccess",true);
+
             return messageMap;
         }
         catch(Exception e){
             e.printStackTrace();
             messageMap.put("isSuccess",false);
+            messageMap.put("message","getOutputFileAddr出错");
             return messageMap;
         }
 
