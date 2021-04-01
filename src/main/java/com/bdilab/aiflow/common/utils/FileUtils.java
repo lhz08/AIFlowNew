@@ -7,8 +7,10 @@ import com.csvreader.CsvWriter;
 import de.siegmar.fastcsv.reader.CsvContainer;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.CsvRow;
+import org.springframework.data.convert.JodaTimeConverters;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.tools.JavaCompiler;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -24,67 +26,113 @@ public class FileUtils {
      * @return
      */
     public static Map<String,Object> transResultCsvToJson(String filePath,Integer type){
-        Map<String,Object> messageMap = new HashMap<>(2);
+        JSONObject messageMap = new JSONObject();
         try{
             InputStreamReader isr = new InputStreamReader(new FileInputStream(filePath), "UTF-8");
             BufferedReader reader = new BufferedReader(isr);
 
 
-            JSONObject lineChart =new JSONObject();
-            JSONObject xAxis=new JSONObject();
-            JSONObject yAxis=new JSONObject();
-            JSONObject series=new JSONObject();
+            JSONObject lineChart = new JSONObject();
+            JSONObject xAxis = new JSONObject();
+            JSONObject yAxis = new JSONObject();
+            JSONObject series = new JSONObject();
             String line=null;
             //type==null或者type==0，默认转换成热力图
             if(type==null||type==0||type==12){
+                List<Object[]> sData = new ArrayList<>();
+                //在这里更改min可以限定图y轴范围
+                int min=0;
+                int max=-655355;
+                int checkPoint=0;
+                List<String> xdata=new ArrayList<String>() ;
+                while((line=reader.readLine())!=null) {
+                    String[] data = line.split(",");
+                    //需要记录x,p数组对，得到最小界和最大界
+                    double p1 = Double.parseDouble(data[0]);
+                    double p2 = Double.parseDouble(data[2]);
+                    double p3 = Double.parseDouble(data[4]);
+                    double x1 = Double.parseDouble(data[1]);
+                    double x2 = x1 + Double.parseDouble(data[3]);
+                    double x3 = x2 + x2 / 2;
 
-                while((line=reader.readLine())!=null){
-                    String[] data =line.split(",");
+                    //得到下界和上界，10为单位
+                    min = x1 < min ? (((int) x1) / 10) * 10 : min;
+                    max = x3 > max ? ((int) x3 / 10 + 1) * 10 : max;
+
+                    xdata.add(String.valueOf(checkPoint));
+                    //测点，y坐标，电阻率，实际深度
+                    Object[] double1 = {checkPoint, (int) x1, x1, p1};
+                    Object[] double2 = {checkPoint, (int) x2, x2, p2};
+                    Object[] double3 = {checkPoint, (int) x3, x3, p3};
+                    sData.add(double1);
+                    sData.add(double2);
+                    sData.add(double3);
+
+                    checkPoint++;
+                }
+                //y轴单位长度为10
+                List<Integer> ydata=new ArrayList<>();
+                for(int h=min;h<=max;h+=10){ ydata.add(h); }
+
+                //转化深度为y轴坐标，如深度23.568，min=20，则y=0
+                for(int i=0;i<checkPoint;i++){
+                    int m=0;
+                    for(int j=0;j<3;j++){
+                        //遍历数组，拿到当前深度对应的坐标值
+                        int y = ((int)sData.get(i*3+j)[1]-min)/10;
+                        sData.get(i*3+j)[1]=y;
+                        //补全比当前深度小的坐标值
+                        for(;m<y;m+=1){
+                            Object[] miss = {i,m,sData.get(i*3+j)[2],sData.get(i*3+j)[3]};
+                            sData.add(miss);
+                        }
+                        //判断到等于，m+1跳过当前
+                        m+=1;
+                    }
 
                 }
+
+                xAxis.put("data",xdata);
+                yAxis.put("max",max);
+                yAxis.put("min",min);
+                yAxis.put("data", ydata);
+                series.put("data", sData);
+
+                lineChart.put("xAxis",xAxis);
+                lineChart.put("yAxis",yAxis);
+                lineChart.put("series",series);
+                messageMap.put("heatMap",lineChart);
             }
             else if(type==13){
                 List sData = new ArrayList<>();
-                int min=65535;
-                int max=-65535;
+                int min=655355;
+                int max=-655355;
                 while((line=reader.readLine())!=null){
                     String[] data =line.split(",");
 
                     double p1 = Double.parseDouble(data[0]);
                     double p2 = Double.parseDouble(data[2]);
                     double p3 = Double.parseDouble(data[4]);
-
                     double x1=Double.parseDouble(data[1]);
                     double x2=x1+Double.parseDouble(data[3]);
                     double x3=x2+x2/2;
 
                     min=x1<min ? (int)x1 : min;
                     max=x3>max ? (int)x3+1 : min;
-
                     double[][] doubles={{x1,p1},{x2,p2},{x3,p3}};
                     sData.add(doubles);
                 }
-
                 xAxis.put("max",max);
                 xAxis.put("min",min);
                 series.put("data", sData);
 
+                lineChart.put("xAxis",xAxis);
+                lineChart.put("series",series);
+                messageMap.put("lineChart",lineChart);
             }
 
-
-
-            lineChart.put("xAxis",xAxis);
-            lineChart.put("yAxis",yAxis);
-            lineChart.put("series",series);
-
-
-            messageMap.put("lineChart",lineChart);
-            messageMap.put("isSuccess",true);
-            messageMap.put("message","得到转换result转换图结果成功");
             return messageMap;
-
         }
-
         catch (IOException e) {
             e.printStackTrace();
             messageMap.put("isSuccess",false);

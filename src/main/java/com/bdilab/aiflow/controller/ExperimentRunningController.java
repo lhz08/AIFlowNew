@@ -153,7 +153,7 @@ public class ExperimentRunningController {
             return new ResponseResult(false,"002",isSuccess.get("message").toString());
         }
         ResponseResult responseResult=new ResponseResult(true,"001",isSuccess.get("message").toString());
-        responseResult.setData(isSuccess.get("lineChart"));
+        responseResult.setData(isSuccess.get("data"));
         return responseResult;
     }
 }

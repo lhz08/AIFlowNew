@@ -1,5 +1,6 @@
 package com.bdilab.aiflow.service.experiment.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.bdilab.aiflow.common.enums.DeleteStatus;
 import com.bdilab.aiflow.common.enums.RunningStatus;
 import com.bdilab.aiflow.mapper.*;
@@ -15,6 +16,7 @@ import com.bdilab.aiflow.vo.ExperimentRunningVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,14 +57,19 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
      */
     @Override
     public Map<String,Object> getResultJson(Integer runningId,Integer componentId,Integer type){
-        Map<String,Object> messageMap;
+        Map<String,Object> messageMap = new HashMap<>(2);
         Map<String,Object> isSuccess=componentOutputStubService.getOutputFileAddr(runningId, componentId, type);
 
         if(isSuccess.get("isSuccess").equals(false)){
             messageMap=isSuccess;
             return messageMap;
         }
-        messageMap=transResultCsvToJson(isSuccess.get("outputFileAddr").toString(),type);
+
+        JSONObject jsonObject=(JSONObject) transResultCsvToJson(isSuccess.get("outputFileAddr").toString(),type);
+        messageMap.put("isSuccess", true);
+        messageMap.put("data",jsonObject);
+        messageMap.put("message", "转换Json结果成功");
+
         return messageMap;
 
 
