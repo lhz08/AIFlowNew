@@ -63,6 +63,9 @@ public class ExperimentServiceImpl implements ExperimentService {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    ExperimentRunningJsonResultMapper experimentRunningJsonResultMapper;
+
     @Value("${web.address}")
     private String webAddress;
     @Value("${minio.host}")
@@ -265,6 +268,13 @@ public class ExperimentServiceImpl implements ExperimentService {
         //将kubeflow上的runId更新进数据库表中
         experimentRunning.setRunId(runId);
         experimentRunningMapper.updateExperimentRunning(experimentRunning);
+
+        //新建对应的experiment_running_json_result表项，用来保存前端图表结果
+        ExperimentRunningJsonResult experimentRunningJsonResult = new ExperimentRunningJsonResult();
+        experimentRunningJsonResult.setFkExperimentRunningId(experimentRunning.getId());
+        experimentRunningJsonResult.setCreateTime(new Date());
+        experimentRunningJsonResultMapper.insertExperimentRunningJsonResult(experimentRunningJsonResult);
+
 
         messageMap.put("isSuccess",true);
         messageMap.put("message","运行实验成功");

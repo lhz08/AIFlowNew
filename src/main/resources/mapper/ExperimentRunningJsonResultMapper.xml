@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bdilab.aiflow.mapper.ExperimentRunningJsonResultMapper" >
+
+    <!--useGeneratedKeys设置为 true 时，表示如果插入的表id以自增列为主键，则允许 JDBC 支持自动生成主键，并可将自动生成的主键id返回-->
+    <insert id="insertExperimentRunningJsonResult" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.ExperimentRunningJsonResult">
+        insert into experiment_running_json_result (fk_experiment_running_id,result_json_string,create_time)
+        values (#{fkExperimentRunningId}, #{resultJsonString}, #{createTime})
+    </insert>
+
+    <update id="updateExperimentRunningJsonResult"  parameterType="com.bdilab.aiflow.model.ExperimentRunningJsonResult">
+        update experiment_running_json_result
+        <trim prefix="set" suffixOverrides=",">
+            <if test="fkExperimentRunningId!=null"> fk_experiment_running_id = #{fkExperimentRunningId},</if>
+            <if test="resultJsonString!=null"> result_json_string = #{resultJsonString},</if>
+            <if test="createTime!=null"> create_time = #{createTime}</if>
+        </trim>
+        where experiment_running_json_result.id = #{id}
+    </update>
+
+
+  <select id="selectExperimentRunningJsonResultByExperimentRunningId" parameterType="Integer"
+          resultType="com.bdilab.aiflow.model.ExperimentRunningJsonResult">
+        select experiment_running_json_result.id as id,
+        experiment_running_json_result.fk_experiment_running_id as fkExperimentRunningId,
+        experiment_running_json_result.result_json_string as resultJsonString,
+        experiment_running_json_result.create_time as createTime
+        from experiment_running_json_result
+        where experiment_running_json_result.fk_experiment_running_id = #{experimentRunningId}
+        order by id desc
+    </select>
+
+    <select id="selectExperimentRunningJsonResultByExperimentRunningJsonResultId" parameterType="Integer"
+            resultType="com.bdilab.aiflow.model.ExperimentRunningJsonResult">
+        select experiment_running_json_result.id as id,
+        experiment_running_json_result.fk_experiment_running_id as fkExperimentRunningId,
+        experiment_running_json_result.result_json_string as resultJsonString,
+        experiment_running_json_result.create_time as createTime
+        from experiment_running_json_result
+        where experiment_running_json_result.fk_experiment_running_id = #{experimentRunningResultId}
+        order by id desc
+    </select>
+
+
+    <delete id="deleteExperimentRunningJsonResultByExperimentRunningId" parameterType="Integer">
+        delete from experiment_running_json_result
+        where experiment_running_json_result.fk_experiment_running_id=#{experimentRunningId}
+    </delete>
+
+    <delete id="deleteExperimentRunningJsonResultByExperimentRunningJsonResultId" parameterType="Integer">
+        delete from experiment_running_json_result
+        where experiment_running_json_result.fk_experiment_running_id=#{experimentRunningJsonResultId}
+    </delete>
+
+
+
+</mapper>
