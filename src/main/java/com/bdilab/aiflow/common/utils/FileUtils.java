@@ -7,10 +7,8 @@ import com.csvreader.CsvWriter;
 import de.siegmar.fastcsv.reader.CsvContainer;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.CsvRow;
-import org.springframework.data.convert.JodaTimeConverters;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.tools.JavaCompiler;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -60,10 +58,10 @@ public class FileUtils {
                     max = x3 > max ? ((int) x3 / 10 + 1) * 10 : max;
 
                     xdata.add(String.valueOf(checkPoint));
-                    //测点，y坐标，电阻率，实际深度
-                    Object[] double1 = {checkPoint, (int) x1, x1, p1};
-                    Object[] double2 = {checkPoint, (int) x2, x2, p2};
-                    Object[] double3 = {checkPoint, (int) x3, x3, p3};
+                    //测点，y坐标，电阻率
+                    Object[] double1 = {checkPoint, (int) x1, p1};
+                    Object[] double2 = {checkPoint, (int) x2, p2};
+                    Object[] double3 = {checkPoint, (int) x3, p3};
                     sData.add(double1);
                     sData.add(double2);
                     sData.add(double3);
@@ -83,7 +81,7 @@ public class FileUtils {
                         sData.get(i*3+j)[1]=y;
                         //补全比当前深度小的坐标值
                         for(;m<y;m+=1){
-                            Object[] miss = {i,m,sData.get(i*3+j)[2],sData.get(i*3+j)[3]};
+                            Object[] miss = {i,m,sData.get(i*3+j)[2]};
                             sData.add(miss);
                         }
                         //判断到等于，m+1跳过当前
