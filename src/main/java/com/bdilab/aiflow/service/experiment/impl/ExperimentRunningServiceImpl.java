@@ -1,5 +1,6 @@
 package com.bdilab.aiflow.service.experiment.impl;
 
+
 import com.bdilab.aiflow.common.enums.DeleteStatus;
 import com.bdilab.aiflow.common.enums.RunningStatus;
 import com.bdilab.aiflow.mapper.*;
@@ -14,7 +15,6 @@ import com.bdilab.aiflow.service.run.RunService;
 import com.bdilab.aiflow.vo.ExperimentRunningVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,23 +50,6 @@ public class ExperimentRunningServiceImpl implements ExperimentRunningService {
     ModelMapper modelMapper;
 
 
-    /**
-     * todo:util内转换
-     */
-    @Override
-    public Map<String,Object> getResultJson(Integer runningId,Integer componentId,Integer type){
-        Map<String,Object> messageMap;
-        Map<String,Object> isSuccess=componentOutputStubService.getOutputFileAddr(runningId, componentId, type);
-
-        if(isSuccess.get("isSuccess").equals(false)){
-            messageMap=isSuccess;
-            return messageMap;
-        }
-        messageMap=transResultCsvToJson(isSuccess.get("outputFileAddr").toString(),type);
-        return messageMap;
-
-
-    }
 
     @Override
     public boolean updateExperimentRunning(ExperimentRunning experimentRunning){

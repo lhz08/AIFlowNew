@@ -140,20 +140,4 @@ public class ExperimentRunningController {
         return new ResponseResult(false,"002",isSuccess.get("message").toString());
     }
 
-    @ResponseBody
-    @ApiOperation("通过实验运行id,组件id和type得到结果，转换成前端可用JSON字符串格式")
-    @RequestMapping(value = "/experimentRunning/getResultJson", method = RequestMethod.POST)
-    public  ResponseResult getResultJson(@RequestParam @ApiParam(value = "实验运行id") Integer runningId,
-                                         @RequestParam @ApiParam(value = "组件id") Integer componentId,
-                                         @RequestParam @ApiParam(value = "图类型,12热力图，13折线图") Integer type,
-                                         HttpSession httpSession){
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Map<String,Object> isSuccess = experimentRunningService.getResultJson(runningId,componentId,type);
-        if(isSuccess.get("isSuccess").equals(false)){
-            return new ResponseResult(false,"002",isSuccess.get("message").toString());
-        }
-        ResponseResult responseResult=new ResponseResult(true,"001",isSuccess.get("message").toString());
-        responseResult.setData(isSuccess.get("jsonString"));
-        return responseResult;
-    }
 }

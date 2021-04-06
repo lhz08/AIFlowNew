@@ -17,17 +17,6 @@ import java.util.Map;
  **/
 
 public interface ExperimentRunningService {
-
-
-    /**
-     * 通过实验运行id和组件id得到结果，转换成前端可用JSON字符串格式
-     * @param runningId 运行id
-     * @param componentId 组件id，用来从数据库中获得结果文件地址
-     * @param type 0热力图，1折线图
-     */
-    Map<String,Object> getResultJson(Integer runningId,Integer componentId,Integer type);
-
-
     /**
      * 更新实验运行
      * @param experimentRunning
