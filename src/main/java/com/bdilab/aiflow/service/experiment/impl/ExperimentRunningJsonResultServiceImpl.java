@@ -30,7 +30,7 @@ public class ExperimentRunningJsonResultServiceImpl implements ExperimentRunning
     @Override
     public Map<String,Object> getResultJson(Integer runningId,Integer componentId,Integer type){
         Map<String,Object> messageMap = new HashMap<>(2);
-        Map<String,Object> isSuccess=componentOutputStubService.getOutputFileAddr(runningId, componentId, type);
+        Map<String,Object> isSuccess=componentOutputStubService.getOutputFileAddr(runningId, componentId,null);
 
         if(isSuccess.get("isSuccess").equals(false)){
             messageMap=isSuccess;
@@ -61,7 +61,7 @@ public class ExperimentRunningJsonResultServiceImpl implements ExperimentRunning
     }
 
     @Override
-    public ExperimentRunningJsonResult getExperimentRunningJsonResultByRunningId(Integer experimentRunningId){
+    public List<ExperimentRunningJsonResult> getExperimentRunningJsonResultByRunningId(Integer experimentRunningId){
         return experimentRunningJsonResultMapper.selectExperimentRunningJsonResultByExperimentRunningId(experimentRunningId);
     }
 

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,36 +52,42 @@ public class ExperimentRunningJsonResultController {
         return responseResult;
     }
 
-    /**
-     * 测试使用
-     * @param fkExperimentRunningId
-     * @param resultJsonString
-     * @param httpSession
-     * @return
-     * @throws Exception
-     */
-    @ResponseBody
-    @ApiOperation("创建实验结果的前端Json字符串保存记录")
-    @RequestMapping(value = "/experimentRunningJsonResult/createExperimentRunningJsonResult", method = RequestMethod.POST)
-    public ResponseResult createExperimentRunningJsonResult(@RequestParam @ApiParam(value = "实验运行id") Integer fkExperimentRunningId,
-                                                            @RequestParam @ApiParam(value = "Json结果") String resultJsonString,
-                                                            HttpSession httpSession) throws Exception{
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Map<String,Object> data=new HashMap<>(1);
-        try {
-            ExperimentRunningJsonResult experimentRunningJsonResult =
-                    experimentRunningJsonResultService.createExperimentRunningJsonResult(fkExperimentRunningId, resultJsonString);
 
-            ResponseResult responseResult=new ResponseResult(true,"001","创建实验结果Json前端Json字符串成功");
+    @ResponseBody
+    @ApiOperation("查询实验结果的前端Json字符串保存记录，没有则创建")
+    @RequestMapping(value = "/experimentRunningJsonResult/fetchExperimentRunningJsonResultByRunningId", method = RequestMethod.POST)
+    public ResponseResult fetchExperimentRunningJsonResultByRunningId(@RequestParam @ApiParam(value = "实验运行id") Integer fkExperimentRunningId,
+                                                                      HttpSession httpSession) throws Exception {
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        ResponseResult responseResult = new ResponseResult();
+        Map<String, Object> data = new HashMap<>(1);
+        try {
+            List<ExperimentRunningJsonResult> experimentRunningJsonResultList =
+                    experimentRunningJsonResultService.getExperimentRunningJsonResultByRunningId(fkExperimentRunningId);
+            if(experimentRunningJsonResultList.size()!=0){
+                data.put("resultJsonString", experimentRunningJsonResultList.get(0).getResultJsonString());
+                responseResult.setCode("001");
+                responseResult.setSuccess(true);
+                responseResult.setMessage("查询到 runningid= " + fkExperimentRunningId + " 的字符串");
+                responseResult.setData(data);
+
+                return responseResult;
+            }
+
+            ExperimentRunningJsonResult experimentRunningJsonResult =
+                    experimentRunningJsonResultService.createExperimentRunningJsonResult(fkExperimentRunningId, null);
+
+            responseResult=new ResponseResult(true,"002","没有查询到，创建新结果成功");
             data.put("experimentRunningJsonResultId", experimentRunningJsonResult.getId());
             responseResult.setData(data);
+
             return responseResult;
 
-        }catch (Exception e){
-            ResponseResult responseResult = new ResponseResult(false,"002","创建实验结果Json前端Json字符串失败,具体信息："+e.getMessage());
-            return responseResult;
+        } catch (Exception e) {
+            return new ResponseResult(false, "003", "fetch失败,具体信息：" + e.getMessage());
         }
     }
+
 
     @ResponseBody
     @ApiOperation("更新实验结果的前端Json字符串保存记录")
@@ -92,12 +99,12 @@ public class ExperimentRunningJsonResultController {
         ResponseResult responseResult = new ResponseResult();
         Map<String, Object> data = new HashMap<>(1);
         try {
-            ExperimentRunningJsonResult experimentRunningJsonResult =
+            List<ExperimentRunningJsonResult> experimentRunningJsonResultList =
                     experimentRunningJsonResultService.getExperimentRunningJsonResultByRunningId(fkExperimentRunningId);
-            experimentRunningJsonResult.setResultJsonString(resultJsonString);
-            experimentRunningJsonResult.setCreateTime(new Date());
-            if (experimentRunningJsonResultService.updateExperimentRunningJsonResult(experimentRunningJsonResult)) {
-                data.put("experimentRunningJsonResultId", experimentRunningJsonResult.getId());
+            experimentRunningJsonResultList.get(0).setResultJsonString(resultJsonString);
+            experimentRunningJsonResultList.get(0).setCreateTime(new Date());
+            if (experimentRunningJsonResultService.updateExperimentRunningJsonResult(experimentRunningJsonResultList.get(0))) {
+                data.put("experimentRunningJsonResultId", experimentRunningJsonResultList.get(0).getId());
                 responseResult.setCode("001");
                 responseResult.setSuccess(true);
                 responseResult.setMessage("更新runningid= " + fkExperimentRunningId + " 的字符串成功");
@@ -113,6 +120,42 @@ public class ExperimentRunningJsonResultController {
         }
     }
 
+
+    @Deprecated
+    @ResponseBody
+    @ApiOperation("创建实验结果的前端Json字符串保存记录")
+    @RequestMapping(value = "/experimentRunningJsonResult/createExperimentRunningJsonResult", method = RequestMethod.POST)
+    public ResponseResult createExperimentRunningJsonResult(@RequestParam @ApiParam(value = "实验运行id") Integer fkExperimentRunningId,
+                                                            @RequestParam @ApiParam(value = "Json结果") String resultJsonString,
+                                                            HttpSession httpSession) throws Exception{
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Map<String,Object> data=new HashMap<>(1);
+        try {
+
+            List<ExperimentRunningJsonResult> experimentRunningJsonResultList =
+                    experimentRunningJsonResultService.getExperimentRunningJsonResultByRunningId(fkExperimentRunningId);
+            if(experimentRunningJsonResultList.size()!=0){
+                ResponseResult responseResult=new ResponseResult(true,"002","已存在对应Json字符串");
+                data.put("experimentRunningJsonResultId", experimentRunningJsonResultList.get(0).getId());
+                responseResult.setData(data);
+                return responseResult;
+            }
+
+            ExperimentRunningJsonResult experimentRunningJsonResult =
+                    experimentRunningJsonResultService.createExperimentRunningJsonResult(fkExperimentRunningId, resultJsonString);
+
+            ResponseResult responseResult=new ResponseResult(true,"001","创建实验结果Json前端Json字符串成功");
+            data.put("experimentRunningJsonResultId", experimentRunningJsonResult.getId());
+            responseResult.setData(data);
+            return responseResult;
+
+        }catch (Exception e){
+            ResponseResult responseResult = new ResponseResult(false,"003","创建实验结果Json前端Json字符串失败,具体信息："+e.getMessage());
+            return responseResult;
+        }
+    }
+
+    @Deprecated
     @ResponseBody
     @ApiOperation("通过运行id查询前端Json字符串保存记录")
     @RequestMapping(value = "/experimentRunningJsonResult/getExperimentRunningJsonResultByRunningId", method = RequestMethod.POST)
@@ -122,9 +165,9 @@ public class ExperimentRunningJsonResultController {
         ResponseResult responseResult = new ResponseResult();
         Map<String, Object> data = new HashMap<>(1);
         try {
-            ExperimentRunningJsonResult experimentRunningJsonResult =
+            List<ExperimentRunningJsonResult> experimentRunningJsonResultList =
                     experimentRunningJsonResultService.getExperimentRunningJsonResultByRunningId(fkExperimentRunningId);
-                data.put("resultJsonString", experimentRunningJsonResult.getResultJsonString());
+                data.put("resultJsonString", experimentRunningJsonResultList.get(0).getResultJsonString());
                 responseResult.setCode("001");
                 responseResult.setSuccess(true);
                 responseResult.setMessage("查询runningid= " + fkExperimentRunningId + " 的字符串成功");

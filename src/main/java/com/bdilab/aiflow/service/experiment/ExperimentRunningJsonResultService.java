@@ -2,6 +2,7 @@ package com.bdilab.aiflow.service.experiment;
 
 import com.bdilab.aiflow.model.ExperimentRunningJsonResult;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -41,7 +42,7 @@ public interface ExperimentRunningJsonResultService {
      * @param experimentRunningId
      * @return
      */
-    ExperimentRunningJsonResult getExperimentRunningJsonResultByRunningId(Integer experimentRunningId);
+    List<ExperimentRunningJsonResult> getExperimentRunningJsonResultByRunningId(Integer experimentRunningId);
 
     /**
      * 获取id对应的json结果
