@@ -26,7 +26,7 @@ public interface ExperimentRunningJsonResultMapper {
      * @param experimentRunningId
      * @return
      */
-    ExperimentRunningJsonResult selectExperimentRunningJsonResultByExperimentRunningId(Integer experimentRunningId);
+    List<ExperimentRunningJsonResult> selectExperimentRunningJsonResultByExperimentRunningId(Integer experimentRunningId);
 
     /**
      * 通过实验运行结果id查询这次的Json结果(唯一)
