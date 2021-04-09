@@ -46,11 +46,18 @@ public class RunController {
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "IP_port") String IP_port,
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "resultPath")String resultPath,
                                       @RequestParam(required = false,defaultValue = "") @ApiParam(value = "resultTable") String resultTable){
-//        boolean isInProcess = runService.pushData(processInstanceId,taskId,conversationId,resultTable);
-//        System.out.println(processInstanceId+" "+taskId+" "+conversationId+resultPath);
-//        if(isInProcess){
-//            return new ResponseResult(true,"001","已完成id为"+taskId+"的任务");
-//        }
+//        System.out.println("processInstanceId:= "+processInstanceId);
+//        System.out.println("taskId:= "+taskId);
+//        System.out.println("conversationId:= "+conversationId);
+//        System.out.println("IP_port:= "+IP_port);
+//        System.out.println("resultPath:= "+resultPath);
+//        System.out.println("resultTable:= "+resultTable);
+
+        boolean isInProcess = runService.pushData(processInstanceId,taskId,conversationId,resultTable);
+        System.out.println(processInstanceId+" "+taskId+" "+conversationId+resultPath);
+        if(isInProcess){
+            return new ResponseResult(true,"001","已完成id为"+taskId+"的任务");
+        }
         return new ResponseResult(false,"002","执行任务失败，当前流程已被暂停或中止");
 
     }

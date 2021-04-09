@@ -256,7 +256,7 @@ public class ExperimentServiceImpl implements ExperimentService {
         if(workflow.getIsMl()==1) {
             config = "{\"endpoint\":\"" + minioHost.replace("http://", "") + "\",\"access_key\":\"" + minioAccessKey + "\",\"secret_key\":\"" + minioSecretKey + "\",\"IP_port\":\"" + webAddress + "\",\"resultPath\":" + "\"user" + userId + "\",\"processInstanceId\":\"" + experimentRunning.getId() + "\",\"conversationId\":\"" + conversationId + "\",";
         }else {
-            config = "{\"processInstanceId\":\"" + experiment.getId()+ "\",\"conversationId\":\"" + conversationId + "\",";
+            config = "{\"processInstanceId\":\"" + experimentRunning.getId()+ "\",\"conversationId\":\"" + conversationId + "\",";
         }
         config = config + "\"component\":" +gson1.toJson(componentIdName) +"}";
         //"component":{"mutualInfo":3,"knn":4,"split_data":1,"data_import":5,"classification_test":6}
