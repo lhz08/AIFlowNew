@@ -80,6 +80,7 @@ public class RunServiceImpl implements RunService {
     @Override
     public boolean pushData(String runningId,String taskId,String conversationId,String resultTable) {
         Gson gson = new Gson();
+        //用runningid查到
         Integer experimentId = experimentRunningMapper.selectExperimentRunningByRunningId(Integer.parseInt(runningId)).getFkExperimentId();
         Experiment experiment = experimentMapper.selectExperimentById(experimentId);
         Workflow workflow = workflowMapper.selectWorkflowById(experiment.getFkWorkflowId());
