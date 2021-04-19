@@ -1,6 +1,7 @@
 package com.bdilab.aiflow.service.experiment;
 
 import com.bdilab.aiflow.model.ExperimentRunningJsonResult;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -31,11 +32,6 @@ public interface ExperimentRunningJsonResultService {
      */
     ExperimentRunningJsonResult createExperimentRunningJsonResult(Integer fkExperimentRunningId,String resultJsonString);
 
-    /**
-     * 更新实验json结果
-     * @param experimentRunningJsonResult
-     */
-    boolean updateExperimentRunningJsonResult(ExperimentRunningJsonResult experimentRunningJsonResult);
 
     /**
      * 获取实验运行id对应的json结果
@@ -44,6 +40,22 @@ public interface ExperimentRunningJsonResultService {
      */
     List<ExperimentRunningJsonResult> getExperimentRunningJsonResultByRunningId(Integer experimentRunningId);
 
+    /*###以下方法勿删###*/
+
+    /**
+     * 新增json结果
+     * @param fkExperimentRunningId
+     * @param resultJsonString
+     * @return
+     */
+    ExperimentRunningJsonResult createExperimentRunningJsonResult(Integer fkExperimentRunningId,Integer fkComponentInfoId, String resultJsonString);
+
+    /**
+     * 更新实验json结果
+     * @param experimentRunningJsonResult
+     */
+    boolean updateExperimentRunningJsonResult(ExperimentRunningJsonResult experimentRunningJsonResult);
+
     /**
      * 获取id对应的json结果
      * @param experimentRunningJsonResultId
@@ -51,10 +63,13 @@ public interface ExperimentRunningJsonResultService {
      */
     ExperimentRunningJsonResult getExperimentRunningJsonResultById(Integer experimentRunningJsonResultId);
 
+    /**
+     * 获取试验运行id和组件id对应的json结果
+     * @param fkExperimentRunningId
+     * @param fkComponentInfoId
+     * @return
+     */
+    ExperimentRunningJsonResult selectExperimentRunningJsonResultByExperimentRunningIdAndComponentInfoId(Integer fkExperimentRunningId, Integer fkComponentInfoId);
 
-
-
-
-
-
+    boolean deleteExperimentRunningJsonResult(Integer experimentRunningJsonResultId);
 }

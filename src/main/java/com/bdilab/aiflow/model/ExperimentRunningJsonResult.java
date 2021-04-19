@@ -6,6 +6,7 @@ public class ExperimentRunningJsonResult {
 
     private Integer id;
     private Integer fkExperimentRunningId;
+    private Integer fkComponentInfoId;
     private String resultJsonString;
     private Date createTime;
 
@@ -24,6 +25,14 @@ public class ExperimentRunningJsonResult {
 
     public void setFkExperimentRunningId(Integer fkExperimentRunningId) {
         this.fkExperimentRunningId = fkExperimentRunningId;
+    }
+
+    public Integer getFkComponentInfoId() {
+        return fkComponentInfoId;
+    }
+
+    public void setFkComponentInfoId(Integer fkComponentInfoId) {
+        this.fkComponentInfoId = fkComponentInfoId;
     }
 
     public String getResultJsonString() {

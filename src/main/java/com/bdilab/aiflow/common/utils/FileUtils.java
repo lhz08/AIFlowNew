@@ -18,6 +18,32 @@ public class FileUtils {
 
 
     /**
+     * 将csv文件转换成二维数组
+     */
+    public static Map<String,Object> transResultCsvToArray(String filePath) {
+        Map<String,Object> result = new HashMap<>();
+        try(InputStreamReader isr = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8);
+            BufferedReader reader = new BufferedReader(isr)) {
+            List<List<Double>> array = new ArrayList<>();
+            String line=null;
+            while((line=reader.readLine())!=null) {
+                String[] datas = line.split(",");
+                List<Double> list = new ArrayList<>();
+                for(String data : datas){
+                    list.add(Double.parseDouble(data));
+                }
+                array.add(list);
+            }
+            result.put("isSuccess",true);
+            result.put("array",array);
+        } catch (IOException e) {
+            result.put("isSuccess",false);
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    /**
      * todo:3/29
      * @param filePath
      * @param type

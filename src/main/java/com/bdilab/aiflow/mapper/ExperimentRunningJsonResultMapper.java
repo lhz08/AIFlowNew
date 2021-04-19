@@ -2,6 +2,7 @@ package com.bdilab.aiflow.mapper;
 
 
 import com.bdilab.aiflow.model.ExperimentRunningJsonResult;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ public interface ExperimentRunningJsonResultMapper {
      * @param experimentRunningJsonResult
      * @return
      */
+    //勿删
     int insertExperimentRunningJsonResult(ExperimentRunningJsonResult experimentRunningJsonResult);
 
     /**
@@ -19,6 +21,7 @@ public interface ExperimentRunningJsonResultMapper {
      * @param experimentRunningJsonResult
      * @return
      */
+    //勿删
     int updateExperimentRunningJsonResult(ExperimentRunningJsonResult experimentRunningJsonResult);
 
     /**
@@ -33,7 +36,18 @@ public interface ExperimentRunningJsonResultMapper {
      * @param experimentRunningResultId
      * @return
      */
+    //勿删
     ExperimentRunningJsonResult selectExperimentRunningJsonResultByExperimentRunningJsonResultId(Integer experimentRunningResultId);
+
+
+    /**
+     * 通过实验运行id和组件id查询Json结果(理论上唯一)
+     * @param fkExperimentRunningId 实验运行id
+     * @param fkComponentInfoId 组件id
+     * @return
+     */
+    //勿删
+    ExperimentRunningJsonResult selectExperimentRunningJsonResultByExperimentRunningIdAndComponentInfoId(@Param("fkExperimentRunningId")Integer fkExperimentRunningId, @Param("fkComponentInfoId")Integer fkComponentInfoId);
 
     /**
      * 通过实验运行id删除这次实验运行结果的Json字符串
@@ -47,5 +61,6 @@ public interface ExperimentRunningJsonResultMapper {
      * @param experimentRunningJsonResultId
      * @return
      */
+    //勿删
     int deleteExperimentRunningJsonResultByExperimentRunningJsonResultId(Integer experimentRunningJsonResultId);
 }

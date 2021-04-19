@@ -20,7 +20,6 @@ import static com.bdilab.aiflow.common.utils.FileUtils.transResultCsvToJson;
 @Service
 public class ExperimentRunningJsonResultServiceImpl implements ExperimentRunningJsonResultService {
 
-
     @Autowired
     ExperimentRunningJsonResultMapper experimentRunningJsonResultMapper;
 
@@ -55,14 +54,28 @@ public class ExperimentRunningJsonResultServiceImpl implements ExperimentRunning
         return experimentRunningJsonResult;
     }
 
-    @Override
-    public boolean updateExperimentRunningJsonResult(ExperimentRunningJsonResult experimentRunningJsonResult){
-        return experimentRunningJsonResultMapper.updateExperimentRunningJsonResult(experimentRunningJsonResult)==1;
-    }
+
 
     @Override
     public List<ExperimentRunningJsonResult> getExperimentRunningJsonResultByRunningId(Integer experimentRunningId){
         return experimentRunningJsonResultMapper.selectExperimentRunningJsonResultByExperimentRunningId(experimentRunningId);
+    }
+
+
+    /*###以下方法勿删###*/
+    @Override
+    public ExperimentRunningJsonResult createExperimentRunningJsonResult(Integer fkExperimentRunningId, Integer fkComponentInfoId, String resultJsonString) {
+        ExperimentRunningJsonResult experimentRunningJsonResult = new ExperimentRunningJsonResult();
+        experimentRunningJsonResult.setFkExperimentRunningId(fkExperimentRunningId);
+        experimentRunningJsonResult.setFkComponentInfoId(fkComponentInfoId);
+        experimentRunningJsonResult.setResultJsonString(resultJsonString);
+        experimentRunningJsonResult.setCreateTime(new Date());
+        experimentRunningJsonResultMapper.insertExperimentRunningJsonResult(experimentRunningJsonResult);
+        return experimentRunningJsonResult;
+    }
+    @Override
+    public boolean updateExperimentRunningJsonResult(ExperimentRunningJsonResult experimentRunningJsonResult){
+        return experimentRunningJsonResultMapper.updateExperimentRunningJsonResult(experimentRunningJsonResult)==1;
     }
 
     @Override
@@ -71,6 +84,15 @@ public class ExperimentRunningJsonResultServiceImpl implements ExperimentRunning
                 selectExperimentRunningJsonResultByExperimentRunningJsonResultId(experimentRunningJsonResultId);
     }
 
+    @Override
+    public ExperimentRunningJsonResult selectExperimentRunningJsonResultByExperimentRunningIdAndComponentInfoId(Integer fkExperimentRunningId, Integer fkComponentInfoId) {
+        return experimentRunningJsonResultMapper.
+                selectExperimentRunningJsonResultByExperimentRunningIdAndComponentInfoId(fkExperimentRunningId,fkComponentInfoId);
+    }
 
-
+    @Override
+    public boolean deleteExperimentRunningJsonResult(Integer experimentRunningJsonResultId) {
+        return experimentRunningJsonResultMapper.
+                deleteExperimentRunningJsonResultByExperimentRunningJsonResultId(experimentRunningJsonResultId) == 1;
+    }
 }

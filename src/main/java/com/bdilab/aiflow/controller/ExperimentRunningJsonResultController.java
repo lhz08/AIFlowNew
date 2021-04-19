@@ -1,8 +1,10 @@
 package com.bdilab.aiflow.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.bdilab.aiflow.common.enums.DeleteStatus;
 import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
+import com.bdilab.aiflow.common.utils.FileUtils;
 import com.bdilab.aiflow.model.ExperimentRunningJsonResult;
 import com.bdilab.aiflow.service.component.ComponentOutputStubService;
 import com.bdilab.aiflow.service.experiment.ExperimentRunningJsonResultService;
@@ -178,6 +180,79 @@ public class ExperimentRunningJsonResultController {
             return new ResponseResult(false, "002", "查询实验结果Json前端Json字符串失败,具体信息：" + e.getMessage());
 
         }
+    }
+
+
+
+
+
+
+
+
+
+    /**
+     * @author liran
+     * @param runningId
+     * @param componentId
+     * @param httpSession
+     * @return
+     */
+    @ResponseBody
+    @ApiOperation("通过实验运行id,组件id拿到输出结果，转换成二维数组返回")
+    @RequestMapping(value = "/experimentRunningJsonResult/getResultArrayJson", method = RequestMethod.POST)
+    public  ResponseResult getResultArrayJson(@RequestParam @ApiParam(value = "实验运行id") Integer runningId,
+                                         @RequestParam @ApiParam(value = "组件id") Integer componentId,
+                                         HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        ExperimentRunningJsonResult experimentRunningJsonResult = experimentRunningJsonResultService.selectExperimentRunningJsonResultByExperimentRunningIdAndComponentInfoId(runningId, componentId);
+        //数据库没有，则将输出结果文件进行转换，返回
+        if(experimentRunningJsonResult == null || experimentRunningJsonResult.getResultJsonString() == null || experimentRunningJsonResult.getResultJsonString().equals("")){
+            Map<String,Object> fileAddr=componentOutputStubService.getOutputFileAddr(runningId, componentId,null);
+            if(fileAddr.get("isSuccess").equals(false)){
+                return new ResponseResult(false,"002",fileAddr.get("message").toString());
+            }
+            Map<String, Object> csvToArrayRes = FileUtils.transResultCsvToArray((String) fileAddr.get("outputFileAddr"));
+            if(csvToArrayRes.get("isSuccess").equals(false)){
+                return new ResponseResult(false,"003","获取输出结果失败");
+            }
+            ResponseResult responseResult=new ResponseResult(true,"001","获取输出结果成功");
+            Map<String,Object> data = new HashMap<>();
+            data.put("type",0);
+            data.put("json",JSONObject.toJSONString(csvToArrayRes.get("array")));
+            responseResult.setData(data);
+            return responseResult;
+        }
+        //数据库里有，直接获取返回
+        ResponseResult responseResult=new ResponseResult(true,"001","获取输出结果成功");
+        Map<String,Object> data = new HashMap<>();
+        data.put("type",1);
+        data.put("json",experimentRunningJsonResult.getResultJsonString());
+        responseResult.setData(data);
+        return responseResult;
+    }
+
+    @ResponseBody
+    @ApiOperation("通过实验运行id,组件id保存用户编辑过的输出结果的json串")
+    @RequestMapping(value = "/experimentRunningJsonResult/saveResultArrayJson", method = RequestMethod.POST)
+    public  ResponseResult saveResultArrayJson(@RequestParam @ApiParam(value = "实验运行id") Integer runningId,
+                                         @RequestParam @ApiParam(value = "组件id") Integer componentId,
+                                         @RequestParam @ApiParam(value = "用户编辑后的输出结果的json串") String resultJson,
+                                         HttpSession httpSession){
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        ExperimentRunningJsonResult experimentRunningJsonResult = experimentRunningJsonResultService.selectExperimentRunningJsonResultByExperimentRunningIdAndComponentInfoId(runningId, componentId);
+        if(experimentRunningJsonResult == null){
+            experimentRunningJsonResult = experimentRunningJsonResultService.createExperimentRunningJsonResult(runningId, componentId, resultJson);
+            if(experimentRunningJsonResult.getId() == null){
+                return new ResponseResult(false,"002","保存失败");
+            }
+        }
+        ExperimentRunningJsonResult updateJsonResult = new ExperimentRunningJsonResult();
+        updateJsonResult.setId(experimentRunningJsonResult.getId());
+        updateJsonResult.setResultJsonString(resultJson);
+        if(!experimentRunningJsonResultService.updateExperimentRunningJsonResult(updateJsonResult)){
+            return new ResponseResult(false,"003","更新失败");
+        }
+        return new ResponseResult(true,"001","保存成功");
     }
 
 }
