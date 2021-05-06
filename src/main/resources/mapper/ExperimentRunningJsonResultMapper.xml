@@ -5,8 +5,8 @@
     <!--useGeneratedKeys设置为 true 时，表示如果插入的表id以自增列为主键，则允许 JDBC 支持自动生成主键，并可将自动生成的主键id返回-->
     <!--勿删-->
     <insert id="insertExperimentRunningJsonResult" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.ExperimentRunningJsonResult">
-        insert into experiment_running_json_result (fk_experiment_running_id,fk_component_info_id,result_json_string,create_time)
-        values (#{fkExperimentRunningId},#{fkComponentInfoId}, #{resultJsonString}, #{createTime})
+        insert into experiment_running_json_result (fk_experiment_running_id,fk_component_info_id,map_config_string,result_json_string,create_time)
+        values (#{fkExperimentRunningId},#{fkComponentInfoId}, #{mapConfigString} ,#{resultJsonString}, #{createTime})
     </insert>
     <!--勿删-->
     <update id="updateExperimentRunningJsonResult"  parameterType="com.bdilab.aiflow.model.ExperimentRunningJsonResult">
@@ -15,7 +15,8 @@
             <if test="fkExperimentRunningId!=null"> fk_experiment_running_id = #{fkExperimentRunningId},</if>
             <if test="fkComponentInfoId!=null"> fk_component_info_id = #{fkComponentInfoId},</if>
             <if test="resultJsonString!=null"> result_json_string = #{resultJsonString},</if>
-            <if test="createTime!=null"> create_time = #{createTime}</if>
+            <if test="createTime!=null"> create_time = #{createTime},</if>
+            map_config_string = #{mapConfigString}
         </trim>
         where experiment_running_json_result.id = #{id}
     </update>
@@ -25,6 +26,7 @@
         select experiment_running_json_result.id as id,
                experiment_running_json_result.fk_experiment_running_id as fkExperimentRunningId,
                experiment_running_json_result.fk_component_info_id as fkComponentInfoId,
+               experiment_running_json_result.map_config_string as mapConfigString,
                experiment_running_json_result.result_json_string as resultJsonString,
                experiment_running_json_result.create_time as createTime
         from experiment_running_json_result
@@ -35,6 +37,7 @@
         select experiment_running_json_result.id as id,
                experiment_running_json_result.fk_experiment_running_id as fkExperimentRunningId,
                experiment_running_json_result.fk_component_info_id as fkComponentInfoId,
+               experiment_running_json_result.map_config_string as mapConfigString,
                experiment_running_json_result.result_json_string as resultJsonString,
                experiment_running_json_result.create_time as createTime
         from experiment_running_json_result

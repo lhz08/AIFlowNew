@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author 鲢鱼QAQ
+ * @author Catfish
  * @date 2021/4/2
  */
 @Controller
@@ -37,6 +37,7 @@ public class ExperimentRunningJsonResultController {
     @Autowired
     ComponentOutputStubService componentOutputStubService;
 
+    @Deprecated
     @ResponseBody
     @ApiOperation("通过实验运行id,组件id和type得到结果，转换成前端可用JSON字符串格式")
     @RequestMapping(value = "/experimentRunningJsonResult/getResultJson", method = RequestMethod.POST)
@@ -55,6 +56,7 @@ public class ExperimentRunningJsonResultController {
     }
 
 
+    @Deprecated
     @ResponseBody
     @ApiOperation("查询实验结果的前端Json字符串保存记录，没有则创建")
     @RequestMapping(value = "/experimentRunningJsonResult/fetchExperimentRunningJsonResultByRunningId", method = RequestMethod.POST)
@@ -91,6 +93,7 @@ public class ExperimentRunningJsonResultController {
     }
 
 
+    @Deprecated
     @ResponseBody
     @ApiOperation("更新实验结果的前端Json字符串保存记录")
     @RequestMapping(value = "/experimentRunningJsonResult/updateExperimentRunningJsonResultByRunningId", method = RequestMethod.POST)
@@ -183,13 +186,6 @@ public class ExperimentRunningJsonResultController {
     }
 
 
-
-
-
-
-
-
-
     /**
      * @author liran
      * @param runningId
@@ -236,12 +232,13 @@ public class ExperimentRunningJsonResultController {
     @RequestMapping(value = "/experimentRunningJsonResult/saveResultArrayJson", method = RequestMethod.POST)
     public  ResponseResult saveResultArrayJson(@RequestParam @ApiParam(value = "实验运行id") Integer runningId,
                                          @RequestParam @ApiParam(value = "组件id") Integer componentId,
-                                         @RequestParam @ApiParam(value = "用户编辑后的输出结果的json串") String resultJson,
+                                         @RequestParam @ApiParam(value = "用户编辑后的输出结果的json数据串") String resultJson,
+                                         @RequestParam(required = false) @ApiParam(value = "用户配置过后的图像配置信息Json串") String mapConfigJson,
                                          HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         ExperimentRunningJsonResult experimentRunningJsonResult = experimentRunningJsonResultService.selectExperimentRunningJsonResultByExperimentRunningIdAndComponentInfoId(runningId, componentId);
         if(experimentRunningJsonResult == null){
-            experimentRunningJsonResult = experimentRunningJsonResultService.createExperimentRunningJsonResult(runningId, componentId, resultJson);
+            experimentRunningJsonResult = experimentRunningJsonResultService.createExperimentRunningJsonResult(runningId, componentId, mapConfigJson,resultJson);
             if(experimentRunningJsonResult.getId() == null){
                 return new ResponseResult(false,"002","保存失败");
             }
@@ -249,6 +246,11 @@ public class ExperimentRunningJsonResultController {
         ExperimentRunningJsonResult updateJsonResult = new ExperimentRunningJsonResult();
         updateJsonResult.setId(experimentRunningJsonResult.getId());
         updateJsonResult.setResultJsonString(resultJson);
+
+        if (mapConfigJson != null) {
+            updateJsonResult.setMapConfigString(mapConfigJson);
+        }
+
         if(!experimentRunningJsonResultService.updateExperimentRunningJsonResult(updateJsonResult)){
             return new ResponseResult(false,"003","更新失败");
         }

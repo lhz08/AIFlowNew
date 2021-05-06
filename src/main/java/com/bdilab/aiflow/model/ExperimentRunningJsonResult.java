@@ -7,6 +7,7 @@ public class ExperimentRunningJsonResult {
     private Integer id;
     private Integer fkExperimentRunningId;
     private Integer fkComponentInfoId;
+    private String mapConfigString;
     private String resultJsonString;
     private Date createTime;
 
@@ -35,20 +36,16 @@ public class ExperimentRunningJsonResult {
         this.fkComponentInfoId = fkComponentInfoId;
     }
 
-    public String getResultJsonString() {
-        return resultJsonString;
-    }
+    public String getMapConfigString() {return mapConfigString;}
 
-    public void setResultJsonString(String resultJsonString) {
-        this.resultJsonString = resultJsonString;
-    }
+    public void setMapConfigString(String mapConfigString) {this.mapConfigString = mapConfigString; }
 
-    public Date getCreateTime() {
-        return createTime;
-    }
+    public String getResultJsonString() { return resultJsonString; }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
+    public void setResultJsonString(String resultJsonString) { this.resultJsonString = resultJsonString; }
+
+    public Date getCreateTime() { return createTime; }
+
+    public void setCreateTime(Date createTime) { this.createTime = createTime; }
 
 }

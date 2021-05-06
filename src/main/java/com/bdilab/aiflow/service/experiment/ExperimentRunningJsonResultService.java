@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * 用来存储和组装前端制图需要的json字符串，从结果csv->jsonString
- * @author 鲢鱼QAQ
+ * @author Catfish
  * @date 2021/4/2
  */
 
@@ -18,10 +18,12 @@ public interface ExperimentRunningJsonResultService {
 
     /**
      * 通过实验运行id和组件id得到结果，转换成前端可用JSON字符串格式
+     * 查component_output_stub表的OutputFileAddr，读取并转换成JSON
      * @param runningId 实验运行id
      * @param componentId 组件info id，用来从数据库中获得结果文件地址
      * @param type 12热力图，13折线图
      */
+    @Deprecated
     Map<String,Object> getResultJson(Integer runningId, Integer componentId, Integer type);
 
     /**
@@ -30,6 +32,7 @@ public interface ExperimentRunningJsonResultService {
      * @param resultJsonString
      * @return
      */
+    @Deprecated
     ExperimentRunningJsonResult createExperimentRunningJsonResult(Integer fkExperimentRunningId,String resultJsonString);
 
 
@@ -38,6 +41,7 @@ public interface ExperimentRunningJsonResultService {
      * @param experimentRunningId
      * @return
      */
+    @Deprecated
     List<ExperimentRunningJsonResult> getExperimentRunningJsonResultByRunningId(Integer experimentRunningId);
 
     /*###以下方法勿删###*/
@@ -48,7 +52,7 @@ public interface ExperimentRunningJsonResultService {
      * @param resultJsonString
      * @return
      */
-    ExperimentRunningJsonResult createExperimentRunningJsonResult(Integer fkExperimentRunningId,Integer fkComponentInfoId, String resultJsonString);
+    ExperimentRunningJsonResult createExperimentRunningJsonResult(Integer fkExperimentRunningId,Integer fkComponentInfoId, String mapConfigString ,String resultJsonString);
 
     /**
      * 更新实验json结果

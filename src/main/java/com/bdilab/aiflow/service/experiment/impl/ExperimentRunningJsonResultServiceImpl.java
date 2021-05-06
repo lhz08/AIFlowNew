@@ -64,10 +64,11 @@ public class ExperimentRunningJsonResultServiceImpl implements ExperimentRunning
 
     /*###以下方法勿删###*/
     @Override
-    public ExperimentRunningJsonResult createExperimentRunningJsonResult(Integer fkExperimentRunningId, Integer fkComponentInfoId, String resultJsonString) {
+    public ExperimentRunningJsonResult createExperimentRunningJsonResult(Integer fkExperimentRunningId, Integer fkComponentInfoId, String mapConfigString ,String resultJsonString) {
         ExperimentRunningJsonResult experimentRunningJsonResult = new ExperimentRunningJsonResult();
         experimentRunningJsonResult.setFkExperimentRunningId(fkExperimentRunningId);
         experimentRunningJsonResult.setFkComponentInfoId(fkComponentInfoId);
+        experimentRunningJsonResult.setMapConfigString(mapConfigString);
         experimentRunningJsonResult.setResultJsonString(resultJsonString);
         experimentRunningJsonResult.setCreateTime(new Date());
         experimentRunningJsonResultMapper.insertExperimentRunningJsonResult(experimentRunningJsonResult);

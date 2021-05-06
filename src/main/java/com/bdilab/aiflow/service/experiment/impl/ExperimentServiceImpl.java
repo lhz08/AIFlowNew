@@ -269,11 +269,12 @@ public class ExperimentServiceImpl implements ExperimentService {
         experimentRunning.setRunId(runId);
         experimentRunningMapper.updateExperimentRunning(experimentRunning);
 
-        //新建对应的experiment_running_json_result表项，用来保存前端图表结果
-        ExperimentRunningJsonResult experimentRunningJsonResult = new ExperimentRunningJsonResult();
-        experimentRunningJsonResult.setFkExperimentRunningId(experimentRunning.getId());
-        experimentRunningJsonResult.setCreateTime(new Date());
-        experimentRunningJsonResultMapper.insertExperimentRunningJsonResult(experimentRunningJsonResult);
+        //4.30修改了创建时机
+//        //新建对应的experiment_running_json_result表项，用来保存前端图表结果
+//        ExperimentRunningJsonResult experimentRunningJsonResult = new ExperimentRunningJsonResult();
+//        experimentRunningJsonResult.setFkExperimentRunningId(experimentRunning.getId());
+//        experimentRunningJsonResult.setCreateTime(new Date());
+//        experimentRunningJsonResultMapper.insertExperimentRunningJsonResult(experimentRunningJsonResult);
 
 
         messageMap.put("isSuccess",true);
