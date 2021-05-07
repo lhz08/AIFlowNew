@@ -223,6 +223,7 @@ public class ExperimentRunningJsonResultController {
         Map<String,Object> data = new HashMap<>();
         data.put("type",1);
         data.put("json",experimentRunningJsonResult.getResultJsonString());
+        data.put("mapConfig", experimentRunningJsonResult.getMapConfigString());
         responseResult.setData(data);
         return responseResult;
     }
@@ -247,9 +248,9 @@ public class ExperimentRunningJsonResultController {
         updateJsonResult.setId(experimentRunningJsonResult.getId());
         updateJsonResult.setResultJsonString(resultJson);
 
-        if (mapConfigJson != null) {
-            updateJsonResult.setMapConfigString(mapConfigJson);
-        }
+        //如果有更新图配置
+        if (mapConfigJson != null) { updateJsonResult.setMapConfigString(mapConfigJson); }
+        else { updateJsonResult.setResultJsonString(experimentRunningJsonResult.getMapConfigString()); }
 
         if(!experimentRunningJsonResultService.updateExperimentRunningJsonResult(updateJsonResult)){
             return new ResponseResult(false,"003","更新失败");
