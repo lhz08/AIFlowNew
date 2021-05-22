@@ -1,4 +1,4 @@
-package com.bdilab.smartanalyseplatform.model;
+package com.bdilab.aiflow.model;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;

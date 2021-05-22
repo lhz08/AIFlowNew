@@ -2,14 +2,22 @@ package com.bdilab.aiflow.service.dataset.impl;
 
 
 import com.bdilab.aiflow.common.config.FilePathConfig;
+import com.bdilab.aiflow.common.mysql.MysqlConnection;
+import com.bdilab.aiflow.common.mysql.MysqlUtils;
+import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.common.utils.FileUtils;
 import com.bdilab.aiflow.common.utils.MinioFileUtils;
+import com.bdilab.aiflow.mapper.DataSourceMapper;
 import com.bdilab.aiflow.mapper.DatasetMapper;
+import com.bdilab.aiflow.model.DataSource;
 import com.bdilab.aiflow.model.Dataset;
 import com.bdilab.aiflow.service.dataset.DatasetService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.minio.errors.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.sql.*;
 import java.util.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +35,7 @@ import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.Date;
 
 /**
  * @author
@@ -40,6 +50,9 @@ public class DatasetServiceImpl implements DatasetService {
     @Autowired
     FilePathConfig filePathConfig;
 
+    @Autowired
+    DataSourceMapper dataSourceMapper;
+
 
     @Value("${minio.host}")
     private String host;
@@ -52,6 +65,7 @@ public class DatasetServiceImpl implements DatasetService {
     /*
      * 分页获得公开数据集信息列表
      */
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
     public Map<String, Object> getPublicDataset(int pageNum, int pageSize) {
         PageHelper.startPage(pageNum,pageSize);
@@ -112,6 +126,195 @@ public class DatasetServiceImpl implements DatasetService {
         dataset.setCreateTime(date);
         dataset.setIsDeleted((byte)0);
         return datasetMapper.insertDataset(dataset);
+    }
+
+    @Override
+    public boolean importMySqlDataSourceByField(Integer dataSourceId,String tableName,Integer userId,String datasetName, String datasetDesc,String tags,List<String> field){
+        PreparedStatement preparedStatement=null;
+        DataSource dataSource = dataSourceMapper.selectDataSourceById(dataSourceId);
+        String databaseUrl = dataSource.getUrl();
+        String userName = dataSource.getUserName();
+        String password = dataSource.getPassword();
+        //测试
+//        String databaseUrl = "jdbc:mysql://localhost:3306/aiflow_studio";
+//        String userName = "root";
+//        String password = "123456";
+
+        String filePath = filePathConfig.getDatasetUrl()+ File.separator+ UUID.randomUUID()+".csv";
+        List<String> colName = new ArrayList<>();
+        boolean returnValue = false;
+        File datasetFile = new File(filePath);
+        Dataset dataset = new Dataset();
+        MysqlConnection mysqlConnection =new MysqlConnection();
+        Connection con =null;
+        //获取用户mysql连接
+        try {
+            mysqlConnection.setDriver("com.mysql.jdbc.Driver");
+            mysqlConnection.setUrl(databaseUrl);
+            mysqlConnection.setUser(userName);
+            mysqlConnection.setPassword(password);
+            con = mysqlConnection.getConn();
+        }catch (Exception e){
+            logger.error("数据库连接失败");
+            return false;
+        }
+        if (!datasetFile.exists()) {
+            try {
+                datasetFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } try {
+            String sql = "select * from  " + tableName;
+            preparedStatement = con.prepareStatement(sql);
+            ResultSet rs = preparedStatement.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int colSize = metaData.getColumnCount();
+            int [] a = new int[100];
+            int k =0;
+            String buffer = "";
+            //得到所有的列名
+            for(int i =1;i<=colSize;i++)
+            {
+                colName.add(metaData.getColumnName(i));
+            }
+            if(colName.containsAll(field)) {
+                for (int i = 0; i < field.size(); i++) {
+                    for (int j = 1; j <= colSize; j++) {
+                        if (field.get(i).equals(metaData.getColumnName(j))) {
+                            a[k] = j;//记录和传入字段相等的列的序号
+                            k++;
+                        }
+                    }
+                    returnValue = true;
+                }
+                //先写入列名
+                k = 0;
+                while (a[k] != 0) {
+                    buffer += metaData.getColumnName(a[k]) + ",";
+                    k++;
+                }
+                buffer += "\n";
+                FileUtils.fieldwriteToCsv(buffer, filePath);
+                //写完列名，buffer置为空
+                buffer ="";
+                k = 0;
+                int totalSize = 0;
+                int batchSize = 10;
+                while ((rs.next())) {
+                    totalSize++;
+                    if(totalSize%batchSize==0){
+                        //写入一次
+                        FileUtils.fieldwriteToCsv(buffer,filePath);
+                        //写入完毕，将buffer设为空
+                        buffer ="";
+                    }
+                    while (a[k] != 0) {
+                        buffer += rs.getString(a[k]) + ",";
+                        k++;
+                    }
+                    k = 0;
+                    buffer += "\n";
+                }
+                FileUtils.fieldwriteToCsv(buffer, filePath);
+                dataset.setName(datasetName);
+                dataset.setDatasetDesc(datasetDesc);
+                //type=1表示用户上传的数据集
+                dataset.setType(1);
+                dataset.setFkUserId(userId);
+                dataset.setIsDeleted((byte)0);
+                dataset.setTags(tags);
+                dataset.setDatasetAddr(filePath);
+                dataset.setCreateTime(new Date());
+                datasetMapper.insertDataset(dataset);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            mysqlConnection.endConnection();
+        }
+        return returnValue;
+    }
+
+    @Override
+    public boolean importMysqlDataSourceBySql(Integer datasourceId,Integer userId,String datasetName, String datasetDesc,String tags,String sql) {
+        DataSource dataSource = dataSourceMapper.selectDataSourceById(datasourceId);
+
+        String databaseUrl = dataSource.getUrl();
+        String userName = dataSource.getUserName();
+        String password = dataSource.getPassword();
+        String filePath = filePathConfig.getDatasetUrl()+ File.separator+ UUID.randomUUID()+".csv";
+        MysqlConnection mysqlConnection =new MysqlConnection();
+        Connection con =null;
+        //获取用户mysql连接
+        try {
+            mysqlConnection.setDriver("com.mysql.jdbc.Driver");
+            mysqlConnection.setUrl(databaseUrl);
+            mysqlConnection.setUser(userName);
+            mysqlConnection.setPassword(password);
+            con = mysqlConnection.getConn();
+        }catch (Exception e){
+            logger.error("数据库连接失败");
+            return false;
+        }
+        boolean returnValue = false;
+
+        List<String> columnName = new ArrayList<>();
+        File datasetFile = new File(filePath);
+        Dataset dataset = new Dataset();
+        if (!datasetFile.exists()) {
+            try {
+                datasetFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            PreparedStatement preparedStatement = null;
+            preparedStatement = con.prepareStatement(sql);
+            ResultSet rs = preparedStatement.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            returnValue = true;
+            int colSize = metaData.getColumnCount();
+            String buffer = "";
+            for (int i = 1; i <= colSize; i++) {
+                columnName.add(metaData.getColumnName(i));
+                buffer += metaData.getColumnName(i) + ",";
+            }
+            buffer += "\n";
+            FileUtils.fieldwriteToCsv(buffer, filePath);
+            buffer = "";
+            int totalSize = 0;
+            int batchSize = 10;
+            while (rs.next()) {
+                totalSize++;
+                if (totalSize % batchSize == 0) {
+                    //写入一次
+                    FileUtils.fieldwriteToCsv(buffer, filePath);
+                    //写入完毕，将buffer设为空
+                    buffer = "";
+                }
+                for (int i = 1; i <= colSize; i++) {
+                    buffer += rs.getString(i) + ",";
+                }
+                buffer += "\n";
+            }
+            FileUtils.fieldwriteToCsv(buffer, filePath);
+            dataset.setName(datasetName);
+            dataset.setDatasetDesc(datasetDesc);
+            dataset.setType(1);
+            dataset.setFkUserId(userId);
+            dataset.setIsDeleted((byte)0);
+            dataset.setTags(tags);
+            dataset.setDatasetAddr(filePath);
+            dataset.setCreateTime(new Date());
+            datasetMapper.insertDataset(dataset);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            mysqlConnection.endConnection();
+        }
+        return returnValue;
     }
 
     /*删除数据集--移入回收站*/

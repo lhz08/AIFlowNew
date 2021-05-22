@@ -9,6 +9,7 @@ import com.bdilab.aiflow.common.utils.FileUtils;
 import com.bdilab.aiflow.common.utils.MinioFileUtils;
 import com.bdilab.aiflow.service.dataset.DatasetService;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +23,11 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -141,6 +146,94 @@ public class DatasetController {
             }
         }
         return new ResponseResult(false,"002","注册数据集失败");
+    }
+
+
+    @ResponseBody
+    @ApiOperation("获取数据表的所有字段")
+    @RequestMapping(value = "/dataset/getAllFieldByTableName", method = RequestMethod.POST)
+    public ResponseResult getAllFieldByTableName(@RequestParam @ApiParam(value = "数据库url") String databaseUrl,
+                                                 @RequestParam @ApiParam(value = "用户名") String userName,
+                                                 @RequestParam @ApiParam(value = "用户密码") String password,
+                                                 @RequestParam @ApiParam(value = "表名") String tableName){
+        MysqlConnection mysqlConnection =new MysqlConnection();
+        List<String> columnName = new ArrayList<>();
+        ResponseResult responseResult = new ResponseResult();
+        Connection con =null;
+        //获取用户mysql连接
+        try {
+            mysqlConnection.setDriver("com.mysql.jdbc.Driver");
+            mysqlConnection.setUrl(databaseUrl);
+            mysqlConnection.setUser(userName);
+            mysqlConnection.setPassword(password);
+            con = mysqlConnection.getConn();
+        }catch (Exception e){
+            return new ResponseResult(false,"003","MySQL连接失败");
+        }
+        try {
+            PreparedStatement preparedStatement =con.prepareStatement("select COLUMN_NAME from information_schema.COLUMNS where table_name = ?");
+            preparedStatement.setString(1,tableName);
+            ResultSet rs = preparedStatement.executeQuery();
+            while(rs.next()){
+                columnName.add(rs.getString("column_name"));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        responseResult.setData(columnName);
+        responseResult.setMeta(new MetaData(true, "001", "成功获取到表的所有字段"));
+        return  responseResult;
+    }
+
+
+
+    @ResponseBody
+    @ApiOperation("选择表的字段录入")
+    @RequestMapping(value = "/dataset/importDataSourceByField", method = RequestMethod.POST)
+    public ResponseResult importDataSourceByField(@RequestParam @ApiParam(value = "数据源id") Integer datasourceId,
+                                                  //@RequestParam @ApiParam(value = "数据库url") String databaseUrl,
+                                                  //@RequestParam @ApiParam(value = "用户名") String userName,
+                                                  //@RequestParam @ApiParam(value = "用户密码") String password,
+                                                  @RequestParam @ApiParam(value = "表名") String tableName,
+                                                  @RequestParam @ApiParam(value = "数据集名称") String datasetName,
+                                                  @RequestParam @ApiParam(value = "数据集描述") String datasetDesc,
+                                                  @RequestParam @ApiParam(value = "数据集标签") String tags,
+                                                  @RequestParam @ApiParam(value = "表字段") List<String> field,
+                                                  HttpSession httpSession) {
+        ResponseResult responseResult = new ResponseResult();
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        boolean temp = datasetService.importMySqlDataSourceByField(datasourceId, tableName, userId, datasetName,datasetDesc,tags, field);
+        if(!temp) {
+            responseResult.setMeta(new MetaData(false, "002", "字段导入失败"));
+            return responseResult;
+        }
+        responseResult.setMeta(new MetaData(true, "001", "字段导入成功"));
+        return responseResult;
+    }
+
+    @ResponseBody
+    @ApiOperation("自定义SQL语句实现数据录入")
+    @RequestMapping(value = "/dataset/importDataSourceBySql", method = RequestMethod.POST)
+    public ResponseResult customizeSQL(@RequestParam @ApiParam(value = "数据源id") Integer datasourceId,
+                                       @RequestParam @ApiParam(value = "SQL语句") String sql,
+                                       //@RequestParam @ApiParam(value = "数据库url") String databaseUrl,
+                                       // @RequestParam @ApiParam(value = "用户名") String userName,
+                                       // @RequestParam @ApiParam(value = "用户密码") String password,
+                                       @RequestParam @ApiParam(value = "数据集名称") String datasetName,
+                                       @RequestParam @ApiParam(value = "数据集标签") String tags,
+                                       @RequestParam @ApiParam(value = "数据集描述") String datasetDesc,
+                                       HttpSession httpSession
+    ) {
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        boolean temp = datasetService.importMysqlDataSourceBySql(datasourceId, userId, datasetName, datasetDesc,tags, sql);
+        ResponseResult responseResult = new ResponseResult();
+        if(!temp)
+        {
+            responseResult.setMeta(new MetaData(false, "002", "自定义SQL导入数据失败"));
+            return responseResult;
+        }
+        responseResult.setMeta(new MetaData(true, "001", "自定义SQL导入数据成功"));
+        return responseResult;
     }
     @ResponseBody
     @ApiOperation("上传数据集")

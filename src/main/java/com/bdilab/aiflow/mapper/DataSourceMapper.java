@@ -1,11 +1,11 @@
-package com.bdilab.smartanalyseplatform.mapper;
+package com.bdilab.aiflow.mapper;
 
-import com.bdilab.smartanalyseplatform.model.DataSource;
-import com.bdilab.smartanalyseplatform.model.Dataset;
-import org.apache.ibatis.annotations.Param;
+import com.bdilab.aiflow.model.DataSource;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public interface DataSourceMapper {
     /**
      * 查询所有经典数据集
@@ -24,7 +24,7 @@ public interface DataSourceMapper {
     int deleteDataSourceById(int datasourceId);
     /**
      * 根据id搜索datasource
-     * @param datasourceId
+     * @param
      * @return
      */
     boolean updateDataSource(DataSource datasource);

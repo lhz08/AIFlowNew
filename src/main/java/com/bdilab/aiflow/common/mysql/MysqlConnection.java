@@ -53,4 +53,16 @@ public class MysqlConnection {
         this.password = password;
     }
 
+    public void endConnection(){
+        if(connection!=null){
+            try {
+                //关闭数据库连接
+                connection.close();
+            }
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }
