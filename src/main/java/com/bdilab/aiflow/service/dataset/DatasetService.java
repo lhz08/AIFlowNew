@@ -95,4 +95,5 @@ public interface DatasetService {
 
     HttpServletResponse downloadDatasetFromMinio(Integer userId,Integer datasetId,HttpServletResponse response);
 
+    boolean importFromDatasource(Integer userId,Integer datasourceId,String tableName,String datasetName,String datasetDesc,String tags);
 }

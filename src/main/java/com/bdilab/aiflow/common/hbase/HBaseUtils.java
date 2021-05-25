@@ -1,5 +1,6 @@
 package com.bdilab.aiflow.common.hbase;
 
+import com.bdilab.aiflow.common.utils.FileUtils;
 import com.bdilab.aiflow.model.workflow.EpochInfo;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -351,5 +352,45 @@ public class HBaseUtils {
         }
 
     }
+    public static boolean transferIntoCsv(String tableName,Connection connection,String filePath){
+        Scan scan = new Scan();
+        ResultScanner rs = null;
+        try {
+            Table table = connection.getTable(TableName.valueOf(tableName));
+            rs = table.getScanner(scan);
+            boolean isFirstLine = true;
+            List<Object> meta = new ArrayList<>();
+            List<List<Object>> data = new ArrayList<>();
+            for (Result r : rs) {
+                List<Object> columnData = new ArrayList<>();
+                for (Cell cell : r.listCells()) {
+                    if(isFirstLine){
+                        String qualifier = Bytes.toString(cell.getQualifierArray(),cell.getQualifierOffset(),cell.getQualifierLength());
+                        meta.add(qualifier);
+                    }
+                    String value = Bytes.toString(cell.getValueArray(),cell.getValueOffset(),cell.getValueLength());
+                    columnData.add(value);
+                }
+                isFirstLine =false;
+                data.add(columnData);
+            }
+            FileUtils.transferDataToCsv(data,meta,filePath);
 
+            return true;
+        }catch (IOException ioe){
+            ioe.printStackTrace();
+            return false;
+        }
+        finally {
+            if(rs!=null){
+                rs.close();
+            }
+            try{
+                connection.close();
+            }catch (IOException ioe){
+                ioe.printStackTrace();
+            }
+
+        }
+    }
 }

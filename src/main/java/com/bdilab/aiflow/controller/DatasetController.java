@@ -541,6 +541,24 @@ public class DatasetController {
         return new ResponseResult(true,"001","成功获取预览信息",data);
     }
 
+
+    @ResponseBody
+    @ApiOperation("从数据源中导入数据集")
+    @RequestMapping(value = "/dataset/importFromDatasource",method = RequestMethod.GET)
+    public ResponseResult importFromHBaseDatasource(@RequestParam@ApiParam(value = "id") int datasourceId,
+                                                    @RequestParam@ApiParam(value = "数据表名") String tableName,
+                                                    @RequestParam@ApiParam(value = "dataset名称")String datasetName,
+                                                    @RequestParam@ApiParam(value = "dataset描述")String datasetDesc,
+                                                    @RequestParam@ApiParam(value = "数据集描述")String tags,
+
+                                                    HttpSession httpSession) {
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        boolean isSuccess = datasetService.importFromDatasource(userId, datasourceId, tableName, datasetName, datasetDesc,tags);
+        if (isSuccess) {
+            return new ResponseResult(true, "001", "成功导入对应数据表");
+        }
+        return new ResponseResult(false, "002", "对应数据表不存在");
+    }
     /*注册数据集*/
   /*  @ResponseBody
     @RequestMapping(value = "/dataset/insertUserDataset",method = RequestMethod.POST)

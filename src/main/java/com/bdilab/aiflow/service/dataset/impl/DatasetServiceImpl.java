@@ -2,6 +2,8 @@ package com.bdilab.aiflow.service.dataset.impl;
 
 
 import com.bdilab.aiflow.common.config.FilePathConfig;
+import com.bdilab.aiflow.common.hbase.HBaseConnection;
+import com.bdilab.aiflow.common.hbase.HBaseUtils;
 import com.bdilab.aiflow.common.mysql.MysqlConnection;
 import com.bdilab.aiflow.common.mysql.MysqlUtils;
 import com.bdilab.aiflow.common.response.ResponseResult;
@@ -14,13 +16,19 @@ import com.bdilab.aiflow.model.Dataset;
 import com.bdilab.aiflow.service.dataset.DatasetService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.minio.errors.*;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -530,4 +538,47 @@ public class DatasetServiceImpl implements DatasetService {
       return response;
   }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean importFromDatasource(Integer userId, Integer datasourceId, String tableName, String datasetName, String datasetDesc,String tags) {
+        DataSource dataSource = dataSourceMapper.selectDataSourceById(datasourceId);
+        Gson gson = new Gson();
+        Map<String,String> config = gson.fromJson(dataSource.getConfig(),new TypeToken<HashMap<String,String>>(){}.getType());
+        if(!dataSource.getType()){
+            Properties property = new Properties();
+            Configuration conf = null;
+            org.apache.hadoop.hbase.client.Connection conn = null;
+            try {
+                InputStream file= HBaseConnection.class.getClassLoader().getResourceAsStream("application.properties");
+                property.load(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            conf = HBaseConfiguration.create();
+
+            conf.set("hbase.master",config.get("hbase.zookeeper.quorum"));
+            conf.set("hbase.zookeeper.quorum", config.get("hbase.master"));
+            conf.set("hbase.zookeeper.property.clientport", config.get("hbase.zookeeper.property.clientport"));
+            try {
+                conn = ConnectionFactory.createConnection(conf);
+                String filePath = filePathConfig.getDatasetUrl()+File.separatorChar+UUID.randomUUID()+".csv";
+                if(HBaseUtils.transferIntoCsv(tableName,conn,filePath)){
+                    insertUserDataset(userId,datasetName,tags,filePath,datasetDesc);
+                    return true;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        //mysql数据源
+        else{
+            String filePath = filePathConfig.getDatasetUrl()+ File.separator+ UUID.randomUUID()+".csv";
+            if(FileUtils.transferMySqlToCsv(config.get("url"),tableName,config.get("username"),config.get("password"),filePath)){
+                insertUserDataset(userId,datasetName,tags,filePath,datasetDesc);
+                return true;
+            }
+        }
+        return false;
+    }
 }

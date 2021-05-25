@@ -364,4 +364,33 @@ public class FileUtils {
         }
     }
 
+    public static void transferDataToCsv(List<List<Object>> data,List<Object> meta,String filePath){
+        int totalSize = 0;
+        int batchSize = 10;
+        //首先写入列名
+        String buffer ="";
+        for(Object object: meta){
+            buffer+=object+",";
+        }
+        buffer+="\n";
+        writeIntoCsv(buffer,filePath);
+        buffer = "";
+        //开始写入数据
+        for(List<Object> objectList:data){
+            totalSize++;
+            if(totalSize%batchSize==0){
+                //写入一次
+                writeIntoCsv(buffer,filePath);
+                //写入完毕，将buffer设为空
+                buffer ="";
+            }
+            for(Object object:objectList){
+                buffer+=object+",";
+            }
+            buffer+="\n";
+        }
+        //写入剩余的部分
+        writeIntoCsv(buffer,filePath);
+    }
+
 }
