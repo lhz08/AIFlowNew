@@ -153,7 +153,6 @@ public class DatasetController {
     public ResponseResult getAllTableName(@RequestParam @ApiParam(value = "数据库url") String databaseUrl,
                                           @RequestParam @ApiParam(value = "用户名") String userName,
                                           @RequestParam @ApiParam(value = "用户密码") String password,
-                                          @RequestParam @ApiParam(value = "数据库名称") String databaseName,
                                           HttpSession httpSession
     ) {
         MysqlConnection mysqlConnection =new MysqlConnection();
@@ -170,6 +169,7 @@ public class DatasetController {
             return new ResponseResult(false,"003","MySQL连接失败");
         }
         try {
+            String databaseName = databaseUrl.substring(databaseUrl.lastIndexOf("/")+1);
             PreparedStatement preparedStatement = con.prepareStatement("select table_name from information_schema.tables where table_schema= ?");
             preparedStatement.setString(1, databaseName);
             ResultSet rs = preparedStatement.executeQuery();
