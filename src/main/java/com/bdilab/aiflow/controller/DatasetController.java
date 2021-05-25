@@ -348,7 +348,7 @@ public class DatasetController {
         if (isSuccess){
             return new ResponseResult(true,"001","导入Api数据集成功");
         }
-        return new ResponseResult(false,"002","导入Api数据集失败");
+        return new ResponseResult(false,"002","导入Api数据集失败，URL连接异常");
     }
 
     /*删除数据集--移入回收站*/
