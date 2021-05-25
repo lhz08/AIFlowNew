@@ -147,6 +147,45 @@ public class DatasetController {
         }
         return new ResponseResult(false,"002","注册数据集失败");
     }
+    @ResponseBody
+    @ApiOperation("获取数据源列表")
+    @RequestMapping(value = "/dataset/getAllTableName", method = RequestMethod.POST)
+    public ResponseResult getAllTableName(@RequestParam @ApiParam(value = "数据库url") String databaseUrl,
+                                          @RequestParam @ApiParam(value = "用户名") String userName,
+                                          @RequestParam @ApiParam(value = "用户密码") String password,
+                                          @RequestParam @ApiParam(value = "数据库名称") String databaseName,
+                                          HttpSession httpSession
+    ) {
+        MysqlConnection mysqlConnection =new MysqlConnection();
+        ResponseResult responseResult = new ResponseResult();
+        List<String> list = new ArrayList<String>();
+        Connection con =null;
+        try {
+            mysqlConnection.setDriver("com.mysql.jdbc.Driver");
+            mysqlConnection.setUrl(databaseUrl);
+            mysqlConnection.setUser(userName);
+            mysqlConnection.setPassword(password);
+            con = mysqlConnection.getConn();
+        }catch (Exception e){
+            return new ResponseResult(false,"003","MySQL连接失败");
+        }
+        try {
+            PreparedStatement preparedStatement = con.prepareStatement("select table_name from information_schema.tables where table_schema= ?");
+            preparedStatement.setString(1, databaseName);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                list.add(rs.getString("table_name"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            //关闭连接
+            mysqlConnection.endConnection();
+        }
+        responseResult.setData(list);
+        responseResult.setMeta(new MetaData(true, "001", "成功获取到数据源列表"));
+        return responseResult;
+    }
 
 
     @ResponseBody
