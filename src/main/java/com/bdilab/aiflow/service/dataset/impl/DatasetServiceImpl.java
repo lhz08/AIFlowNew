@@ -136,11 +136,18 @@ public class DatasetServiceImpl implements DatasetService {
         try {
             URL url = new URL(sendUrl);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            // 设置是否向httpUrlConnection输出，因为这个是post请求，参数要放在
+            // http正文内，因此需要设为true, 默认情况下是false;
             httpURLConnection.setDoOutput(true);
+
+            // 设置是否从httpUrlConnection读入，默认情况下是true;
             httpURLConnection.setDoInput(true);
+
+            // Post 请求不能使用缓存
             httpURLConnection.setUseCaches(false);
-            httpURLConnection.setRequestMethod("POST");
-            httpURLConnection.setRequestProperty("Content-type", "application/x-java-serialized-object");
+
+            // 设定请求的方法为"POST"，默认是GET
+//            httpURLConnection.setRequestMethod("POST");
             httpURLConnection.connect();
 
             int code = httpURLConnection.getResponseCode();
@@ -159,6 +166,8 @@ public class DatasetServiceImpl implements DatasetService {
                 bufferedReader.close();
                 inputStreamReader.close();
                 inputStream.close();
+                httpURLConnection.disconnect();
+                return true;
             }
             httpURLConnection.disconnect();
         } catch (IOException e) {
@@ -466,7 +475,7 @@ public class DatasetServiceImpl implements DatasetService {
     @Override
     public Map<String, Object> getPreviewList(Integer datasetId) {
         Dataset dataset = datasetMapper.selectDatasetById(datasetId);
-        String filePath=filePathConfig.getDatasetPath()+File.separatorChar+dataset.getDatasetAddr();
+        String filePath=dataset.getDatasetAddr();
         Map<String, Object> data = new HashMap<>();
         List<String[]> csvContent = FileUtils.csvContentPreview1(filePath);
         data.put("content",csvContent);

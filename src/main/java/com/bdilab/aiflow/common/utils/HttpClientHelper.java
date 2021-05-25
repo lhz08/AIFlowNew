@@ -369,7 +369,6 @@ public class HttpClientHelper {
     /**
      * 发送Get请求
      *
-     * @param httpGet
      * @return
      */
     public static String sendSmHttpGetToken(String httpUrl,String token) {

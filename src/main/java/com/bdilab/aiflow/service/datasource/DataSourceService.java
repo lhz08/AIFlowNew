@@ -16,14 +16,12 @@ public interface DataSourceService {
 
     /**
      * 创建数据源
-     * @param datasource
      * @return
      */
 
     boolean deleteDataSource(int datasourceId);
     /**
      * 根据id搜索datasource
-     * @param datasourceId
      * @return
      */
 
@@ -31,7 +29,6 @@ public interface DataSourceService {
     boolean updateDataSource( int id,Integer userId, String name, boolean type, String url, String username, String password, String description, Date createTime);
     /**
      * 根据id搜索datasource,然后更新其他信息
-     * @param datasourceId
      * @return
      */
 
