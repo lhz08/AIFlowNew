@@ -129,6 +129,16 @@ public class DatasetServiceImpl implements DatasetService {
         dataset.setIsDeleted((byte)0);
         return datasetMapper.insertDataset(dataset);
     }
+    @Override
+    public boolean importMySqlDataSource(String databaseUrl, String tableName, String userName, String password, Integer userId,String datasetName, String datasetDesc,String tags) {
+        String filePath = filePathConfig.getDatasetUrl()+ File.separator+ UUID.randomUUID()+".csv";
+        if(!FileUtils.transferMySqlToCsv(databaseUrl,tableName,userName,password,filePath)){
+            return false;
+        }else {
+            insertUserDataset(userId, datasetName, tags, filePath, datasetDesc);
+            return true;
+        }
+    }
 
     @Override
     public boolean importApiDataset(String sendUrl, String datasetName, Integer userId, String datasetTags, String datasetDesc) {

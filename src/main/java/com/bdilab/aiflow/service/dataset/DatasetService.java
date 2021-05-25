@@ -37,6 +37,20 @@ public interface DatasetService {
     boolean importApiDataset(String sendUrl, String datasetName, Integer userId, String datasetTags, String datasetDesc);
 
     /**
+     * 导入MySql数据表为dataset
+     * @param databaseUrl
+     * @param tableName
+     * @param userName
+     * @param password
+     * @param userId
+     * @param datasetName
+     * @param datasetDesc
+     * @param tags
+     * @return
+     */
+    boolean importMySqlDataSource(String databaseUrl,String tableName,String userName,String password,Integer userId,String datasetName, String datasetDesc,String tags);
+
+    /**
      * 通过字段导入mysql数据
      * @param datasourceId
      * @param tableName

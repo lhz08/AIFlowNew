@@ -3,6 +3,8 @@ package com.bdilab.aiflow.common.utils;
 
 import com.alibaba.fastjson.JSONObject;
 
+import com.bdilab.aiflow.common.mysql.MysqlConnection;
+import com.bdilab.aiflow.common.response.ResponseResult;
 import com.csvreader.CsvWriter;
 import de.siegmar.fastcsv.reader.CsvContainer;
 import de.siegmar.fastcsv.reader.CsvReader;
@@ -12,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.sql.*;
 import java.util.*;
 
 public class FileUtils {
@@ -302,5 +305,63 @@ public class FileUtils {
         writeIntoCsv(buffer,filePath);
     }
 
+
+    public static boolean transferMySqlToCsv(String databaseUrl, String tableName, String userName, String password,String filePath){
+//        MySqlConnection mySqlConnection = new MySqlConnection("com.mysql.jdbc.Driver",databaseUrl,userName,password);
+        MysqlConnection mysqlConnection =new MysqlConnection();
+        //一次写入10条数据
+        int batchSize = 10;
+        int totalSize = 0;
+        Connection con =null;
+        try {
+            mysqlConnection.setDriver("com.mysql.jdbc.Driver");
+            mysqlConnection.setUrl(databaseUrl);
+            mysqlConnection.setUser(userName);
+            mysqlConnection.setPassword(password);
+            con = mysqlConnection.getConn();
+        }catch (Exception e){
+            return false;
+        }
+        try{
+            PreparedStatement preparedStatement = con.prepareStatement("SELECT * FROM "+tableName);
+            ResultSet rs = preparedStatement.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+
+            //首先写入列名
+            String buffer ="";
+            for(int i =1;i<=metaData.getColumnCount();i++){
+                buffer+=metaData.getColumnName(i)+",";
+            }
+            buffer+="\n";
+            writeIntoCsv(buffer,filePath);
+            buffer = "";
+            //开始写入数据
+            while ((rs.next())){
+                totalSize++;
+                if(totalSize%batchSize==0){
+                    //写入一次
+                    writeIntoCsv(buffer,filePath);
+                    //写入完毕，将buffer设为空
+                    buffer ="";
+                }
+                for(int i =1;i<=metaData.getColumnCount();i++){
+                    buffer+=rs.getString(i)+",";
+                }
+                buffer+="\n";
+            }
+            //写入剩余的部分
+            writeIntoCsv(buffer,filePath);
+            //清除对象
+            rs.close();
+            preparedStatement.close();
+            return true;
+        }catch (SQLException e){
+            e.printStackTrace();
+            return false;
+        }finally {
+            //关闭连接
+            mysqlConnection.endConnection();
+        }
+    }
 
 }

@@ -187,6 +187,24 @@ public class DatasetController {
         return responseResult;
     }
 
+    @ResponseBody
+    @ApiOperation("用户导入MySQL数据源")
+    @RequestMapping(value = "/dataset/importMySQLDataSource", method = RequestMethod.POST)
+    public ResponseResult importMySqlDataSource(@RequestParam @ApiParam(value = "数据库url") String databaseUrl,
+                                                @RequestParam @ApiParam(value = "表名") String tableName,
+                                                @RequestParam @ApiParam(value = "用户名") String userName,
+                                                @RequestParam @ApiParam(value = "数据集标签") String tags,
+                                                @RequestParam @ApiParam(value = "用户密码") String password,
+                                                @RequestParam @ApiParam(value = "数据集名称") String datasetName,
+                                                @RequestParam @ApiParam(value = "数据集描述") String datasetDesc,
+                                                HttpSession httpSession) {
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        if(datasetService.importMySqlDataSource(databaseUrl, tableName, userName, password, userId, datasetName, datasetDesc,tags)) {
+            return new ResponseResult(true, "001", "成功导入MySql数据集");
+        }else {
+            return new ResponseResult(false, "002", "导入MySql数据集失败");
+        }
+    }
 
     @ResponseBody
     @ApiOperation("获取数据表的所有字段")
