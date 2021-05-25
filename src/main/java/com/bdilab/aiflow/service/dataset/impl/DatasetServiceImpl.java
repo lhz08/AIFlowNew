@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -112,6 +114,43 @@ public class DatasetServiceImpl implements DatasetService {
         dataset.setCreateTime(date);
         dataset.setIsDeleted((byte)0);
         return datasetMapper.insertDataset(dataset);
+    }
+
+    @Override
+    public boolean importApiDataset(String sendUrl, String datasetName, Integer userId, String datasetTags, String datasetDesc) {
+
+        try {
+            URL url = new URL(sendUrl);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setDoInput(true);
+            httpURLConnection.setUseCaches(false);
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setRequestProperty("Content-type", "application/x-java-serialized-object");
+            httpURLConnection.connect();
+
+            int code = httpURLConnection.getResponseCode();
+            if (code == 200) {
+                InputStream inputStream = httpURLConnection.getInputStream();//得到网络的输入流
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");//编码格式
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);//存入Buffer缓冲区
+                String line = "";
+                StringBuffer buffer = new StringBuffer();
+                while ((line = bufferedReader.readLine()) != null) {
+                    buffer.append(line);
+                }
+                String filePath = filePathConfig.getDatasetUrl()+ File.separator+ UUID.randomUUID()+".csv";
+                FileUtils.writeIntoCsv(buffer.toString(),filePath);
+                insertUserDataset(userId,datasetName,datasetTags,filePath,datasetDesc);
+                bufferedReader.close();
+                inputStreamReader.close();
+                inputStream.close();
+            }
+            httpURLConnection.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /*删除数据集--移入回收站*/

@@ -33,6 +33,8 @@ public interface DatasetService {
 
     boolean insertUserDataset(Integer userId, String datasetName, String tags, String filePath, String datasetDesc);
 
+    boolean importApiDataset(String sendUrl, String datasetName, Integer userId, String datasetTags, String datasetDesc);
+
     boolean deleteDatasetById(Integer datasetId);
 
     boolean deleteDatasetCompletelyById(Integer datasetId);

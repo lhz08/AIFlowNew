@@ -202,6 +202,23 @@ public class DatasetController {
         }
         return new ResponseResult(false,"002","注册数据集失败");
     }
+
+    @ResponseBody
+    @ApiOperation("导入Api数据集")
+    @RequestMapping(value = "/dataset/importApiDataset", method = RequestMethod.POST)
+    public Object importApiDataset(@RequestParam String sendUrl,
+                                   @RequestParam String datasetName,
+                                   @RequestParam String datasetTags,
+                                   @RequestParam String datasetDesc,
+                                   HttpSession httpSession) {
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        boolean isSuccess = datasetService.importApiDataset(sendUrl,datasetName,userId,datasetTags,datasetDesc);
+        if (isSuccess){
+            return new ResponseResult(true,"001","导入Api数据集成功");
+        }
+        return new ResponseResult(false,"002","导入Api数据集失败");
+    }
+
     /*删除数据集--移入回收站*/
     @ResponseBody
     @ApiOperation(value = "删除数据集--移入回收站")

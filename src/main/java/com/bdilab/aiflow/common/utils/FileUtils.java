@@ -238,7 +238,7 @@ public class FileUtils {
         }
         return list;
     }
-    private static void writeIntoCsv(String buffer,String csvFilePath){
+    public static void writeIntoCsv(String buffer,String csvFilePath){
         File saveCsv = new File(csvFilePath);
         try {
             if(!saveCsv.exists()){
