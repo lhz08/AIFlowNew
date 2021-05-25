@@ -48,6 +48,15 @@
 		</dependency>
 
 
+		<!--部分情况下需要使用8.0.21-->
+		<!--
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.21</version>
+		</dependency>
+		-->
+
 		<!--web服务相关-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
