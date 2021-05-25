@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.nio.channels.MulticastChannel;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,6 +35,29 @@ public interface DatasetService {
     boolean insertUserDataset(Integer userId, String datasetName, String tags, String filePath, String datasetDesc);
 
     boolean importApiDataset(String sendUrl, String datasetName, Integer userId, String datasetTags, String datasetDesc);
+
+    /**
+     * 通过字段导入mysql数据
+     * @param datasourceId
+     * @param tableName
+     * @param userId
+     * @param datasetName
+     * @param datasetDesc
+     * @param field
+     * @return
+     */
+    boolean importMySqlDataSourceByField(Integer datasourceId, String tableName, Integer userId, String datasetName, String datasetDesc,String tags, List<String> field);
+    /**
+     * 通过自定义sql语句导入数据
+     * @param datasourceId
+     * @param userId
+     * @param datasetName
+     * @param datasetDesc
+     * @param sql
+     * @return
+     */
+    boolean importMysqlDataSourceBySql(Integer datasourceId,Integer userId,String datasetName, String datasetDesc,String tags,String sql);
+
 
     boolean deleteDatasetById(Integer datasetId);
 

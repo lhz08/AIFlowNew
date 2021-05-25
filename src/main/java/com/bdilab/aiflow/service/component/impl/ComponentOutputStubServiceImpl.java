@@ -132,4 +132,21 @@ public class ComponentOutputStubServiceImpl implements ComponentOutputStubServic
         data.put("graph",graph);
         return data;
     }
+
+    /*组件的运行结果数据下载*/
+    @Override
+    public Map<String, Object> downloadComponentResultCSV(Integer runningId, Integer componentId) {
+        Map<String, Object> fileAddrMap=getOutputFileAddr(runningId,componentId,null);
+        int fileNum=fileAddrMap.size();
+        for (int i=0;i<fileNum;i++){
+
+        }
+        String fileAddr= filePathConfig.getComponentResultPath()+(String) fileAddrMap.get("outputFileAddr");
+        System.out.println(fileAddr);
+        File file = new File(fileAddr);
+        Map<String,Object> data = new HashMap<>();
+        data.put("content",file);
+        data.put("total",file == null?0:1);
+        return data;
+    }
 }

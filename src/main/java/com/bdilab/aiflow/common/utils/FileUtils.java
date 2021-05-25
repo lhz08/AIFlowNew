@@ -297,4 +297,10 @@ public class FileUtils {
             }
         }
     }
+
+    public static  void fieldwriteToCsv(String buffer,String filePath){
+        writeIntoCsv(buffer,filePath);
+    }
+
+
 }

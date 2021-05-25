@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bdilab.aiflow.mapper.DataSourceMapper">
+
+    <insert id="insertDataSource" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.DataSource">
+        INSERT INTO data_source(id,fk_user_id,name,type,config,description, create_time) VALUES (#{id},#{fkUserId},#{name},#{type}, #{config},#{description},#{createTime});
+    </insert>
+
+
+    <delete id="deleteDataSourceById" >
+        delete from data_source
+        where data_source.id = #{dataSourceId}
+    </delete>
+
+    <update id="updateDataSource"  parameterType="com.bdilab.aiflow.model.DataSource">
+        update data_source
+        <trim prefix="set" suffixOverrides=",">
+            <if test="name!=null">name=#{name},</if>
+            <if test="type!=null">type=#{type},</if>
+            <if test="config!=null">config=#{config},</if>
+            <if test="description!=null">description=#{description},</if>
+            <if test="createTime!=null">create_time=#{createTime}</if>
+        </trim>
+        where data_source.id=#{id}
+    </update>
+
+    <select id="selectDataSourceById" parameterType="java.lang.Integer" resultType="com.bdilab.aiflow.model.DataSource">
+        select data_source.id as id,
+        data_source.type as type,
+        data_source.name as name,
+        data_source.fk_user_id as fkUserId,
+        data_source.config as config,
+        data_source.description as description,
+        data_source.create_time as createTime
+        from data_source
+        where id = #{datasetId}
+    </select>
+
+    <select id="selectAllDataSource"  resultType="com.bdilab.aiflow.model.DataSource">
+        select data_source.id as id,
+        data_source.type as type,
+        data_source.name as name,
+        data_source.fk_user_id as fkUserId,
+        data_source.config as config,
+        data_source.description as description,
+        data_source.create_time as createTime
+        from data_source
+        where data_source.fk_user_id=#{fkUserId} order by data_source.create_time DESC
+    </select>
+</mapper>

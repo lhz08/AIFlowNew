@@ -29,4 +29,7 @@ public interface ComponentOutputStubService {
     List<ComponentOutputStub> getComponentResult(Integer runningId, Integer componentId);
 
     Map<String,Object> previewResult(Integer componentOutputStubId,Integer userId);
+
+    /*组件的运行结果数据下载*/
+    Map<String,Object> downloadComponentResultCSV(Integer runningId,Integer componentId);
 }

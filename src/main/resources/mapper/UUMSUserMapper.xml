@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bdilab.aiflow.mapper.UUMSUserMapper">
+
+
+
+    <select id="selectByUsernameList" resultType="java.lang.String">
+        select user_name from user
+        where user_name in
+        <foreach collection="list" open="(" close=")" separator="," index="index" item="item">
+        #{item}
+    </foreach>
+    </select>
+
+    <update id="updateByUsername" parameterType="com.bdilab.aiflow.model.User">
+        update user
+        <set>
+            <if test="userName != null">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userCode != null">
+                user_code = #{userCode,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test='mobile != null and moblie != "" '>
+                mobile = #{mobile,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
+            <if test="enabled != null">
+                enabled = #{enabled,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+
+        </set>
+        where user_name = #{userName,jdbcType=VARCHAR}
+    </update>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.bdilab.aiflow.model.User">
+        insert `user`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            `user_name`,
+            `password`,
+            `create_time`,
+            <if test='email != null and email != "" '>
+                `email`,
+            </if>
+            <if test='mobile != null and moblie != "" '>
+                `mobile`,
+            </if>
+            <if test='userCode != null and userCode != "" '>
+                `user_code`,
+            </if>
+            <if test='enabled != null'>
+                `enabled`,
+            </if>
+            <if test='type != null'>
+                `type`,
+            </if>
+            <if test='status != null'>
+                `status`,
+            </if>
+        </trim>
+        values
+        <trim prefix=" (" suffix=")" suffixOverrides=",">
+            #{userName, jdbcType=VARCHAR},
+            #{password, jdbcType=VARCHAR},
+            #{createTime, jdbcType=TIMESTAMP},
+            <if test='email != null and email != "" '>
+                #{email, jdbcType=VARCHAR},
+            </if>
+            <if test='mobile != null and mobile != "" '>
+                #{mobile, jdbcType=VARCHAR},
+            </if>
+            <if test='userCode != null and userCode != "" '>
+                #{userCode, jdbcType=VARCHAR},
+            </if>
+            <if test='enabled != null'>
+                #{enabled,jdbcType=INTEGER},
+            </if>
+            <if test='type != null'>
+                #{type, jdbcType=INTEGER},
+            </if>
+            <if test='status != null'>
+                #{status, jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <delete id="deleteUserApplicationByUserId">
+           delete from usermanag_user_application
+        where user_id=#{userId,jdbcType=BIGINT}
+    </delete>
+
+    <select id="getAppIdByCodingId" resultType="java.lang.Long">
+        select id from usermanag_application
+        where coding_id = #{codingId,jdbcType=VARCHAR}
+    </select>
+
+    <insert id="insertUserApplication">
+        insert into usermanag_user_application(app_id,user_id)
+        values (#{appId,jdbcType=BIGINT},#{userId,jdbcType=BIGINT})
+    </insert>
+
+    <select id="getUumsUserApplication" resultType="com.bdilab.aiflow.model.application.Application">
+        select ua.id as id,
+        ua.app_name as appName,
+        ua.coding_id as codingId,
+        ua.icon as icon,
+        ua.app_code as appCode,
+        ua.app_secret as appSecret,
+        ua.access_code as accessCode,
+        ua.redirect_url as redirectUrl,
+        ua.user_info_url as userInfoUrl,
+        ua.md5_key as md5Key,
+        ua.login_url as loginUrl,
+        ua.create_user as createUser,
+        ua.create_dept as createDept,
+        ua.create_time as createTime,
+        ua.update_time as updateTime,
+        ua.status as status,
+        ua.is_deleted as isDeleted,
+        ua.introduce as introduce
+        from usermanag_user_application uua
+                                 left join usermanag_application ua
+                on uua.app_id=ua.id
+        where uua.user_id=#{userId,jdbcType=BIGINT}
+          and ua.status=1 and ua.is_deleted=0
+    </select>
+    <select id="selectByCodingIdList" resultType="java.lang.String">
+        select coding_id from usermanag_application
+        where coding_id in <foreach collection="list" open="(" close=")" separator="," index="index" item="item">
+        #{item}
+    </foreach>
+    </select>
+
+
+    <update id="updateApplicationByCodingId">
+        update usermanag_application
+        <set>
+            <if test='appName != null and appName != ""'>
+                app_name = #{appName,jdbcType=VARCHAR},
+            </if>
+            <if test='icon != null and icon != ""'>
+                icon = #{icon,jdbcType=VARCHAR},
+            </if>
+            <if test='appCode != null and appCode != ""'>
+                app_code = #{appCode,jdbcType=VARCHAR},
+            </if>
+            <if test='appSecret != null and appSecret != ""'>
+                app_secret = #{appSecret,jdbcType=VARCHAR},
+            </if>
+            <if test='accessCode != null and accessCode != ""'>
+                access_code = #{accessCode,jdbcType=VARCHAR},
+            </if>
+            <if test='redirectUrl != null and redirectUrl != ""'>
+                redirect_url = #{redirectUrl,jdbcType=VARCHAR},
+            </if>
+            <if test='userInfoUrl != null and userInfoUrl != ""'>
+                user_info_url = #{userInfoUrl,jdbcType=VARCHAR},
+            </if>
+            <if test='md5Key != null and md5Key != ""'>
+                md5_key = #{md5Key,jdbcType=VARCHAR},
+            </if>
+            <if test='loginUrl != null and loginUrl != ""'>
+                login_url = #{loginUrl,jdbcType=VARCHAR},
+            </if>
+            <if test='createUser != null'>
+                create_user = #{createUser,jdbcType=BIGINT},
+            </if>
+            <if test='createDept != null'>
+                create_dept = #{createDept,jdbcType=BIGINT},
+            </if>
+            <if test='createTime != null'>
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test='updateUser != null'>
+                update_user = #{updateUser,jdbcType=BIGINT},
+            </if>
+            <if test='updateTime != null'>
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test='status != null'>
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test='isDeleted != null'>
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test='introduce != null and introduce != ""'>
+                introduce = #{introduce,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where coding_id = #{codingId}
+    </update>
+
+    <insert id="insertApplication">
+        insert into usermanag_application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="appName != null">
+                app_name,
+            </if>
+            <if test="introduce != null">
+                introduce,
+            </if>
+            <if test="codingId != null">
+                coding_id,
+            </if>
+            <if test="icon != null">
+                icon,
+            </if>
+            <if test="appCode != null">
+                app_code,
+            </if>
+            <if test="appSecret != null">
+                app_secret,
+            </if>
+            <if test="accessCode != null">
+                access_code,
+            </if>
+            <if test="redirectUrl != null">
+                redirect_url,
+            </if>
+            <if test="userInfoUrl != null">
+                user_info_url,
+            </if>
+            <if test="md5Key != null">
+                md5_key,
+            </if>
+            <if test="loginUrl != null">
+                login_url,
+            </if>
+            <if test="createUser != null">
+                create_user,
+            </if>
+            <if test="createDept != null">
+                create_dept,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateUser != null">
+                update_user,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="appName != null">
+                #{appName,jdbcType=VARCHAR},
+            </if>
+            <if test="introduce != null">
+                #{introduce,jdbcType=VARCHAR},
+            </if>
+            <if test="codingId != null">
+                #{codingId,jdbcType=VARCHAR},
+            </if>
+            <if test="icon != null">
+                #{icon,jdbcType=VARCHAR},
+            </if>
+            <if test="appCode != null">
+                #{appCode,jdbcType=VARCHAR},
+            </if>
+            <if test="appSecret != null">
+                #{appSecret,jdbcType=VARCHAR},
+            </if>
+            <if test="accessCode != null">
+                #{accessCode,jdbcType=VARCHAR},
+            </if>
+            <if test="redirectUrl != null">
+                #{redirectUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="userInfoUrl != null">
+                #{userInfoUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="md5Key != null">
+                #{md5Key,jdbcType=VARCHAR},
+            </if>
+            <if test="loginUrl != null">
+                #{loginUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="createUser != null">
+                #{createUser,jdbcType=BIGINT},
+            </if>
+            <if test="createDept != null">
+                #{createDept,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUser != null">
+                #{updateUser,jdbcType=BIGINT},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <select id="selectParentMenus" resultType="com.bdilab.aiflow.model.menu.TransferAmenu">
+        select  code,name,sort from menus
+        where parentcode='0'
+    </select>
+
+    <select id="selectMenusByParentcode" resultType="com.bdilab.aiflow.model.menu.TransferAmenu">
+        select code,name,sort from menus
+        where parentcode=#{code,jdbcType=VARCHAR}
+    </select>
+
+</mapper>

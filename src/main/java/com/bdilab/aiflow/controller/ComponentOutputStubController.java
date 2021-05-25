@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 
@@ -52,4 +53,36 @@ public class ComponentOutputStubController {
         }
         return new ResponseResult(true, "001", "成功获取预览信息", data);
     }
+
+    @ResponseBody
+    @ApiOperation("组件的运行结果数据下载")
+    @RequestMapping(value = "/componentOutput/downloadComponentResultCSV", method = RequestMethod.POST)
+    public ResponseResult downloadComponentResultCSV(@RequestParam @ApiParam(value = "runningId") Integer runningId,
+                                                     @RequestParam @ApiParam(value = "componentId") Integer componentId
+                                                 //HttpSession httpSession
+    ) throws IOException {
+        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Map<String, Object> data = componentOutputStubService.downloadComponentResultCSV(runningId,componentId);
+
+        if (data.get("content") == null) {
+            return new ResponseResult(false, "002", "下载结果数据失败");
+        }
+        /*File file= (File) data.get("content");
+        InputStream inStream = new FileInputStream(file); //读入原文件
+        String fileadd="G:\\dataset\\result\\"+file.getName();
+        System.out.println(fileadd);
+        FileOutputStream fs = new FileOutputStream(fileadd);
+        byte[] buffer = new byte[1444];
+        int length;
+        int bytesum = 0;
+        int byteread = 0;
+        while ( (byteread = inStream.read(buffer)) != -1) {
+            bytesum += byteread; //字节数 文件大小
+            System.out.println(bytesum);
+            fs.write(buffer, 0, byteread);
+        }
+        inStream.close();*/
+        return new ResponseResult(true, "001", "下载结果数据成功", data);
+    }
+
 }
