@@ -12,6 +12,7 @@ import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.Template;
 import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.model.WorkflowComponent;
+//import com.bdilab.aiflow.service.deeplearning.workflow.DlWorkflowService;
 import com.bdilab.aiflow.service.deeplearning.workflow.DlWorkflowService;
 import com.bdilab.aiflow.service.pipeline.PipelineService;
 import com.bdilab.aiflow.service.workflow.WorkflowService;
@@ -93,12 +94,12 @@ public class WorkflowServiceImpl implements WorkflowService {
         workflow.setWorkflowXmlAddr(XmlUtils.generateXmlFile(workflowXml,workflowXmlAddr));
         System.out.println("xml："+workflow.getWorkflowXmlAddr());
         Map<String, String> data=null;
-        if(isMl==1) {
-            //生成pipeline的py文件和yaml文件，存入相应的字段
-            data = pipelineService.generatePipeline(workflowXmlAddr, userId);
-        }else {
-            data = dlWorkflowService.generateDLPipeline(workflowXmlAddr,userId);
-        }
+        //if(isMl==1) {
+        //生成pipeline的py文件和yaml文件，存入相应的字段
+        data = pipelineService.generatePipeline(workflowXmlAddr, userId);
+        //}else {
+        //data = dlWorkflowService.generateDLPipeline(workflowXmlAddr,userId);
+        //}
         System.out.println(data.get("pipelineYamlAddr"));
         workflow.setPipelineYamlAddr(data.get("pipelineYamlAddr"));
         workflow.setGeneratePipelineAddr(data.get("generatePipelineAddr"));
@@ -199,12 +200,12 @@ public class WorkflowServiceImpl implements WorkflowService {
 
         //生成pipeline的py文件和yaml文件，存入相应的字段
         Map<String, String> data=null;
-        if(workflow.getIsMl()==1) {
-            //生成pipeline的py文件和yaml文件，存入相应的字段
-            data = pipelineService.generatePipeline(workflowXmlAddrNew, userId);
-        }else {
+        //if(workflow.getIsMl()==1) {
+        //生成pipeline的py文件和yaml文件，存入相应的字段
+        data = pipelineService.generatePipeline(workflowXmlAddrNew, userId);
+       /* }else {
             data = dlWorkflowService.generateDLPipeline(workflowXmlAddrNew,userId);
-        }
+        }*/
         workflow.setPipelineYamlAddr(data.get("pipelineYamlAddr"));
         workflow.setGeneratePipelineAddr(data.get("generatePipelineAddr"));
 

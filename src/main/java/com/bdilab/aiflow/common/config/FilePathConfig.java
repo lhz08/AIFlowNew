@@ -101,4 +101,11 @@ public class FilePathConfig {
     @Value("${nfs.path}")
     private String data_dir;
 
+    public String getData_dir() {
+        return data_dir;
+    }
+
+    public void setData_dir(String data_dir) {
+        this.data_dir = data_dir;
+    }
 }
