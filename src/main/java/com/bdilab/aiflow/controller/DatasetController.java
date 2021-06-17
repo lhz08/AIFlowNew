@@ -311,6 +311,7 @@ public class DatasetController {
         //为上传的文件生成一个随机名字
         filename = UUID.randomUUID()+suffixName;
         String filePath = filePathConfig.getDatasetUrl()+File.separatorChar+filename;
+        System.out.println(filePath);
         File datasetFile = new File(filePath);
         try {
             file.transferTo(datasetFile);
