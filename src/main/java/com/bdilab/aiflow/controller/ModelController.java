@@ -179,7 +179,7 @@ public class ModelController {
         return responseResult;
     }
     /*下载模型*/
-    @ResponseBody
+    /*@ResponseBody
     @ApiOperation("下载模型")
     @RequestMapping(value = "/model/downloadModelFromMinio",method = RequestMethod.GET)
     public ResponseResult downloadModelFromMinio(@RequestParam Integer modelId,
@@ -194,7 +194,7 @@ public class ModelController {
             return new ResponseResult(true, "001", "下载模型成功");
         }
         return new ResponseResult(true,"002","下载模型失败");
-    }
+    }*/
     @ResponseBody
     @ApiOperation("模型封装成组件")
     @RequestMapping(value = "/model/modelToComponent",method = RequestMethod.POST)

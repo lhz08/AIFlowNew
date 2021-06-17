@@ -55,7 +55,7 @@ public interface ModelService {
      */
     boolean saveModel(String runningId,String componentId,String conversationId,String modelFileAddr);
 
-    HttpServletResponse downloadModelFromMinio(Integer userId,Integer modelId,HttpServletResponse response);
+    //HttpServletResponse downloadModelFromMinio(Integer userId,Integer modelId,HttpServletResponse response);
 
     /**
      * 获取模型对应的实验id

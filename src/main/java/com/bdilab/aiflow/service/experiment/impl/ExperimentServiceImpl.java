@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -33,19 +34,19 @@ import java.util.*;
 @Service
 public class ExperimentServiceImpl implements ExperimentService {
 
-    @Autowired
+    @Resource
     ExperimentMapper experimentMapper;
 
-    @Autowired
+    @Resource
     ExperimentRunningMapper experimentRunningMapper;
 
-    @Autowired
+    @Resource
     WorkflowMapper workflowMapper;
 
     @Autowired
     RunService runService;
 
-    @Autowired
+    @Resource
     TemplateMapper templateMapper;
 
     @Autowired
@@ -57,23 +58,24 @@ public class ExperimentServiceImpl implements ExperimentService {
     @Autowired
     ComponentInfoMapper componentInfoMapper;
 
-    @Autowired
+    @Resource
     CustomComponentMapper customComponentMapper;
 
-    @Autowired
+    @Resource
     ModelMapper modelMapper;
 
-    @Autowired
+    @Resource
     ExperimentRunningJsonResultMapper experimentRunningJsonResultMapper;
 
     @Value("${web.address}")
     private String webAddress;
-    @Value("${minio.host}")
+   /* @Value("${minio.host}")
     private String minioHost;
     @Value("${minio.access_key}")
     private String minioAccessKey;
     @Value("${minio.secret_key}")
-    private String minioSecretKey;
+    private String minioSecretKey;*/
+
     Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
     public Experiment createExperiment(Integer fkWorkflowId, String name, Integer userId,String experimentDesc, String paramJsonString){
@@ -253,11 +255,11 @@ public class ExperimentServiceImpl implements ExperimentService {
         Gson gson1 = new Gson();
         Map<String,Object> map = gson1.fromJson(experiment.getParamJsonString(),Map.class);
         String config="";
-        if(workflow.getIsMl()==1) {
+        /*if(workflow.getIsMl()==1) {
             config = "{\"endpoint\":\"" + minioHost.replace("http://", "") + "\",\"access_key\":\"" + minioAccessKey + "\",\"secret_key\":\"" + minioSecretKey + "\",\"IP_port\":\"" + webAddress + "\",\"resultPath\":" + "\"user" + userId + "\",\"processInstanceId\":\"" + experimentRunning.getId() + "\",\"conversationId\":\"" + conversationId + "\",";
-        }else {
+        }else {*/
             config = "{\"processInstanceId\":\"" + experimentRunning.getId()+ "\",\"conversationId\":\"" + conversationId + "\",";
-        }
+        //}
         config = config + "\"component\":" +gson1.toJson(componentIdName) +"}";
         //"component":{"mutualInfo":3,"knn":4,"split_data":1,"data_import":5,"classification_test":6}
         map.put("config",config);

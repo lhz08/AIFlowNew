@@ -80,7 +80,7 @@ public class DatasetController {
     }
 
 
-    @ResponseBody
+   /* @ResponseBody
     @ApiOperation("上传数据集到minio服务器")
     @RequestMapping(value = "/dataset/uploadDataset",method = RequestMethod.POST)
     public ResponseResult uploadDatasetToMinio(@RequestParam MultipartFile file,
@@ -93,7 +93,7 @@ public class DatasetController {
             return new ResponseResult(true, "001", "上传数据集成功");
         }
         return new ResponseResult(true,"002","上传数据集失败");
-    }
+    }*/
 
     @ResponseBody
     @ApiOperation("从用户mysql上传表结构数据集")
@@ -497,7 +497,7 @@ public class DatasetController {
         responseResult.setMeta(new MetaData(true,"001","成功获取搜索结果"));
         return responseResult;
     }
-    @ResponseBody
+    /*@ResponseBody
     @ApiOperation("从minio服务器下载数据集")
     @RequestMapping(value = "/dataset/downloadDataset",method = RequestMethod.POST)
     public ResponseResult downloadDatasetFromMinio(@RequestParam Integer datasetId,
@@ -512,7 +512,7 @@ public class DatasetController {
             return new ResponseResult(true, "001", "下载数据集成功");
         }
         return new ResponseResult(true,"002","下载数据集失败");
-    }
+    }*/
 
     /*导出数据集*/
     @ResponseBody

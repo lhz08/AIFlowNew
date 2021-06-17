@@ -38,14 +38,14 @@ public class ModelServiceImpl implements ModelService {
     @Resource
     ComponentParameterMapper componentParameterMapper;
 
-    @Value("${minio.host}")
+   /* @Value("${minio.host}")
     private String host;
 
     @Value("${minio.access_key}")
     private String username;
 
     @Value("${minio.secret_key}")
-    private String password;
+    private String password;*/
     @Override
     public boolean createModel(Integer modelId,String modelName, String modelDesc) {
         Model model=new Model();
@@ -225,7 +225,7 @@ public class ModelServiceImpl implements ModelService {
         ProcessSseEmitters.sendEvent(conversationId,new ResponseResult(true,"005","成功保存模型",data));
         return true;
     }
-    @Override
+   /* @Override
     public HttpServletResponse downloadModelFromMinio(Integer userId, Integer modelId, HttpServletResponse response){
         MinioFileUtils minioFileUtils = new MinioFileUtils(host,username,password,false);
         Model model = modelMapper.selectModelById(modelId);
@@ -249,7 +249,7 @@ public class ModelServiceImpl implements ModelService {
 
         }
         return response;
-    }
+    }*/
 
     /**
      * @Author Lei junting

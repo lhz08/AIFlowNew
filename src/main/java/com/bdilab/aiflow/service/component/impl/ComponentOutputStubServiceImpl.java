@@ -115,8 +115,7 @@ public class ComponentOutputStubServiceImpl implements ComponentOutputStubServic
     @Override
     public Map<String, Object> previewResult(Integer componentOutputStubId,Integer userId) {
         ComponentOutputStub componentOutputStub =   componentOutputStubMapper.selectById(componentOutputStubId);
-        String filePath =  filePathConfig.getComponentResultPath()+"user"+userId+componentOutputStub.getOutputFileAddr();
-        //String filePath = filePathConfig.getComponentResultPath()+"user"+userId;
+        String filePath =  componentOutputStub.getOutputFileAddr();
         System.out.println(filePath);
         List<String[]> csvContent = FileUtils.csvContentPreview(filePath);
         Map<String,Object> data = new HashMap<>();
@@ -141,7 +140,7 @@ public class ComponentOutputStubServiceImpl implements ComponentOutputStubServic
         for (int i=0;i<fileNum;i++){
 
         }
-        String fileAddr= filePathConfig.getComponentResultPath()+(String) fileAddrMap.get("outputFileAddr");
+        String fileAddr= (String) fileAddrMap.get("outputFileAddr");
         System.out.println(fileAddr);
         File file = new File(fileAddr);
         Map<String,Object> data = new HashMap<>();

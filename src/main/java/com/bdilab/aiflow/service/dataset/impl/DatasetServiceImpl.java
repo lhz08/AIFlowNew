@@ -64,14 +64,14 @@ public class DatasetServiceImpl implements DatasetService {
     DataSourceMapper dataSourceMapper;
 
 
-    @Value("${minio.host}")
+   /* @Value("${minio.host}")
     private String host;
 
     @Value("${minio.access_key}")
     private String username;
 
     @Value("${minio.secret_key}")
-    private String password;
+    private String password;*/
     /*
      * 分页获得公开数据集信息列表
      */
@@ -88,7 +88,7 @@ public class DatasetServiceImpl implements DatasetService {
         return data;
     }
 
-    @Override
+/*    @Override
     public boolean uploadDatasetToMinio(MultipartFile file, String datasetName, String tags, String datasetDesc, Integer userId){
         String filename = file.getOriginalFilename();
         //获取文件的后缀名
@@ -106,7 +106,7 @@ public class DatasetServiceImpl implements DatasetService {
         }
         insertUserDataset(userId,datasetName,tags,filename,datasetDesc);
         return true;
-    }
+    }*/
 
     /*分页获得用户自定义数据集信息列表*/
     @Override
@@ -393,10 +393,10 @@ public class DatasetServiceImpl implements DatasetService {
     @Override
     public boolean deleteDatasetCompletelyById(Integer datasetId)  {
         Dataset dataset = datasetMapper.selectDatasetById(datasetId);
-        MinioFileUtils minioFileUtils = new MinioFileUtils(host,username,password,false);
-        minioFileUtils.deleteFile("user"+dataset.getFkUserId(),dataset.getDatasetAddr());
-//        File file = new File(dataset.getDatasetAddr());
-//        file.delete();
+       /* MinioFileUtils minioFileUtils = new MinioFileUtils(host,username,password,false);
+        minioFileUtils.deleteFile("user"+dataset.getFkUserId(),dataset.getDatasetAddr());*/
+        File file = new File(dataset.getDatasetAddr());
+        file.delete();
         return datasetMapper.deleteDatasetCompletelyById(datasetId);
     }
 /*    @Override
@@ -512,7 +512,7 @@ public class DatasetServiceImpl implements DatasetService {
         data.put("desc",dataset.getDatasetDesc());
         return data;
     }*/
-  @Override
+  /*@Override
   public HttpServletResponse downloadDatasetFromMinio(Integer userId,Integer datasetId,HttpServletResponse response) {
       MinioFileUtils minioFileUtils = new MinioFileUtils(host,username,password,false);
       Dataset dataset = datasetMapper.selectDatasetById(datasetId);
@@ -536,7 +536,7 @@ public class DatasetServiceImpl implements DatasetService {
 
       }
       return response;
-  }
+  }*/
 
     @Override
     @Transactional(rollbackFor = Exception.class)

@@ -22,14 +22,8 @@ public interface DatasetService {
     /**
      *
      * 上传数据集文件到minio服务器上
-     * @param file
-     * @param datasetName
-     * @param tags
-     * @param datasetDec
-     * @param userId
-     * @return
      */
-    boolean uploadDatasetToMinio(MultipartFile file, String datasetName, String tags, String datasetDec, Integer userId);
+    //boolean uploadDatasetToMinio(MultipartFile file, String datasetName, String tags, String datasetDec, Integer userId);
 
 
     boolean insertUserDataset(Integer userId, String datasetName, String tags, String filePath, String datasetDesc);
@@ -93,7 +87,7 @@ public interface DatasetService {
 
     Map<String, Object> getPreviewList(Integer datasetId);
 
-    HttpServletResponse downloadDatasetFromMinio(Integer userId,Integer datasetId,HttpServletResponse response);
+    //HttpServletResponse downloadDatasetFromMinio(Integer userId,Integer datasetId,HttpServletResponse response);
 
     boolean importFromDatasource(Integer userId,Integer datasourceId,String tableName,String datasetName,String datasetDesc,String tags);
 }
