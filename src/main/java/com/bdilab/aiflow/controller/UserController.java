@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiParam;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,14 +45,18 @@ public class UserController {
     public ResponseResult login(@RequestParam @ApiParam(value = "用户名") String username,
                                 @RequestParam @ApiParam(value = "密码") String password,
                                 HttpSession httpSession) {
-        String md5Password = DecryptUtils.getMd5(password);
+         String md5Password = DecryptUtils.getMd5(password);
         User user = userService.userLoginCheck(username,md5Password);
         if(user!=null){
+            if(user.getStatus() == 0)
+                return new ResponseResult(false, "003", "用户已被禁用，请联系管理员", null);
             httpSession.setAttribute("user_id", user.getId());
             httpSession.setAttribute("name", user.getUserName());
+            httpSession.setAttribute("type",user.getType());
             Map<String, Object> data = new HashMap<>(2);
             data.put("uid",user.getId());
             data.put("name",user.getUserName());
+            data.put("type",user.getType());
             return new ResponseResult(true, "001", "登录成功", data);
         } else
             return new ResponseResult(false, "002", "用户名或密码错误", null);
@@ -62,14 +67,21 @@ public class UserController {
     @RequestMapping(value = "/register",method = RequestMethod.POST)
     public ResponseResult register(@RequestParam @ApiParam(value = "用户名") String username,
                                    @RequestParam @ApiParam(value = "密码") String password,
-                                   HttpSession httpSession)throws IOException, NoSuchAlgorithmException {
+                                   @RequestParam(required = false) @ApiParam(value = "邮箱") String email,
+                                   @RequestParam(required = false) @ApiParam(value = "手机号") String mobile
+    )throws IOException, NoSuchAlgorithmException {
         User user = new User();
         if(userService.userRegisterCheck(username)!=null) {
-            return new ResponseResult(true, "002", "注册失败，用户名已存在", null);
+            return new ResponseResult(false, "002", "注册失败，用户名已存在", null);
         }
         String md5Password = DecryptUtils.getMd5(password);
         user.setUserName(username);
         user.setPassword(md5Password);
+        user.setEmail(email);
+        user.setMobile(mobile);
+        user.setType(0);
+        user.setCreateTime(new Date());
+        user.setStatus(1);
         userService.createUser(user);
         return new ResponseResult(true, "001", "注册成功",username);
     }

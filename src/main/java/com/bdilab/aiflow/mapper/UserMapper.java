@@ -1,10 +1,12 @@
 package com.bdilab.aiflow.mapper;
 
 import com.bdilab.aiflow.model.User;
+import com.bdilab.aiflow.vo.UserInfoVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 
 public interface UserMapper {
@@ -64,7 +66,12 @@ public interface UserMapper {
      */
     int updateByPrimaryKey(User record);
 
-    List<User> getAllUsers();
+    /**
+     * 获取所有用户
+     * @param
+     * @return List<User>
+     */
+    List<UserInfoVO> getAllUsers(Integer userId);
 
     /**
      * 根据用户名和密码检索用户
@@ -73,4 +80,7 @@ public interface UserMapper {
      * @return
      */
     User selectUserByNameAndPassword(@Param("username") String username, @Param("password")  String password);
+
+    int update(Map<String, Object> map);
+
 }

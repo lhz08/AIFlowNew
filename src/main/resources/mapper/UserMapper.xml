@@ -5,22 +5,81 @@
     <select id="selectUserByName" parameterType="String" resultType="com.bdilab.aiflow.model.User">
                 select user.id as id,
                        user.user_name as userName,
-                       user.password as password
+                       user.password as password,
+                       user.type as type,
+                       user.create_time as createTime,
+                       user.status as status,
+                       user.administrator_id as administratorId,
+                       user.email as email,
+                       user.mobile as mobile,
+                       user.enabled as enabled,
+                       user.update_time as updateTime,
+                       user.user_code as userCode
                 from user
                 where user.user_name= #{username}
     </select>
     <!--向用户表中插入用户信息-->
     <insert id="insertUser" useGeneratedKeys="true" keyProperty="id"
           parameterType="com.bdilab.aiflow.model.User">
-                INSERT INTO user(user_name,password) VALUES (#{userName},#{password});
+                INSERT INTO user(user_name,password,type,create_time,status,administrator_id,email,mobile,enabled,update_time,user_code)
+                VALUES (#{userName},#{password},#{type},#{createTime},#{status},#{administratorId},#{email},#{mobile},#{enabled},#{updateTime},#{userCode});
     </insert>
 
     <!--查询个人信息-->
     <select id="selectUserByNameAndPassword" parameterType="String" resultType="com.bdilab.aiflow.model.User">
                 select user.id as id,
                        user.user_name as userName,
-                       user.password as password
+                       user.password as password,
+                       user.type as type,
+                       user.create_time as createTime,
+                       user.status as status,
+                       user.administrator_id as administratorId,
+                       user.email as email,
+                       user.mobile as mobile,
+                       user.enabled as enabled,
+                       user.update_time as updateTime,
+                       user.user_code as userCode
                 from user
                 where user.user_name= #{username} and user.password=#{password}
             </select>
+
+    <!--查询所有用户信息-->
+    <select id="getAllUsers" parameterType="Integer" resultType="com.bdilab.aiflow.vo.UserInfoVO">
+        select user.id as id,
+            user.user_name as userName,
+            user.type as type,
+            user.status as status,
+            user.email as email,
+            user.mobile as mobile,
+            user.user_code as userCode
+        from user
+        <if test="userId!=null">where user.id != #{userId}</if>
+    </select>
+
+    <update id="update" parameterType="Map" >
+        update user
+        <set >
+            <if test="email != null" >
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="mobile != null" >
+                mobile = #{mobile,jdbcType=VARCHAR},
+            </if>
+            <if test="userCode != null" >
+                user_code = #{userCode,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null" >
+                update_time = now(),
+            </if>
+            <if test="status != null" >
+                status = #{status},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+        delete from user
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
 </mapper>
