@@ -323,7 +323,7 @@ public class DatasetController {
                 if(suffixName.equals(".csv")) {
 
                     boolean isSuccess = datasetService.insertUserDataset(userId,datasetName,tags,filePath,datasetDesc);
-                    datasetFile.delete();
+                    //datasetFile.delete();
                     if (isSuccess){
                         return new ResponseResult(true,"001","数据集注册成功");
                     }
