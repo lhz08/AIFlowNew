@@ -294,7 +294,7 @@ public class DatasetController {
     }
     @ResponseBody
     @ApiOperation("上传数据集")
-    @RequestMapping(value = "/dataset/insertUserDataset",method = RequestMethod.POST)
+    @RequestMapping(value = "/dataset/uploadDataset",method = RequestMethod.POST)
     public ResponseResult uploadDataset(@RequestParam MultipartFile file,
                                         @RequestParam String datasetName,
                                         @RequestParam String tags,
@@ -387,8 +387,8 @@ public class DatasetController {
     /*从回收站单个或批量彻底删除数据集*/
     @ResponseBody
     @ApiOperation(value = "从回收站单个或批量彻底删除数据集")
-    @RequestMapping(value = "/dataset/deleteDatasetCompletelyById",method = RequestMethod.POST)
-    public ResponseResult deleteDatasetCompletelyById(@RequestParam String datasetIds,
+    @RequestMapping(value = "/dataset/deleteDatasetCompletely",method = RequestMethod.POST)
+    public ResponseResult deleteDatasetCompletely(@RequestParam String datasetIds,
                                                       HttpSession httpSession){
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         String[] ids = datasetIds.split(",");
