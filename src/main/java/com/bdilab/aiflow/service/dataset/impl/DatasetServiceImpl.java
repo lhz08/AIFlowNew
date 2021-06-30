@@ -556,8 +556,8 @@ public class DatasetServiceImpl implements DatasetService {
             }
             conf = HBaseConfiguration.create();
 
-            conf.set("hbase.master",config.get("hbase.zookeeper.quorum"));
-            conf.set("hbase.zookeeper.quorum", config.get("hbase.master"));
+            conf.set("hbase.master",config.get("hbase.master"));
+            conf.set("hbase.zookeeper.quorum", config.get("hbase.zookeeper.quorum"));
             conf.set("hbase.zookeeper.property.clientport", config.get("hbase.zookeeper.property.clientport"));
             try {
                 conn = ConnectionFactory.createConnection(conf);
