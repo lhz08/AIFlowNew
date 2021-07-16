@@ -3,14 +3,9 @@ package com.bdilab.aiflow.controller;
 import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.model.Workflow;
-import com.bdilab.aiflow.model.WorkflowComponent;
 import com.bdilab.aiflow.service.deeplearning.workflow.DlWorkflowService;
 import com.bdilab.aiflow.service.workflow.WorkflowService;
-
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.Builder;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -60,7 +55,11 @@ public class WorkflowController {
         Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         //在点击新建后立即新建一条流程记录
         //Workflow workflow = DlWorkflowService.CreateWorkflow(workflowName,tagString,workflowDesc,Integer.parseInt(httpSession.getAttribute("username").toString()));
+        long t1=System.currentTimeMillis();
+        System.out.println("开始创建流程："+t1);
         Workflow workflow = workflowService.createAndSaveWorkflow(workflowName,tagString,workflowDesc,workflowXml,ggeditorObjectString,userId,isMl);
+        long t2=System.currentTimeMillis();
+        System.out.println("创建流程结束："+t2);
         System.out.println(ggeditorObjectString);
         Map<String,Object> data = new HashMap<>(1);
         data.put("workflowId",workflow.getId());

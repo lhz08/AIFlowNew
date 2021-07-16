@@ -15,12 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author smile
@@ -54,6 +50,8 @@ public class RunController {
 //        System.out.println("resultTable:= "+resultTable);
 
         boolean isInProcess = runService.pushData(processInstanceId,taskId,conversationId,resultTable);
+        long t1=System.currentTimeMillis();
+        System.out.println("接受到python报告结果："+t1);
         System.out.println(processInstanceId+" "+taskId+" "+conversationId+resultPath);
         if(isInProcess){
             return new ResponseResult(true,"001","已完成id为"+taskId+"的任务");
@@ -87,8 +85,11 @@ public class RunController {
         parameter.put("input_data","dataset/IrisFS.csv");
         parameter.put("val_portion","0.2");
         parameter.put("resultPath","admin");
-
+        long t1=System.currentTimeMillis();
+        System.out.println("创建实验运行："+t1);
         String result = runService.createRun(pipelineId,pipelineName,parameter);
+        long t2=System.currentTimeMillis();
+        System.out.println("创建实验运行结束"+t2);
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(result);
         responseResult.setMeta(new MetaData(true,"001","成功创建运行"));

@@ -16,7 +16,8 @@ import com.bdilab.aiflow.model.run.ApiRun;
 import com.bdilab.aiflow.model.workflow.EpochInfo;
 import com.bdilab.aiflow.service.run.RunService;
 import com.google.gson.Gson;
-import io.swagger.models.auth.In;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -24,18 +25,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import com.google.gson.Gson;
-import org.checkerframework.checker.units.qual.C;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
-
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -103,6 +99,8 @@ public class RunServiceImpl implements RunService {
         //推送最后一个组件执行状态
         sendEvent(taskId,conversationId,null);
         logger.info("所有结点执行完毕");
+        long t1=System.currentTimeMillis();
+        System.out.println("所有节点运行结束"+t1);
         Map<String, Object> pushFinishData = new HashMap<>();
         pushFinishData.put("processName", workflow.getName());
         pushFinishData.put("status", "finished");

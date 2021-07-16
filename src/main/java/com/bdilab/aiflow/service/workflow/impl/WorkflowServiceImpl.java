@@ -12,26 +12,23 @@ import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.Template;
 import com.bdilab.aiflow.model.Workflow;
 import com.bdilab.aiflow.model.WorkflowComponent;
-//import com.bdilab.aiflow.service.deeplearning.workflow.DlWorkflowService;
 import com.bdilab.aiflow.service.deeplearning.workflow.DlWorkflowService;
+import com.bdilab.aiflow.service.experiment.ExperimentService;
 import com.bdilab.aiflow.service.pipeline.PipelineService;
 import com.bdilab.aiflow.service.workflow.WorkflowService;
-import com.bdilab.aiflow.service.experiment.ExperimentService;
 import com.bdilab.aiflow.vo.WorkflowVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.http.entity.ContentType;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+//import com.bdilab.aiflow.service.deeplearning.workflow.DlWorkflowService;
 
 
 
@@ -96,7 +93,11 @@ public class WorkflowServiceImpl implements WorkflowService {
         Map<String, String> data=null;
         //if(isMl==1) {
         //生成pipeline的py文件和yaml文件，存入相应的字段
+        long t1=System.currentTimeMillis();
+        System.out.println("开始生成pipeline："+t1);
         data = pipelineService.generatePipeline(workflowXmlAddr, userId);
+        long t2=System.currentTimeMillis();
+        System.out.println("生成pipeline结束："+t2);
         //}else {
         //data = dlWorkflowService.generateDLPipeline(workflowXmlAddr,userId);
         //}
@@ -107,7 +108,11 @@ public class WorkflowServiceImpl implements WorkflowService {
         //上传pipeline，返回pipelineId
         File file = new File(data.get("pipelineYamlAddr"));
         String pipelineName = UUID.randomUUID()+workflow.getName();
+        long t3=System.currentTimeMillis();
+        System.out.println("开始推送pipeline："+t3);
         String pipelineId = pipelineService.uploadPipeline(pipelineName,workflow.getWorkflowDesc(),file);
+        long t4=System.currentTimeMillis();
+        System.out.println("推送pipeline结束"+t4);
         workflow.setPipelineId(pipelineId);
         workflowMapper.insertWorkflow(workflow);
 
