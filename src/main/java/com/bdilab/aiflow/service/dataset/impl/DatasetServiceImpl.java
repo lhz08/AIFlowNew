@@ -5,10 +5,7 @@ import com.bdilab.aiflow.common.config.FilePathConfig;
 import com.bdilab.aiflow.common.hbase.HBaseConnection;
 import com.bdilab.aiflow.common.hbase.HBaseUtils;
 import com.bdilab.aiflow.common.mysql.MysqlConnection;
-import com.bdilab.aiflow.common.mysql.MysqlUtils;
-import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.common.utils.FileUtils;
-import com.bdilab.aiflow.common.utils.MinioFileUtils;
 import com.bdilab.aiflow.mapper.DataSourceMapper;
 import com.bdilab.aiflow.mapper.DatasetMapper;
 import com.bdilab.aiflow.model.DataSource;
@@ -18,34 +15,22 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import io.minio.errors.*;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.*;
-import java.util.*;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.net.URLEncoder;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
 import java.util.Date;
+import java.util.*;
 
 /**
  * @author
@@ -64,14 +49,6 @@ public class DatasetServiceImpl implements DatasetService {
     DataSourceMapper dataSourceMapper;
 
 
-   /* @Value("${minio.host}")
-    private String host;
-
-    @Value("${minio.access_key}")
-    private String username;
-
-    @Value("${minio.secret_key}")
-    private String password;*/
     /*
      * 分页获得公开数据集信息列表
      */

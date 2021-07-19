@@ -280,12 +280,12 @@
 			<version>2.8.5</version>
 		</dependency>
 
-		<!--minio文件服务器-->
+<!--		&lt;!&ndash;minio文件服务器&ndash;&gt;
 		<dependency>
 			<groupId>io.minio</groupId>
 			<artifactId>minio</artifactId>
 			<version>7.0.2</version>
-		</dependency>
+		</dependency>-->
 
         <!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
 <!--        <dependency>-->
