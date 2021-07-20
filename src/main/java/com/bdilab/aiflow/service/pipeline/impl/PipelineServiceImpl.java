@@ -1,9 +1,7 @@
 package com.bdilab.aiflow.service.pipeline.impl;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.Feature;
 import com.bdilab.aiflow.common.config.FilePathConfig;
-import com.bdilab.aiflow.common.utils.FileUtils;
+import com.bdilab.aiflow.common.utils.DateUtils;
 import com.bdilab.aiflow.common.utils.JsonUtils;
 import com.bdilab.aiflow.common.utils.RunCommand;
 import com.bdilab.aiflow.common.utils.XmlUtils;
@@ -25,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
 import javax.annotation.Resource;
 import java.io.*;
 import java.util.*;
@@ -62,7 +61,7 @@ public class PipelineServiceImpl implements PipelineService {
             pipeline = executeTask(toBeExecutedQueue,json,pipeline,completedQueue);
         }
         System.out.println(pipeline);
-        String filePath = filePathConfig.getPipelineCodePath()+ File.separatorChar+ UUID.randomUUID()+".py";
+        String filePath = filePathConfig.getPipelineCodePath()+ File.separatorChar + DateUtils.getCurrentDate()+ File.separatorChar+ UUID.randomUUID()+".py";
         File file = new File(filePath);
         try {
             if(!file.exists()){
