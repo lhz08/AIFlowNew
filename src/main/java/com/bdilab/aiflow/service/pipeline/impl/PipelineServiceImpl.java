@@ -64,6 +64,9 @@ public class PipelineServiceImpl implements PipelineService {
         String filePath = filePathConfig.getPipelineCodePath()+ File.separatorChar + DateUtils.getCurrentDate()+ File.separatorChar+ UUID.randomUUID()+".py";
         System.out.println("py:"+filePath);
         File file = new File(filePath);
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdir();
+        }
         try {
             if(!file.exists()){
                 file.createNewFile();
