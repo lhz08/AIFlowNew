@@ -62,6 +62,7 @@ public class PipelineServiceImpl implements PipelineService {
         }
         System.out.println(pipeline);
         String filePath = filePathConfig.getPipelineCodePath()+ File.separatorChar + DateUtils.getCurrentDate()+ File.separatorChar+ UUID.randomUUID()+".py";
+        System.out.println("py:"+filePath);
         File file = new File(filePath);
         try {
             if(!file.exists()){
@@ -327,9 +328,12 @@ public class PipelineServiceImpl implements PipelineService {
     }
 
     public static void main(String[] args) {
-        File file = new File("G:\\home\\pipelineYaml\\2de8934e-4468-46f8-9f71-b6cfaf096783.py.yaml");
-        System.out.println(file.getName());
+        //File file = new File("G:\\home\\pipelineYaml\\2de8934e-4468-46f8-9f71-b6cfaf096783.py.yaml");
+       /* System.out.println(file.getName());
         PipelineServiceImpl pipelineService = new PipelineServiceImpl();
-        pipelineService.uploadPipeline("zmtest","zmtest",file);
+        pipelineService.uploadPipeline("zmtest","zmtest",file);*/
+        FilePathConfig filePathConfig = new FilePathConfig();
+        String filePath = filePathConfig.getPipelineCodePath()+ File.separatorChar + DateUtils.getCurrentDate()+ File.separatorChar+ UUID.randomUUID()+".py";
+        System.out.println("py:"+filePath);
     }
 }
