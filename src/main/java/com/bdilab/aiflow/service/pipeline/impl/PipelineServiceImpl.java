@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,9 @@ import java.util.*;
 
 @Service
 public class PipelineServiceImpl implements PipelineService {
+
+    @Value("${kubeflow.url}")
+    String url;
 
     @Autowired
     RestTemplate restTemplate;
@@ -277,7 +281,8 @@ public class PipelineServiceImpl implements PipelineService {
     public String uploadPipeline(String name, String description, File file) {
 
         System.out.println(file.getAbsoluteFile());
-        String url = "http://120.27.69.55:31380/pipeline/apis/v1beta1/pipelines/upload?name=" + name + "&description=" + description;
+        String kubeflowUrl = url+"pipeline/apis/v1beta1/pipelines/upload?name=" + name + "&description=" + description;
+        System.out.println("kubeflowUrl== "+kubeflowUrl);
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         FileSystemResource fileSystemResource = null;
 
@@ -297,7 +302,7 @@ public class PipelineServiceImpl implements PipelineService {
         map.add("uploadfile",fileSystemResource);
 
         HttpEntity<MultiValueMap<String, Object>> params = new HttpEntity<>(map);
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, params, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(kubeflowUrl, params, String.class);
 
         if(responseEntity.getStatusCodeValue() != 200){
             return null;
@@ -311,9 +316,9 @@ public class PipelineServiceImpl implements PipelineService {
     @Override
     public String getPipelineById(String pipelineId) {
         //b5e588e3-062e-4e9c-b1c6-eddabea88c89
-        String url = "http://120.27.69.55:31380/pipeline/apis/v1beta1/pipelines/" + pipelineId;
+        String kubeflowUrl = url+"pipeline/apis/v1beta1/pipelines/" + pipelineId;
         Map<String, Object> paramMap = new HashMap<>();
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(url,String.class,paramMap);
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(kubeflowUrl,String.class,paramMap);
         int statusCodeValue = responseEntity.getStatusCodeValue();
         System.out.println("statusCodeValue = " + statusCodeValue);
         if(statusCodeValue == 200){
@@ -325,8 +330,8 @@ public class PipelineServiceImpl implements PipelineService {
 
     @Override
     public boolean deletePipelineById(String pipelineId) {
-        String url = "http://120.27.69.55:31380/pipeline/apis/v1beta1/pipelines/" + pipelineId;
-        restTemplate.delete(url);
+        String kubeflowUrl = url+"pipeline/apis/v1beta1/pipelines/" + pipelineId;
+        restTemplate.delete(kubeflowUrl);
         return true;
     }
 
