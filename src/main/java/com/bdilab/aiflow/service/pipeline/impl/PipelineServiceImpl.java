@@ -82,8 +82,9 @@ public class PipelineServiceImpl implements PipelineService {
             if(filePath.contains(".py")) {
                 String pipelineYamlAddr = filePath+".yaml";
                 File file1  =  new File(pipelineYamlAddr);
-                if(!file1.exists())
+                if(!file1.exists()) {
                     throw new IOException("编译失败");
+                }
                 data.put("pipelineYamlAddr",pipelineYamlAddr);
                 data.put("generatePipelineAddr",filePath);
             }
@@ -248,8 +249,9 @@ public class PipelineServiceImpl implements PipelineService {
     }
     //得到输入桩或输出桩的参数列表
     private List<String> getStubList(String inputStub){
-        if(inputStub.equals(""))
+        if(inputStub.equals("")){
             return null;
+        }
         List<String> inputStubList = new ArrayList<>();
         inputStub=inputStub.substring(1,inputStub.length()-1);
         String[] s = inputStub.split(",");
@@ -283,6 +285,7 @@ public class PipelineServiceImpl implements PipelineService {
         System.out.println(file.getAbsoluteFile());
         String kubeflowUrl = url+"pipeline/apis/v1beta1/pipelines/upload?name=" + name + "&description=" + description;
         System.out.println("kubeflowUrl== "+kubeflowUrl);
+
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         FileSystemResource fileSystemResource = null;
 
@@ -316,7 +319,8 @@ public class PipelineServiceImpl implements PipelineService {
     @Override
     public String getPipelineById(String pipelineId) {
         //b5e588e3-062e-4e9c-b1c6-eddabea88c89
-        String kubeflowUrl = url+"pipeline/apis/v1beta1/pipelines/" + pipelineId;
+
+        String kubeflowUrl = url + "pipeline/apis/v1beta1/pipelines/" + pipelineId;
         Map<String, Object> paramMap = new HashMap<>();
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(kubeflowUrl,String.class,paramMap);
         int statusCodeValue = responseEntity.getStatusCodeValue();
@@ -330,7 +334,8 @@ public class PipelineServiceImpl implements PipelineService {
 
     @Override
     public boolean deletePipelineById(String pipelineId) {
-        String kubeflowUrl = url+"pipeline/apis/v1beta1/pipelines/" + pipelineId;
+
+        String kubeflowUrl = url+ "pipeline/apis/v1beta1/pipelines/" + pipelineId;
         restTemplate.delete(kubeflowUrl);
         return true;
     }

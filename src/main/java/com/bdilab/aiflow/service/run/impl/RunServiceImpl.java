@@ -123,6 +123,7 @@ public class RunServiceImpl implements RunService {
 
     }
 
+    @Override
     public void pushEpochInfo(Integer experimentRunningId, EpochInfo epochInfo, String modelFilePath){
         ExperimentRunning experimentRunning = experimentRunningMapper.selectExperimentRunningByRunningId(experimentRunningId);
         String conversationId = experimentRunning.getConversationId();
@@ -200,6 +201,7 @@ public class RunServiceImpl implements RunService {
         modelMapper.insertModel(model);
     }
 
+    @Override
     public String getComponentId(String string){
         return string.split("_")[1];
     }
@@ -291,6 +293,7 @@ public class RunServiceImpl implements RunService {
 
         String kubeflowUrl = url+"pipeline/apis/v1beta1/runs";
         System.out.println("kubeflowUrl== "+kubeflowUrl);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<ApiRun> request = new HttpEntity(apiRun, (MultiValueMap)headers);
@@ -308,7 +311,8 @@ public class RunServiceImpl implements RunService {
 
     @Override
     public boolean deleteRunById(String runId) {
-        String kubeflowUrl = url+ "pipeline/apis/v1beta1/runs/" + runId;
+
+        String kubeflowUrl = url + "pipeline/apis/v1beta1/runs/" + runId;
         restTemplate.delete(kubeflowUrl);
         return true;
     }
