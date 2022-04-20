@@ -33,7 +33,9 @@ public class ExperimentJobController {
         if(isSuccess){
             return new ResponseResult(true,"001","停止job成功");
         }
+        System.out.println("");
         return new ResponseResult(false,"002","停止job失败");
+
     }
     @ResponseBody
     @ApiOperation("启动实验周期任务")
