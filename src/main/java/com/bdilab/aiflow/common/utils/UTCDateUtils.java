@@ -36,11 +36,11 @@ public class UTCDateUtils {
         rightNow.add(Calendar.SECOND,+delay);//日期减去1个月
         return rightNow.getTime();
     }
-    public static void main(String[] args) throws ParseException {
+   /* public static void main(String[] args) throws ParseException {
         //System.out.println(dateInvert("2022-04-18T07:40:00.000Z"));
         System.out.println((Date) new Date());
 
         System.out.println(adddateInvert((Date) new Date(),80));
-    }
+    }*/
 
 }

@@ -250,8 +250,8 @@ public class ExperimentController {
     @RequestMapping(value = "/experiment/isEdit", method = RequestMethod.POST)
     public ResponseResult isEdit(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
                                         HttpSession httpSession){
-        Integer userId =46;
-       // Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        //Integer userId =46;
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<Integer,String> data = experimentService.isEdit(experimentId);
 
         ResponseResult responseResult = new ResponseResult();
@@ -271,8 +271,8 @@ public class ExperimentController {
     public ResponseResult addQuartzJob(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
                              @RequestParam @ApiParam(value = "cronTime") String cronTime,
                              HttpSession httpSession) {
-        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
-        Integer userId=46;
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+       // Integer userId=46;
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("experimentId",experimentId);
         jobDataMap.put("userId",46);
@@ -302,13 +302,14 @@ public class ExperimentController {
                                                   @RequestParam @ApiParam(value = "结束时间") String end_time,
                                                   @RequestParam @ApiParam(value = "周期设置") String schedule_time,
                                          HttpSession httpSession) throws ParseException {
-        // Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        //Integer userId =46;
         String conversationId = UUID.randomUUID().toString();
         ApiSchedule apiSchedule=new ApiSchedule();
         apiSchedule.setStart_time(start_time);
         apiSchedule.setEnd_time(end_time);
         apiSchedule.setScheduleTime(schedule_time);
-        Map<String,Object> isSuccess=experimentJobService.startCycleRunExperment(experimentId,46,conversationId,apiSchedule);
+        Map<String,Object> isSuccess=experimentJobService.startCycleRunExperment(experimentId,userId,conversationId,apiSchedule);
         //查询对应job下的running，存入数据库
 
         if(isSuccess.get("isSuccess").equals(true)){
@@ -328,11 +329,12 @@ public class ExperimentController {
     public  ResponseResult getJobRunningExperiment(@RequestParam @ApiParam(value = "多任务Id") Integer id,
                                                   @RequestParam @ApiParam(value = "周期设置") String schedule_time,
                                                   HttpSession httpSession) throws ParseException {
-        // Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        //Integer userId =46;
         //首先根据多任务Id查询多任务信息
         ExperimentJob experimentJob=experimentJobService.selectJobById(id);
         //查询对应job下的running
-        boolean isSuccess=experimentJobService.getExperimentJobRunning(46,"JOB",//experimentJob.getCronJobTime()
+        boolean isSuccess=experimentJobService.getExperimentJobRunning(userId,"JOB",//experimentJob.getCronJobTime()
                 experimentJob);
         if(isSuccess){
             ResponseResult responseResult = new ResponseResult(true,"001","成功查询对应job下的running");

@@ -58,7 +58,6 @@ public class QuartzExperimentRunning extends QuartzJobBean {
             //获取返回结果中的运行id
             Gson gson1 = new Gson();
             Map<String, Map<String,Map<String,String>>> map = gson1.fromJson(responseEntity.getBody(), Map.class);
-           // apiListJobRunsResponse.setApiRuns(map.get("runs"));
             ArrayList<Map<String,String>> arrayList = (ArrayList<Map<String,String>>) map.get("runs");
             HashMap<Integer,String> newmap=new HashMap<Integer,String>();
             HashMap<Integer,String> oldmap=new HashMap<Integer,String>();
@@ -69,7 +68,6 @@ public class QuartzExperimentRunning extends QuartzJobBean {
                 }
             }
             newmap.values().removeAll(apiDifferMap.getOldmap().values());
-            Log.info("job下对应的前old运行"+apiDifferMap.getOldmap());
             apiDifferMap.setOldmap(apiDifferMap.getNewmap());
             if(arrayList.size()!=0) {
                 for (int i = 0; i < arrayList.size(); i++) {
@@ -77,8 +75,6 @@ public class QuartzExperimentRunning extends QuartzJobBean {
                 }
                 apiDifferMap.setOldmap(oldmap);
             }
-            Log.info("job下对应的newmap运行"+apiDifferMap.getNewmap());
-            Log.info("job下对应的后old运行"+apiDifferMap.getOldmap());
             System.out.println("差集大小"+newmap.size());
             System.out.println("差集"+newmap.size());
             if(newmap.size()!=0)
@@ -100,10 +96,6 @@ public class QuartzExperimentRunning extends QuartzJobBean {
                     Log.info("插入运行记录成功");
                 }
             }
-
-            Log.info("job下对应的运行"+map.get("runs"));
-            Log.info("job下对应的new运行"+newmap);
-            Log.info("job下对应的new运行values"+newmap.values());
         }
 
     }
