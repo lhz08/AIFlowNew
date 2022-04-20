@@ -264,9 +264,9 @@ public class ExperimentController {
     @Autowired
     ExperimentJobService experimentJobService;
 
-    //定时
+    //实验定时功能
     @ResponseBody
-    @ApiOperation(value = "使用quartz添加jobs周期运行实验")
+    @ApiOperation(value = "使用quartz添加jobs定时运行实验")
     @RequestMapping(value = "/experiment/addQuartzJob", method = RequestMethod.POST)
     public ResponseResult addQuartzJob(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
                              @RequestParam @ApiParam(value = "cronTime") String cronTime,
@@ -293,7 +293,7 @@ public class ExperimentController {
             return new ResponseResult(true,"002","创建job失败");
         }
     }
-    //周期
+    //实验周期功能
     @ResponseBody
     @ApiOperation("调用jobs接口周期运行实验")
     @RequestMapping(value = "/experiment/cycleRunExperiment", method = RequestMethod.POST)
@@ -337,9 +337,9 @@ public class ExperimentController {
         boolean isSuccess=experimentJobService.getExperimentJobRunning(userId,"JOB",//experimentJob.getCronJobTime()
                 experimentJob);
         if(isSuccess){
-            ResponseResult responseResult = new ResponseResult(true,"001","成功查询对应job下的running");
+            ResponseResult responseResult = new ResponseResult(true,"001","成功查询多任务下的running");
             return responseResult;
         }
-        return new ResponseResult(false,"002","失败查询对应job下的running");
+        return new ResponseResult(false,"002","无法查询多任务下的running");
     }
 }

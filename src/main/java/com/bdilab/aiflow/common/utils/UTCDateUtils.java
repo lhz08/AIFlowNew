@@ -33,7 +33,7 @@ public class UTCDateUtils {
         Calendar rightNow = Calendar.getInstance();
         rightNow.setTime((Date) dateStr);//将当前时间设置进去
         //根据需要去加减时间
-        rightNow.add(Calendar.SECOND,+delay);//日期减去1个月
+        rightNow.add(Calendar.SECOND,+delay);
         return rightNow.getTime();
     }
    /* public static void main(String[] args) throws ParseException {

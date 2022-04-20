@@ -77,11 +77,11 @@ public class ExperimentJobServiceImpl implements ExperimentJobService {
         boolean isSuccess=experimentJobMapper.insert(experimentJob)==1;
         if(!isSuccess){
             messageMap.put("isSuccess",false);
-            messageMap.put("message","周期运行实验失败，创建周期运行失败");
+            messageMap.put("message","定时任务失败");
             return messageMap;
         }
         messageMap.put("isSuccess",true);
-        messageMap.put("message","周期运行实验成功");
+        messageMap.put("message","定时任务成功");
         messageMap.put("experimentJobId", experimentJob.getId());
         messageMap.put("experimentJobName", experimentJob.getJobName());
         messageMap.put("experimentJobGroupName", experimentJob.getJobGroupName());
