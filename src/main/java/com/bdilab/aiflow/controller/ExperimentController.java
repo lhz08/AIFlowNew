@@ -1,28 +1,32 @@
 package com.bdilab.aiflow.controller;
 
 import com.bdilab.aiflow.common.enums.DeleteStatus;
-import com.bdilab.aiflow.common.enums.MarkTemplateStatus;
 import com.bdilab.aiflow.common.response.MetaData;
 import com.bdilab.aiflow.common.response.ResponseResult;
 import com.bdilab.aiflow.model.Experiment;
-import com.bdilab.aiflow.model.Template;
+import com.bdilab.aiflow.model.job.ApiSchedule;
+import com.bdilab.aiflow.model.job.ExperimentJob;
+import com.bdilab.aiflow.quartz.QuartzExperimentJob;
 import com.bdilab.aiflow.service.experiment.ExperimentService;
+import com.bdilab.aiflow.service.job.ExperimentJobService;
+import com.bdilab.aiflow.service.quartz.QuartzService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.models.auth.In;
+import org.quartz.JobDataMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
-//import javax.validation.constraints.NotBlank;
-//import javax.validation.constraints.NotEmpty;
+import java.text.ParseException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+
+//import javax.validation.constraints.NotBlank;
+//import javax.validation.constraints.NotEmpty;
 
 
 /**
@@ -48,7 +52,8 @@ public class ExperimentController {
                                            @RequestParam @ApiParam(value = "实验描述") String experimentDesc,
                                            @RequestParam @ApiParam(value = "参数json串") String paramJsonString,
                                            HttpSession httpSession) throws Exception{
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+      //  Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Integer userId=46;
         try {
             //处理为空串的参数，修改为NULL
             if(name!=null&&name.length()==0){
@@ -163,9 +168,9 @@ public class ExperimentController {
     @RequestMapping(value = "/experiment/runExperiment", method = RequestMethod.POST)
     public  ResponseResult runExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
                                          HttpSession httpSession){
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+       // Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         String conversationId = UUID.randomUUID().toString();
-        Map<String,Object> isSuccess=experimentService.startRunExperment(experimentId,userId,conversationId);
+        Map<String,Object> isSuccess=experimentService.startRunExperment(experimentId,46,conversationId);
         if(isSuccess.get("isSuccess").equals(true)){
             Map<String,Object> data=new HashMap<>(2);
             data.put("experimentRunningId",isSuccess.get("experimentRunningId"));
@@ -245,12 +250,94 @@ public class ExperimentController {
     @RequestMapping(value = "/experiment/isEdit", method = RequestMethod.POST)
     public ResponseResult isEdit(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
                                         HttpSession httpSession){
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Integer userId =46;
+       // Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
         Map<Integer,String> data = experimentService.isEdit(experimentId);
 
         ResponseResult responseResult = new ResponseResult();
         responseResult.setData(data);
         responseResult.setMeta(new MetaData(true,"001","成功返回实验是否可编辑状态"));
         return  responseResult;
+    }
+    @Autowired
+    QuartzService quartzService;
+    @Autowired
+    ExperimentJobService experimentJobService;
+
+    //定时
+    @ResponseBody
+    @ApiOperation(value = "使用quartz添加jobs周期运行实验")
+    @RequestMapping(value = "/experiment/addQuartzJob", method = RequestMethod.POST)
+    public ResponseResult addQuartzJob(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
+                             @RequestParam @ApiParam(value = "cronTime") String cronTime,
+                             HttpSession httpSession) {
+        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Integer userId=46;
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("experimentId",experimentId);
+        jobDataMap.put("userId",46);
+        Map<String,Object> experimentJobmap=experimentJobService.createExperimentJob(userId,experimentId,cronTime);
+        boolean isSuccess=quartzService.addJob(QuartzExperimentJob.class,
+                experimentJobmap.get("experimentJobName").toString(),
+                experimentJobmap.get("experimentJobGroupName").toString(),
+                    cronTime,
+                    jobDataMap);
+        if(isSuccess) {
+            Map<String,Object> data=new HashMap<>(2);
+            data.put("experimentJobId",experimentJobmap.get("experimentJobId"));
+            ResponseResult responseResult = new ResponseResult(true,"001",experimentJobmap.get("message").toString());
+            responseResult.setData(data);
+            return responseResult;
+        }
+        else {
+            return new ResponseResult(true,"002","创建job失败");
+        }
+    }
+    //周期
+    @ResponseBody
+    @ApiOperation("调用jobs接口周期运行实验")
+    @RequestMapping(value = "/experiment/cycleRunExperiment", method = RequestMethod.POST)
+    public  ResponseResult cycleRunningExperiment(@RequestParam @ApiParam(value = "实验id") Integer experimentId,
+                                                  @RequestParam @ApiParam(value = "开始时间") String start_time,
+                                                  @RequestParam @ApiParam(value = "结束时间") String end_time,
+                                                  @RequestParam @ApiParam(value = "周期设置") String schedule_time,
+                                         HttpSession httpSession) throws ParseException {
+        // Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        String conversationId = UUID.randomUUID().toString();
+        ApiSchedule apiSchedule=new ApiSchedule();
+        apiSchedule.setStart_time(start_time);
+        apiSchedule.setEnd_time(end_time);
+        apiSchedule.setScheduleTime(schedule_time);
+        Map<String,Object> isSuccess=experimentJobService.startCycleRunExperment(experimentId,46,conversationId,apiSchedule);
+        //查询对应job下的running，存入数据库
+
+        if(isSuccess.get("isSuccess").equals(true)){
+            Map<String,Object> data=new HashMap<>(2);
+            data.put("experimentJobId",isSuccess.get("experimentJobId"));
+            data.put("conversationId",conversationId);
+            ResponseResult responseResult = new ResponseResult(true,"001",isSuccess.get("message").toString());
+            responseResult.setData(data);
+            return responseResult;
+        }
+        return new ResponseResult(false,"002",isSuccess.get("message").toString());
+    }
+    //仅测试get/runs接口
+    @ResponseBody
+    @ApiOperation("调用get/runs接口获取多任务下的运行")
+    @RequestMapping(value = "/experiment/getJobRunExperiment", method = RequestMethod.GET)
+    public  ResponseResult getJobRunningExperiment(@RequestParam @ApiParam(value = "多任务Id") Integer id,
+                                                  @RequestParam @ApiParam(value = "周期设置") String schedule_time,
+                                                  HttpSession httpSession) throws ParseException {
+        // Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        //首先根据多任务Id查询多任务信息
+        ExperimentJob experimentJob=experimentJobService.selectJobById(id);
+        //查询对应job下的running
+        boolean isSuccess=experimentJobService.getExperimentJobRunning(46,"JOB",//experimentJob.getCronJobTime()
+                experimentJob);
+        if(isSuccess){
+            ResponseResult responseResult = new ResponseResult(true,"001","成功查询对应job下的running");
+            return responseResult;
+        }
+        return new ResponseResult(false,"002","失败查询对应job下的running");
     }
 }

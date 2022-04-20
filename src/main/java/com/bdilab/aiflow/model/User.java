@@ -258,4 +258,10 @@ public class User {
     public void setAdministratorId(Integer administratorId) {
         this.administratorId = administratorId;
     }
+
+    public void setEmail(String email) {
+    }
+
+    public void setMobile(String mobile) {
+    }
 }

@@ -1,5 +1,6 @@
 package com.bdilab.aiflow.service.run;
 
+import com.bdilab.aiflow.model.job.ApiSchedule;
 import com.bdilab.aiflow.model.workflow.EpochInfo;
 
 import java.util.Map;
@@ -20,6 +21,8 @@ public interface RunService {
      */
     String createRun(String pipelineId, String pipelineName, Map<String,Object> parameter);
 
+    /*创建job运行*/
+    String createCycleRun(String pipelineId, String pipelineName, Map<String,Object> parameter, ApiSchedule apiSchedule);
     boolean deleteRunById(String runId);
     void pushEpochInfo(Integer experimentRunningId, EpochInfo epochInfo, String modelFilePath);
     void createModel(Integer processLogId,String modelFilePath);

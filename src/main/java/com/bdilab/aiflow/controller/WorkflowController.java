@@ -52,7 +52,8 @@ public class WorkflowController {
                                                 @RequestParam (defaultValue = "0") Integer isMl,
                                                 HttpSession httpSession
     ){
-        Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        //Integer userId = Integer.parseInt(httpSession.getAttribute("user_id").toString());
+        Integer userId=46;
         //在点击新建后立即新建一条流程记录
         //Workflow workflow = DlWorkflowService.CreateWorkflow(workflowName,tagString,workflowDesc,Integer.parseInt(httpSession.getAttribute("username").toString()));
         long t1=System.currentTimeMillis();

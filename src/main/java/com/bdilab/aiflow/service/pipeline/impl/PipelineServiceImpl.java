@@ -65,7 +65,8 @@ public class PipelineServiceImpl implements PipelineService {
             pipeline = executeTask(toBeExecutedQueue,json,pipeline,completedQueue);
         }
         System.out.println(pipeline);
-        String filePath = filePathConfig.getPipelineCodePath()+ File.separatorChar + DateUtils.getCurrentDate()+ File.separatorChar+ UUID.randomUUID()+".py";
+       // String filePath = filePathConfig.getPipelineCodePath()+ File.separatorChar + DateUtils.getCurrentDate()+ File.separatorChar+ UUID.randomUUID()+".py";
+        String filePath = "C:\\Users\\Dell\\Desktop"+ File.separatorChar + DateUtils.getCurrentDate()+ File.separatorChar+ UUID.randomUUID()+".py";
         System.out.println("py:"+filePath);
         File file = new File(filePath);
         if (!file.getParentFile().exists()) {
@@ -214,11 +215,11 @@ public class PipelineServiceImpl implements PipelineService {
             pipeline+=componentName+"_"+componentParameter.getName()+",";
         }
 
-        pipeline+="config)."+ "add_volume(k8s_client.V1Volume(name='aiflow',\n" +
+        pipeline+="config)."+ "add_volume(k8s_client.V1Volume(name='modelflow',\n" +
                 "                                                                                             nfs=k8s_client.V1NFSVolumeSource(\n" +
-                "                                                                                                 path='/nfs/aiflow/',\n" +
+                "                                                                                                 path='/nfs/modelflow/',\n" +
                 "                                                                                                 server='master'))).add_volume_mount(\n" +
-                "        k8s_client.V1VolumeMount(mount_path='/nfs/aiflow/', name='aiflow'))\n\n";
+                "        k8s_client.V1VolumeMount(mount_path='/nfs/modelflow/', name='modelflow'))\n\n";
         completedQueue.add(id);
         toBeExecutedQueue.remove(id);
         for(int i = 0;i<curRearNodeList.size();i++){
@@ -227,7 +228,7 @@ public class PipelineServiceImpl implements PipelineService {
             }
         }
         if(toBeExecutedQueue.size()==0){
-            pipeline+="    dsl.get_pipeline_conf().set_image_pull_secrets([k8s_client.V1ObjectReference(name=\"aiflow\")])\n\n\n"+"if __name__ == '__main__':\n" +
+            pipeline+="    dsl.get_pipeline_conf().set_image_pull_secrets([k8s_client.V1ObjectReference(name=\"modelflow\")])\n\n\n"+"if __name__ == '__main__':\n" +
                     "    kfp.compiler.Compiler().compile(test_pipeline, __file__ + '.yaml')\n";
         }
         return pipeline;

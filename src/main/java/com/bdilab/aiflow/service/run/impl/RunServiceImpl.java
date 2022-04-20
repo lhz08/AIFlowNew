@@ -10,6 +10,10 @@ import com.bdilab.aiflow.common.utils.JsonUtils;
 import com.bdilab.aiflow.common.utils.XmlUtils;
 import com.bdilab.aiflow.mapper.*;
 import com.bdilab.aiflow.model.*;
+import com.bdilab.aiflow.model.job.ApiJob;
+import com.bdilab.aiflow.model.job.ApiPeriodicSchedule;
+import com.bdilab.aiflow.model.job.ApiSchedule;
+import com.bdilab.aiflow.model.job.ApiTrigger;
 import com.bdilab.aiflow.model.run.ApiParameter;
 import com.bdilab.aiflow.model.run.ApiPipelineSpec;
 import com.bdilab.aiflow.model.run.ApiRun;
@@ -309,6 +313,58 @@ public class RunServiceImpl implements RunService {
         return null;
     }
 
+    @Override
+    public String createCycleRun(String pipelineId, String pipelineName, Map<String,Object> parameter, ApiSchedule apiSchedule) {
+        ApiJob apiJob = new ApiJob();
+        ApiPipelineSpec apiPipelineSpec = new ApiPipelineSpec();
+        int paramLength = parameter.size();
+        Object[] parameters = new Object[paramLength];
+        int i = 0;
+        for(Map.Entry<String,Object> entry:parameter.entrySet()){
+            ApiParameter apiParameter = new ApiParameter();
+            apiParameter.setName(entry.getKey());
+            apiParameter.setValue(entry.getValue().toString());
+            parameters[i] = apiParameter;
+            i++;
+        }
+        apiJob.setName("job");
+        apiJob.setDescription("desc");
+        apiJob.setMax_concurrency("10");
+        apiJob.setEnabled(true);
+        ApiTrigger apiTrigger = new ApiTrigger();
+        ApiPeriodicSchedule apiPeriodicSchedule = new ApiPeriodicSchedule();
+        apiPeriodicSchedule.setStart_time(apiSchedule.getStart_time());
+        apiPeriodicSchedule.setEnd_time(apiSchedule.getEnd_time());
+        apiPeriodicSchedule.setInterval_second(apiSchedule.getScheduleTime());
+        apiTrigger.setPeriodic_schedule(apiPeriodicSchedule);
+        apiJob.setTrigger(apiTrigger);
+        apiPipelineSpec.setPipelineId(pipelineId);
+        apiPipelineSpec.setPipelineName(pipelineName);
+
+        apiPipelineSpec.setParameters(parameters);
+        apiJob.setPipeline_spec(apiPipelineSpec);
+
+        Gson gson = new Gson();
+        String json = gson.toJson(apiJob);
+        System.out.println(json);
+
+        String kubeflowUrl = url+"pipeline/apis/v1beta1/jobs";
+        System.out.println("kubeflowUrl== "+kubeflowUrl);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<ApiJob> request = new HttpEntity(apiJob, (MultiValueMap)headers);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(kubeflowUrl, request, String.class, new Object[0]);
+        int statusCodeValue = responseEntity.getStatusCodeValue();
+        if (statusCodeValue == 200){
+            //获取返回结果中的运行id
+            Gson gson1 = new Gson();
+            Map<String,String> map = gson1.fromJson(responseEntity.getBody(), Map.class);
+            String jobId=map.get("id");
+            return jobId;
+        }
+        return null;
+    }
     @Override
     public boolean deleteRunById(String runId) {
 

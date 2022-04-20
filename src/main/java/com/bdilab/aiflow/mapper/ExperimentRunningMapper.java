@@ -1,12 +1,11 @@
 package com.bdilab.aiflow.mapper;
 
-import com.bdilab.aiflow.model.Experiment;
 import com.bdilab.aiflow.model.ExperimentRunning;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface ExperimentRunningMapper {
+public interface ExperimentRunningMapper  {
 
     /**
      * 插入一条实验运行记录
@@ -71,4 +70,6 @@ public interface ExperimentRunningMapper {
      * @return
      */
     Integer selectExperienceId(Integer runningId);
+
+    Boolean isExist(Integer userId,Integer fkExperimentId,Integer runningId);
 }

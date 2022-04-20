@@ -87,7 +87,9 @@ public class WorkflowServiceImpl implements WorkflowService {
         workflow.setIsMl(isMl);
         //将workflowXml存到文件里，将文件地址存入workflowXmlAddr字段
         String fileName = UUID.randomUUID()+".xml";
-        String workflowXmlAddr = filePathConfig.getWorkflowXmlFilePath() + File.separatorChar + DateUtils.getCurrentDate()+File.separatorChar+fileName;
+      //  String workflowXmlAddr = filePathConfig.getWorkflowXmlFilePath() + File.separatorChar + DateUtils.getCurrentDate()+File.separatorChar+fileName;
+        String fileaddr="C:\\Users\\Dell\\Desktop";
+        String workflowXmlAddr =fileaddr + File.separatorChar + DateUtils.getCurrentDate()+File.separatorChar+fileName;
         workflow.setWorkflowXmlAddr(XmlUtils.generateXmlFile(workflowXml,workflowXmlAddr));
         System.out.println("xml："+workflow.getWorkflowXmlAddr());
         Map<String, String> data=null;

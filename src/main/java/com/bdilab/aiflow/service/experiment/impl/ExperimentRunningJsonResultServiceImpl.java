@@ -10,6 +10,7 @@ import com.bdilab.aiflow.service.experiment.ExperimentRunningJsonResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,7 @@ import static com.bdilab.aiflow.common.utils.FileUtils.transResultCsvToJson;
 @Service
 public class ExperimentRunningJsonResultServiceImpl implements ExperimentRunningJsonResultService {
 
-    @Autowired
+    @Resource
     ExperimentRunningJsonResultMapper experimentRunningJsonResultMapper;
 
     @Autowired

@@ -69,12 +69,7 @@ public class ExperimentServiceImpl implements ExperimentService {
 
     @Value("${web.address}")
     private String webAddress;
-   /* @Value("${minio.host}")
-    private String minioHost;
-    @Value("${minio.access_key}")
-    private String minioAccessKey;
-    @Value("${minio.secret_key}")
-    private String minioSecretKey;*/
+
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
@@ -335,7 +330,6 @@ public class ExperimentServiceImpl implements ExperimentService {
         //原因：1、运行是基于实验中的参数去运行的，如果实验进行了更改，那之前存在的运行就会不一致。
         // 2、模板中的param串是从实验中拷贝过来的，如果实验修改了，那就不统一了。
         Map<Integer,String> result = new HashMap<>();
-
         //在运行表中查看，是否存在experimentId的运行
         List<ExperimentRunning> runningList = experimentRunningMapper.selectAllExperimentRunningByExperimentId(experimentId);
         //在模板表中查看，是否存在与experimentId关联的模板
